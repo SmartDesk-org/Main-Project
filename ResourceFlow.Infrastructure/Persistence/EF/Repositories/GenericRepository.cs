@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ResourceFlow.Application.Interfaces.Repositories
+namespace ResourceFlow.Infrastructure.Persistence.EF.Repositories
 {
-    internal interface IGenericRepository
+    internal class GenericRepository
     {
     }
 }
