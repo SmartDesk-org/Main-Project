@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace ResourceFlow.Domain.Entities
 {
     public class BaseEntity
     {
-
-
         public DateTime CreateAt { get; set; } = DateTime.UtcNow;
         public int CreatedBy { get; set; }
 
@@ -20,7 +19,5 @@ namespace ResourceFlow.Domain.Entities
         public int DeletedBy { get; set; }
 
         public bool IsDelete { get; set; } = false;
-
-
     }
 }

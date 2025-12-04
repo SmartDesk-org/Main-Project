@@ -9,19 +9,25 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ResourceFlow.Domain.Entities.Authntication
 {
-    public  class User
+    public class User
     {
+        public int UserId { get; set; }
 
-        public int UserId { get; set; } 
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
+
+        // hashed password
         public string PassWord { get; set; } = string.Empty;
+
         public int RoleId { get; set; }
 
         public string RefreshToken { get; set; } = string.Empty;
         public DateTime RefreshTokenExpiry { get; set; }
 
-        public Role ? Role { get; set; }
+        // for forgot password flow
+        public string? PasswordResetToken { get; set; }
+        public DateTime? PasswordResetExpiry { get; set; }
 
+        public Role? Role { get; set; }
     }
 }

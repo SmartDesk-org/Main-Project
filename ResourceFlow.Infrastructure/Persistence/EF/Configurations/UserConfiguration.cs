@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
 {
-    internal  class UserConfiguration:IEntityTypeConfiguration<User> 
+    internal class UserConfiguration : IEntityTypeConfiguration<User>
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
@@ -26,7 +26,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
                 .HasMaxLength(200);
 
             builder.HasOne(u => u.Role)
-                .WithMany(u=>u.Users)
+                .WithMany(u => u.Users)
                 .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
         }

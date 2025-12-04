@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations.SeedData
 {
-    internal  class RoleSeed:IEntityTypeConfiguration<Role>
+    internal class RoleSeed : IEntityTypeConfiguration<Role>
     {
         public void Configure(EntityTypeBuilder<Role> builder)
         {
@@ -17,7 +17,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations.SeedData
                 new Role { Id = 1, RoleName = "SuperAdmin" },
                 new Role { Id = 2, RoleName = "CompanyAdmin" },
                 new Role { Id = 3, RoleName = "Employee" }
-                );
+            );
         }
     }
 }
