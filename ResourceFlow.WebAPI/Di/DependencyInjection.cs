@@ -1,7 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ResourceFlow.Application.Interfaces.Auth;
+using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Application.Services;
+using ResourceFlow.Infrastructure.Ef.Repositories;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
+using ResourceFlow.Infrastructure.Services;
 
 namespace ResourceFlow.WebAPI.DI
 {
@@ -11,6 +16,8 @@ namespace ResourceFlow.WebAPI.DI
             this IServiceCollection services,
             IConfiguration configuration)
         {
+
+
             // Register Database Context
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"))
@@ -18,15 +25,19 @@ namespace ResourceFlow.WebAPI.DI
 
 
 
-            // Register Repositories
+            // Repositories
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IAuthRepository, AuthRepository>();
 
-            // Add all your repositories here...
 
+            // Services
+            services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IEmailService, EmailService>();
 
+            //Automapper
 
-            // Register Services
-
-            // Add all your services here...
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
 
