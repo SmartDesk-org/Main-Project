@@ -4,9 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace ResourceFlow.Application.DTOs.Auth
 {
-    internal class RegisterRequestDto
+    public class RegisterRequestDto
     {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public int RoleId { get; set; } = 3; // default Employee
     }
 }
+

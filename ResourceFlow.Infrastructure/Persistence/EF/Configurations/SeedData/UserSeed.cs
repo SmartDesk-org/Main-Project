@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations.SeedData
 {
-    internal class UserSeed:IEntityTypeConfiguration<User>
+    internal class UserSeed : IEntityTypeConfiguration<User>
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
             string password = BCrypt.Net.BCrypt.HashPassword("123456");
             builder.HasData(
-                new User {UserId=1, Email="suhailpalakkal1@gmail.com",PassWord=password,RoleId=1}
-                );
+                new User { UserId = 1, Email = "suhailpalakkal1@gmail.com", PassWord = password, RoleId = 1 }
+            );
         }
     }
 }

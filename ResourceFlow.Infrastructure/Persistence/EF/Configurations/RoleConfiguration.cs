@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
 {
-    internal class RoleConfiguration
+    internal class RoleConfiguration : IEntityTypeConfiguration<Role>
     {
         public void Configure(EntityTypeBuilder<Role> builder)
         {
