@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
@@ -11,9 +12,11 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251204115039_EmployeesTable")]
+    partial class EmployeesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,7 +60,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
 
                     b.HasData(
                         new
@@ -131,12 +134,6 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<DateTime?>("PasswordResetExpiry")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("PasswordResetToken")
-                        .HasColumnType("text");
-
                     b.Property<string>("RefreshToken")
                         .IsRequired()
                         .HasColumnType("text");
@@ -161,7 +158,6 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                             CreatedBy = 0,
                             DeletedBy = 0,
                             Email = "suhailpalakkal1@gmail.com",
-
                             IsDelete = false,
                             ModifiedBy = 0,
                             PassWord = "$2a$11$/QU3kBonqYcb2z7uOzl8Be/5SM/uqKrI8mXghCnjQgxg5fUrpA93G",

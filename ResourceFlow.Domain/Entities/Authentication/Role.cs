@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ResourceFlow.Domain.Entities;
 
-namespace ResourceFlow.Domain.Entities.Authntication
+namespace ResourceFlow.Domain.Entities.Authentication
 {
     public class Role : BaseEntity
     {
