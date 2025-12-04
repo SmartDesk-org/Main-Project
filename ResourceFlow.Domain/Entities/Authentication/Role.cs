@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ResourceFlow.Domain.Entities.Authntication
+namespace ResourceFlow.Domain.Entities.Authentication
 {
     public  class Role:BaseEntity
     {
