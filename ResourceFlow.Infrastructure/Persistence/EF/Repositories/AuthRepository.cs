@@ -5,7 +5,7 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 
 namespace ResourceFlow.Infrastructure.Ef.Repositories
 {
-    public class AuthRepository
+    public class AuthRepository:IAuthRepository
     {
         private readonly AppDbContext _db;
         public AuthRepository(AppDbContext db) { _db = db; }

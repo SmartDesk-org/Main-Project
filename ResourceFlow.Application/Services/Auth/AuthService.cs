@@ -2,26 +2,29 @@
 using ResourceFlow.Application.Interfaces.Auth;
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Domain.Entities.Authntication;
-using ResourceFlow.Infrastructure.Ef.Repositories;
-using BCrypt.Net;
+using System.Security.Cryptography;
+using Microsoft.Extensions.Configuration;
+using AutoMapper;
 
 namespace ResourceFlow.Application.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly GenericRepository<User> _userRepo;
-        private readonly AuthRepository _authRepo;
-        private readonly JwtService _jwtService;
+        private readonly IGenericRepository<User> _userRepo;
+        private readonly IAuthRepository _authRepo;
+        private readonly IMapper _mapper;
+        private readonly IJwtService _jwtService;
         private readonly IConfiguration _config;
-        private readonly IEmailService? _emailService;
+        private readonly IEmailService _emailService;
 
-        public AuthService(GenericRepository<User> userRepo, AuthRepository authRepo, JwtService jwtService, IConfiguration config, IEmailService? emailService = null)
+        public AuthService(IGenericRepository<User> userRepo, IAuthRepository authRepo, IJwtService jwtService, IConfiguration config, IEmailService emailService,IMapper mapper)
         {
             _userRepo = userRepo;
             _authRepo = authRepo;
             _jwtService = jwtService;
             _config = config;
             _emailService = emailService;
+            _mapper = mapper;
         }
 
         public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto dto)
@@ -29,12 +32,14 @@ namespace ResourceFlow.Application.Services
             var existing = await _userRepo.SingleOrDefaultAsync(u => u.Email == dto.Email);
             if (existing != null) throw new Exception("Email already registered");
 
-            var user = new User
-            {
-                Email = dto.Email,
-                PassWord = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                RoleId = dto.RoleId
-            };
+            //var user = new User
+            //{
+            //    Email = dto.Email,
+            //    PassWord = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+            //    RoleId = dto.RoleId
+            //};
+
+            var user = _mapper.Map<User>(dto);
 
             await _userRepo.AddAsync(user);
 
@@ -42,6 +47,7 @@ namespace ResourceFlow.Application.Services
             var refresh = _jwtService.GenerateRefreshToken();
             user.RefreshToken = refresh;
             user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
             await _userRepo.UpdateAsync(user);
 
             return new AuthResponseDto
@@ -52,6 +58,7 @@ namespace ResourceFlow.Application.Services
                 RefreshTokenExpiry = user.RefreshTokenExpiry,
                 Email = user.Email
             };
+
         }
 
         public async Task<AuthResponseDto> LoginAsync(LoginRequestDto dto)
@@ -123,7 +130,7 @@ namespace ResourceFlow.Application.Services
             var frontendUrl = _config["Frontend:BaseUrl"] ?? "http://localhost:4200";
             var resetLink = $"{frontendUrl}/reset-password?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(email)}";
 
-            // send email (if email service configured)
+            //send email(if email service configured)
             if (_emailService != null)
             {
                 var html = $"Click to reset your password: <a href=\"{resetLink}\">{resetLink}</a>";

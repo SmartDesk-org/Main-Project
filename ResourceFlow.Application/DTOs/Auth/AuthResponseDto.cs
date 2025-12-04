@@ -14,6 +14,11 @@ namespace ResourceFlow.Application.DTOs.Auth
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiry { get; set; }
         public string Email { get; set; } = string.Empty;
+
+        public string Role { get; set; } = string.Empty;
+
+        public bool IsDeleted { get; set; } = false;
+
     }
 }
 

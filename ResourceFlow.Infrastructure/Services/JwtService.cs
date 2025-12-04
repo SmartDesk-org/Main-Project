@@ -1,13 +1,15 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using ResourceFlow.Application.Interfaces.Auth;
 using ResourceFlow.Domain.Entities.Authntication;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace ResourceFlow.Infrastructure.Services
 {
-    public class JwtService
+    public class JwtService:IJwtService
     {
         private readonly IConfiguration _config;
         public JwtService(IConfiguration config)
