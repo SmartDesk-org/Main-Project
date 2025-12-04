@@ -1,10 +1,10 @@
 ﻿using ResourceFlow.Application.DTOs.Auth;
 using ResourceFlow.Application.Interfaces.Auth;
 using ResourceFlow.Application.Interfaces.Repositories;
-using ResourceFlow.Domain.Entities.Authntication;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
 using AutoMapper;
+using ResourceFlow.Domain.Entities.Authentication;
 
 namespace ResourceFlow.Application.Services
 {

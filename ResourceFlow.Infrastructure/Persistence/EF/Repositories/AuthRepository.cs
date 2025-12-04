@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ResourceFlow.Application.Interfaces.Repositories;
-using ResourceFlow.Domain.Entities.Authntication;
+using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 
 namespace ResourceFlow.Infrastructure.Ef.Repositories
