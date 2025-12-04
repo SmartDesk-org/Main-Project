@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ResourceFlow.Domain.Entities.Authntication;
+using ResourceFlow.Domain.Entities.Authentication;
 using System;
 using System.Collections.Generic;
 using System.Linq;
