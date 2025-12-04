@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
@@ -11,9 +12,11 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251204111254_CompanyDetailsTableAdded")]
+    partial class CompanyDetailsTableAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,7 +24,6 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
 
             modelBuilder.Entity("CompanyDetails", b =>
                 {
@@ -103,13 +105,12 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-
                             CreateAt = new DateTime(2025, 12, 4, 11, 12, 54, 212, DateTimeKind.Utc).AddTicks(7599),
                             CreatedBy = 0,
                             DeletedBy = 0,
@@ -120,7 +121,6 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 2,
-
                             CreateAt = new DateTime(2025, 12, 4, 11, 12, 54, 212, DateTimeKind.Utc).AddTicks(7604),
                             CreatedBy = 0,
                             DeletedBy = 0,
@@ -131,7 +131,6 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 3,
-
                             CreateAt = new DateTime(2025, 12, 4, 11, 12, 54, 212, DateTimeKind.Utc).AddTicks(7605),
                             CreatedBy = 0,
                             DeletedBy = 0,
@@ -141,7 +140,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authentication.User", b =>
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authntication.User", b =>
                 {
                     b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
@@ -149,42 +148,15 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserId"));
 
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("DeletedBy")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<bool>("IsDelete")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ModifiedBy")
-                        .HasColumnType("integer");
-
                     b.Property<string>("PassWord")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
-
-                    b.Property<DateTime?>("PasswordResetExpiry")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("PasswordResetToken")
-                        .HasColumnType("text");
 
                     b.Property<string>("RefreshToken")
                         .IsRequired()
@@ -206,72 +178,17 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             UserId = 1,
-                            CreateAt = new DateTime(2025, 12, 4, 11, 50, 38, 303, DateTimeKind.Utc).AddTicks(5386),
-                            CreatedBy = 0,
-                            DeletedBy = 0,
                             Email = "suhailpalakkal1@gmail.com",
-
+                            PassWord = "$2a$11$xvfnrfxwFOswrN510yUoQO3dm1CHiLcVZAYMbi7ljTR14.8LhVf/a",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1
                         });
                 });
 
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.CompanyModels.Employees", b =>
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authntication.User", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("DefaultFloorId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("DeletedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Department")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsDelete")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ModifiedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Status")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0);
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Employees", (string)null);
-                });
-
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authentication.User", b =>
-                {
-                    b.HasOne("ResourceFlow.Domain.Entities.Authentication.Role", "Role")
+                    b.HasOne("ResourceFlow.Domain.Entities.Authntication.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -280,7 +197,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authentication.Role", b =>
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authntication.Role", b =>
                 {
                     b.Navigation("Users");
                 });
