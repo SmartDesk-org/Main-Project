@@ -23,6 +23,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
         public DbSet<Employees> Employees { get; set; }
         public DbSet<CompanyDetails> CompanyDetails { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<Billing> Billing { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());

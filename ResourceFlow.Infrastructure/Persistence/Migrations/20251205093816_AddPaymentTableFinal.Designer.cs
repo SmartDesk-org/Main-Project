@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
@@ -11,9 +12,11 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251205093816_AddPaymentTableFinal")]
+    partial class AddPaymentTableFinal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,82 +24,6 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Billing", b =>
-                {
-                    b.Property<int>("BillingId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BillingId"));
-
-                    b.Property<DateTime>("BillingDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CompanySubscriptionId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("DeletedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("InvoiceNumber")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<bool>("IsDelete")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ModifiedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("PaymentStatus")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<DateTime>("SubscriptionEndDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("SubscriptionId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("SubscriptionStartDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<string>("TransactionId")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.HasKey("BillingId");
-
-                    b.HasIndex("CompanyId");
-
-                    b.ToTable("Billing", (string)null);
-                });
 
             modelBuilder.Entity("CompanyDetails", b =>
                 {
@@ -143,107 +70,6 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                     b.ToTable("CompanyDetails", (string)null);
                 });
 
-            modelBuilder.Entity("Notification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("CompanyId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("DeletedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsDelete")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsRead")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
-                    b.Property<bool>("IsSent")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ModifiedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("NotificationType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<DateTime?>("ReadAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ReferenceId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ReferenceType")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<int>("RetryCount")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0);
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("SentAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("TargetChannel")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Notifications", (string)null);
-                });
-
             modelBuilder.Entity("ResourceFlow.Domain.Entities.Authentication.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -285,7 +111,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 1,
-                            CreateAt = new DateTime(2025, 12, 5, 10, 19, 51, 32, DateTimeKind.Utc).AddTicks(1588),
+                            CreateAt = new DateTime(2025, 12, 5, 9, 38, 15, 930, DateTimeKind.Utc).AddTicks(5547),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             IsDelete = false,
@@ -295,7 +121,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 2,
-                            CreateAt = new DateTime(2025, 12, 5, 10, 19, 51, 32, DateTimeKind.Utc).AddTicks(1591),
+                            CreateAt = new DateTime(2025, 12, 5, 9, 38, 15, 930, DateTimeKind.Utc).AddTicks(5550),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             IsDelete = false,
@@ -305,7 +131,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 3,
-                            CreateAt = new DateTime(2025, 12, 5, 10, 19, 51, 32, DateTimeKind.Utc).AddTicks(1592),
+                            CreateAt = new DateTime(2025, 12, 5, 9, 38, 15, 930, DateTimeKind.Utc).AddTicks(5552),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             IsDelete = false,
@@ -379,13 +205,13 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             UserId = 1,
-                            CreateAt = new DateTime(2025, 12, 5, 10, 19, 51, 360, DateTimeKind.Utc).AddTicks(298),
+                            CreateAt = new DateTime(2025, 12, 5, 9, 38, 16, 246, DateTimeKind.Utc).AddTicks(1761),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             Email = "suhailpalakkal1@gmail.com",
                             IsDelete = false,
                             ModifiedBy = 0,
-                            PassWord = "$2a$11$gt9fJ3gr55S29v9qaGSHTewNfIWxzcxZby.d.lJRNzRuhOmzCdy6G",
+                            PassWord = "$2a$11$Rr/5CQY3xIfUQdYNVDc5s.5yqJg71fDiI38SJxYmqD1AOm14Z5A6u",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1
@@ -500,42 +326,6 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("Payments", (string)null);
-                });
-
-            modelBuilder.Entity("Billing", b =>
-                {
-                    b.HasOne("CompanyDetails", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Company");
-                });
-
-            modelBuilder.Entity("Notification", b =>
-                {
-                    b.HasOne("CompanyDetails", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("ResourceFlow.Domain.Entities.Authentication.Role", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ResourceFlow.Domain.Entities.Authentication.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Company");
-
-                    b.Navigation("Role");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.Authentication.User", b =>
