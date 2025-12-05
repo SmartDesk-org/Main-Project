@@ -1,4 +1,5 @@
 
+
 ﻿using ResourceFlow.Domain.Entities.CompanyModels;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-
 ﻿using System.ComponentModel.DataAnnotations;
-
 
 namespace ResourceFlow.Domain.Entities.Authentication
 {
@@ -26,8 +25,6 @@ namespace ResourceFlow.Domain.Entities.Authentication
         public DateTime RefreshTokenExpiry { get; set; }
         public string? PasswordResetToken { get; set; }
         public DateTime? PasswordResetExpiry { get; set; }
-
-
         public Roles? Role { get; set; }
         public virtual Employees? Employee { get; set; }
 
@@ -35,6 +32,7 @@ namespace ResourceFlow.Domain.Entities.Authentication
         public bool IsActive { get; set; } = true;
         
         public CompanyDetails? Company { get; set; }
+      
 
     }
 }

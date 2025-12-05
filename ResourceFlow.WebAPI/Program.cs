@@ -3,10 +3,9 @@ using Microsoft.IdentityModel.Tokens;
 using ResourceFlow.WebAPI.DI;
 
 
-using System.Text;
-
 
 using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +49,7 @@ var app = builder.Build();
 
 
 
+
  //builder.Services.AddProjectServices(builder.Configuration);
 
 // builder.Services.AddApplication();
@@ -58,6 +58,7 @@ var app = builder.Build();
 
 
 // Configure the HTTP request pipeline. 
+
 
 if (app.Environment.IsDevelopment())
 {

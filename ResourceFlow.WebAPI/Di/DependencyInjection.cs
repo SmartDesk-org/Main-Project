@@ -16,14 +16,10 @@ namespace ResourceFlow.WebAPI.DI
             this IServiceCollection services,
             IConfiguration configuration)
         {
-
-
             // Register Database Context
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"))
             );
-
-
 
             // Repositories
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -36,11 +32,7 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IEmailService, EmailService>();
 
             //Automapper
-
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-
-
             return services;
         }
     }

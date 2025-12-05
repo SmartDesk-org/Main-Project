@@ -1,24 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using System.Text.Json.Serialization;
 
 namespace ResourceFlow.Application.DTOs.Auth
 {
     public class AuthResponseDto
     {
-        public string AccessToken { get; set; } = string.Empty;
-        public DateTime AccessTokenExpiry { get; set; }
+        public int StatusCode { get; set; }
+        public string Message { get; set; } = string.Empty;
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? AccessToken { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? RefreshToken { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public DateTime? AccessTokenExpiry { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public DateTime? RefreshTokenExpiry { get; set; }
-        public string Email { get; set; } = string.Empty;
 
-        public string Role { get; set; } = string.Empty;
+        public AuthResponseDto(int statusCode, string message)
+        {
+            StatusCode = statusCode;
+            Message = message;
+        }
 
-        public bool IsDeleted { get; set; } = false;
-
+        public AuthResponseDto(int statusCode, string message, string accessToken, string refreshToken)
+        {
+            StatusCode = statusCode;
+            Message = message;
+            AccessToken = accessToken;
+            RefreshToken = refreshToken;
+        }
     }
 }
-

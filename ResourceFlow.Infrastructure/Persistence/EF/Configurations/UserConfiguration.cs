@@ -33,6 +33,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
                 .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+
             builder.HasOne(u=>u.Employee)
                 .WithOne(u=>u.User)
                 .HasForeignKey<Employees>(u=>u.UserId)
