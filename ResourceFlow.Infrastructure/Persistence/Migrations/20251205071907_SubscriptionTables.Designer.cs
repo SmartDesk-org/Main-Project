@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
@@ -11,9 +12,11 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251205071907_SubscriptionTables")]
+    partial class SubscriptionTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -108,7 +111,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 1,
-                            CreateAt = new DateTime(2025, 12, 5, 10, 40, 32, 801, DateTimeKind.Utc).AddTicks(8517),
+                            CreateAt = new DateTime(2025, 12, 5, 7, 19, 6, 571, DateTimeKind.Utc).AddTicks(7300),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             IsDelete = false,
@@ -118,7 +121,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 2,
-                            CreateAt = new DateTime(2025, 12, 5, 10, 40, 32, 801, DateTimeKind.Utc).AddTicks(8527),
+                            CreateAt = new DateTime(2025, 12, 5, 7, 19, 6, 571, DateTimeKind.Utc).AddTicks(7304),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             IsDelete = false,
@@ -128,7 +131,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 3,
-                            CreateAt = new DateTime(2025, 12, 5, 10, 40, 32, 801, DateTimeKind.Utc).AddTicks(8529),
+                            CreateAt = new DateTime(2025, 12, 5, 7, 19, 6, 571, DateTimeKind.Utc).AddTicks(7305),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             IsDelete = false,
@@ -202,13 +205,13 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             UserId = 1,
-                            CreateAt = new DateTime(2025, 12, 5, 10, 40, 33, 161, DateTimeKind.Utc).AddTicks(268),
+                            CreateAt = new DateTime(2025, 12, 5, 7, 19, 6, 890, DateTimeKind.Utc).AddTicks(6479),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             Email = "suhailpalakkal1@gmail.com",
                             IsDelete = false,
                             ModifiedBy = 0,
-                            PassWord = "$2a$11$GKvVXYiqTUe/7J5bLF1cyOqoMxX1cE54GmGfKJldxRhu8kcwZmiNq",
+                            PassWord = "$2a$11$sfi7K5RJB8KtYADhnnJ8lu9.q9Gd2KRgAZAVNFu/l/1n1tbDeEtEy",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1
@@ -264,73 +267,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CompanyId");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
                     b.ToTable("Employees", (string)null);
-                });
-
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.CompanySubscription", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("DeletedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.Property<bool>("IsDelete")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ModifiedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SubscriptionId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
-
-                    b.HasIndex("SubscriptionId");
-
-                    b.ToTable("CompanySubscription", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_CompanySubscription_ValidDates", "\"EndDate\" > \"StartDate\"");
-                        });
                 });
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.Resource", b =>
@@ -341,31 +278,10 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("DeletedBy")
-                        .HasColumnType("integer");
-
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
-
-                    b.Property<bool>("IsDelete")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ModifiedBy")
-                        .HasColumnType("integer");
 
                     b.Property<string>("ResourceName")
                         .IsRequired()
@@ -385,31 +301,10 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("DeletedBy")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
-
-                    b.Property<bool>("IsDelete")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ModifiedBy")
-                        .HasColumnType("integer");
 
                     b.Property<double>("PriceMonthly")
                         .HasColumnType("double precision");
@@ -443,60 +338,15 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.CompanyModels.Employees", b =>
-                {
-                    b.HasOne("CompanyDetails", "Company")
-                        .WithMany("Employees")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ResourceFlow.Domain.Entities.Authentication.User", "User")
-                        .WithOne("Employee")
-                        .HasForeignKey("ResourceFlow.Domain.Entities.CompanyModels.Employees", "UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Company");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.CompanySubscription", b =>
-                {
-                    b.HasOne("CompanyDetails", "Company")
-                        .WithMany("CompanySubscriptions")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ResourceFlow.Domain.Entities.SubscriptionModels.Subscriptions", "Subscription")
-                        .WithMany("CompanySubscriptions")
-                        .HasForeignKey("SubscriptionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Company");
-
-                    b.Navigation("Subscription");
-                });
-
             modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.Subscriptions", b =>
                 {
                     b.HasOne("ResourceFlow.Domain.Entities.SubscriptionModels.Resource", "Resource")
                         .WithMany("Subscriptions")
                         .HasForeignKey("ResourceId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Resource");
-                });
-
-            modelBuilder.Entity("CompanyDetails", b =>
-                {
-                    b.Navigation("CompanySubscriptions");
-
-                    b.Navigation("Employees");
                 });
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.Authentication.Roles", b =>
@@ -504,19 +354,9 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authentication.User", b =>
-                {
-                    b.Navigation("Employee");
-                });
-
             modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.Resource", b =>
                 {
                     b.Navigation("Subscriptions");
-                });
-
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.Subscriptions", b =>
-                {
-                    b.Navigation("CompanySubscriptions");
                 });
 #pragma warning restore 612, 618
         }

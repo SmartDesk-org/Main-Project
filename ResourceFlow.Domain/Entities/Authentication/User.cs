@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ResourceFlow.Domain.Entities.CompanyModels;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -29,6 +30,7 @@ namespace ResourceFlow.Domain.Entities.Authentication
         public string? PasswordResetToken { get; set; }
         public DateTime? PasswordResetExpiry { get; set; }
 
-        public Role? Role { get; set; }
+        public Roles? Role { get; set; }
+        public virtual Employees? Employee { get; set; }
     }
 }

@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations.SeedData
 {
-    internal class RoleSeed : IEntityTypeConfiguration<Role>
+    internal class RoleSeed : IEntityTypeConfiguration<Roles>
     {
-        public void Configure(EntityTypeBuilder<Role> builder)
+        public void Configure(EntityTypeBuilder<Roles> builder)
         {
             builder.HasData(
-                new Role { Id = 1, RoleName = "SuperAdmin" },
-                new Role { Id = 2, RoleName = "CompanyAdmin" },
-                new Role { Id = 3, RoleName = "Employee" }
+                new Roles { Id = 1, RoleName = "SuperAdmin" },
+                new Roles { Id = 2, RoleName = "CompanyAdmin" },
+                new Roles { Id = 3, RoleName = "Employee" }
             );
         }
     }

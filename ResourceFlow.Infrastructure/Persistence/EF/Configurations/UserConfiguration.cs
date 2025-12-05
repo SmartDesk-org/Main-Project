@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ResourceFlow.Domain.Entities.Authentication;
+using ResourceFlow.Domain.Entities.CompanyModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +30,11 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
                 .WithMany(u => u.Users)
                 .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(u=>u.Employee)
+                .WithOne(u=>u.User)
+                .HasForeignKey<Employees>(u=>u.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
         }
     }
 }

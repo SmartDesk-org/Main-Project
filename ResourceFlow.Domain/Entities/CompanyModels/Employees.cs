@@ -1,4 +1,5 @@
-﻿using ResourceFlow.Domain.Enums;
+﻿using ResourceFlow.Domain.Entities.Authentication;
+using ResourceFlow.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +14,10 @@ namespace ResourceFlow.Domain.Entities.CompanyModels
         public int UserId { get; set; }
         public int CompanyId { get; set; }
         public int DefaultFloorId { get; set; }
-        public string Department {  get; set; }
+        public string Department { get; set; }
         public EmployeeStatus Status { get; set; }
+        public virtual User User { get; set; } 
+        public virtual CompanyDetails Company { get; set; } 
 
-        
     }
 }
