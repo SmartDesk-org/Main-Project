@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
@@ -11,9 +12,11 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251205114106_UpdatedUserTable")]
+    partial class UpdatedUserTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -285,7 +288,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 1,
-                            CreateAt = new DateTime(2025, 12, 5, 12, 16, 52, 176, DateTimeKind.Utc).AddTicks(1109),
+                            CreateAt = new DateTime(2025, 12, 5, 11, 41, 4, 990, DateTimeKind.Utc).AddTicks(1180),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             IsDelete = false,
@@ -295,7 +298,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 2,
-                            CreateAt = new DateTime(2025, 12, 5, 12, 16, 52, 176, DateTimeKind.Utc).AddTicks(1117),
+                            CreateAt = new DateTime(2025, 12, 5, 11, 41, 4, 990, DateTimeKind.Utc).AddTicks(1184),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             IsDelete = false,
@@ -305,7 +308,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 3,
-                            CreateAt = new DateTime(2025, 12, 5, 12, 16, 52, 176, DateTimeKind.Utc).AddTicks(1118),
+                            CreateAt = new DateTime(2025, 12, 5, 11, 41, 4, 990, DateTimeKind.Utc).AddTicks(1186),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             IsDelete = false,
@@ -341,12 +344,6 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsBlocked")
-                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsDelete")
                         .HasColumnType("boolean");
@@ -395,15 +392,13 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             UserId = 1,
-                            CreateAt = new DateTime(2025, 12, 5, 12, 16, 52, 498, DateTimeKind.Utc).AddTicks(8634),
+                            CreateAt = new DateTime(2025, 12, 5, 11, 41, 5, 284, DateTimeKind.Utc).AddTicks(841),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             Email = "suhailpalakkal1@gmail.com",
-                            IsActive = true,
-                            IsBlocked = false,
                             IsDelete = false,
                             ModifiedBy = 0,
-                            PassWord = "$2a$11$33XKVlF1t9K8WeJPUILOrO7lBg/enw113epErVqVqyue49tnlHUYm",
+                            PassWord = "$2a$11$VMyEXLh3.rs/b5BlUaBu9ORdwHPT4oQXBfu2U52Mtw4/aqBzmab8S",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1,

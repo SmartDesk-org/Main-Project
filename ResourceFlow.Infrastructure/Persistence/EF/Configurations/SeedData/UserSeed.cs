@@ -15,7 +15,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations.SeedData
         {
             string password = BCrypt.Net.BCrypt.HashPassword("123456");
             builder.HasData(
-                new User { UserId = 1, Email = "suhailpalakkal1@gmail.com", PassWord = password, RoleId = 1 }
+                new User { UserId = 1,UserName="Suhail", Email = "suhailpalakkal1@gmail.com", PassWord = password, RoleId = 1 }
             );
         }
     }

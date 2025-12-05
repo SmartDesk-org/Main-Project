@@ -12,7 +12,10 @@ namespace ResourceFlow.WebAPI.Controllers
     {
         private readonly IAuthService _auth;
 
-        public AuthController(IAuthService auth) { _auth = auth; }
+        public AuthController(IAuthService auth) 
+        {
+            _auth = auth;
+        }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto dto)
@@ -21,7 +24,6 @@ namespace ResourceFlow.WebAPI.Controllers
             {
                 var res = await _auth.RegisterAsync(dto);
 
-                // set refresh token as httpOnly cookie
                 if (!string.IsNullOrEmpty(res.RefreshToken))
                 {
                     Response.Cookies.Append("refreshToken", res.RefreshToken, new CookieOptions
@@ -33,11 +35,11 @@ namespace ResourceFlow.WebAPI.Controllers
                     });
                 }
 
-                return Ok(res);
+                return StatusCode(res.StatusCode,res);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
@@ -59,11 +61,11 @@ namespace ResourceFlow.WebAPI.Controllers
                     });
                 }
 
-                return Ok(res);
+                return StatusCode(res.StatusCode,res);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
@@ -86,7 +88,7 @@ namespace ResourceFlow.WebAPI.Controllers
                 Expires = res.RefreshTokenExpiry
             });
 
-            return Ok(res);
+            return StatusCode(res.StatusCode,res);
         }
 
         [Authorize]
@@ -114,7 +116,7 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             var ok = await _auth.ResetPasswordAsync(dto);
             if (!ok) return BadRequest(new { message = "Invalid token or expired" });
-            return Ok(new { message = "Password reset success" });
+            return StatusCode(200, new { message = "Password reset successful" });
         }
     }
 }
