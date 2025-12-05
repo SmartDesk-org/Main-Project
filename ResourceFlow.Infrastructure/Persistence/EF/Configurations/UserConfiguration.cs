@@ -20,21 +20,31 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
 
             builder.Property(u => u.Email)
                 .IsRequired()
-                .HasMaxLength(200);
+                .HasMaxLength(100);
 
+            builder.Property(u => u.UserName)
+                .IsRequired()
+                .HasMaxLength(50);
             builder.Property(u => u.PassWord)
                 .IsRequired()
-                .HasMaxLength(200);
-
+                .HasMaxLength(260);
             builder.HasOne(u => u.Role)
                 .WithMany(u => u.Users)
                 .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasOne(u=>u.Employee)
                 .WithOne(u=>u.User)
                 .HasForeignKey<Employees>(u=>u.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
             
+
+            builder.HasOne(u => u.Company)
+                .WithMany(c => c.Users)
+                .HasForeignKey(u => u.CompanyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
         }
     }
 }

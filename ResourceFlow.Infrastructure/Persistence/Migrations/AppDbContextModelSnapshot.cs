@@ -22,6 +22,84 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+
+            modelBuilder.Entity("Billing", b =>
+                {
+                    b.Property<int>("BillingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BillingId"));
+
+                    b.Property<DateTime>("BillingDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CompanySubscriptionId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DeletedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("InvoiceNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("SubscriptionEndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SubscriptionId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("SubscriptionStartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("TransactionId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("BillingId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("Billing", (string)null);
+                });
+
+
             modelBuilder.Entity("CompanyDetails", b =>
                 {
                     b.Property<int>("CompanyId")
@@ -67,7 +145,111 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                     b.ToTable("CompanyDetails", (string)null);
                 });
 
+
             modelBuilder.Entity("ResourceFlow.Domain.Entities.Authentication.Roles", b =>
+
+            modelBuilder.Entity("Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DeletedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsSent")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("NotificationType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("ReferenceId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReferenceType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("RetryCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("TargetChannel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications", (string)null);
+                }));
+
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authentication.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -108,7 +290,11 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 1,
-                            CreateAt = new DateTime(2025, 12, 5, 10, 40, 32, 801, DateTimeKind.Utc).AddTicks(8517),
+
+                            
+
+                            CreateAt = new DateTime(2025, 12, 5, 12, 16, 52, 176, DateTimeKind.Utc).AddTicks(1109),
+
                             CreatedBy = 0,
                             DeletedBy = 0,
                             IsDelete = false,
@@ -118,7 +304,11 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 2,
-                            CreateAt = new DateTime(2025, 12, 5, 10, 40, 32, 801, DateTimeKind.Utc).AddTicks(8527),
+
+                           
+
+                            CreateAt = new DateTime(2025, 12, 5, 12, 16, 52, 176, DateTimeKind.Utc).AddTicks(1117),
+
                             CreatedBy = 0,
                             DeletedBy = 0,
                             IsDelete = false,
@@ -128,7 +318,9 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = 3,
-                            CreateAt = new DateTime(2025, 12, 5, 10, 40, 32, 801, DateTimeKind.Utc).AddTicks(8529),
+
+                            CreateAt = new DateTime(2025, 12, 5, 12, 16, 52, 176, DateTimeKind.Utc).AddTicks(1118),
+
                             CreatedBy = 0,
                             DeletedBy = 0,
                             IsDelete = false,
@@ -145,6 +337,9 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserId"));
 
+                    b.Property<int?>("CompanyId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -159,8 +354,14 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsBlocked")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsDelete")
                         .HasColumnType("boolean");
@@ -173,8 +374,8 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("PassWord")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)");
 
                     b.Property<DateTime?>("PasswordResetExpiry")
                         .HasColumnType("timestamp with time zone");
@@ -192,7 +393,14 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.HasKey("UserId");
+
+                    b.HasIndex("CompanyId");
 
                     b.HasIndex("RoleId");
 
@@ -202,16 +410,20 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         new
                         {
                             UserId = 1,
-                            CreateAt = new DateTime(2025, 12, 5, 10, 40, 33, 161, DateTimeKind.Utc).AddTicks(268),
+                            
+                            CreateAt = new DateTime(2025, 12, 5, 12, 16, 52, 498, DateTimeKind.Utc).AddTicks(8634),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             Email = "suhailpalakkal1@gmail.com",
+                            IsActive = true,
+                            IsBlocked = false,
                             IsDelete = false,
                             ModifiedBy = 0,
-                            PassWord = "$2a$11$GKvVXYiqTUe/7J5bLF1cyOqoMxX1cE54GmGfKJldxRhu8kcwZmiNq",
+                            PassWord = "$2a$11$33XKVlF1t9K8WeJPUILOrO7lBg/enw113epErVqVqyue49tnlHUYm",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            RoleId = 1
+                            RoleId = 1,
+                            UserName = "Suhail"
                         });
                 });
 
@@ -273,12 +485,17 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.CompanySubscription", b =>
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.Finance.Payment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+
+                    b.Property<double>("Amount")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("CompanyId")
                         .HasColumnType("integer");
@@ -311,15 +528,27 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("ModifiedBy")
                         .HasColumnType("integer");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<int>("SubscriptionId")
                         .HasColumnType("integer");
+
+
+                    b.Property<string>("TransactionId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
 
@@ -331,7 +560,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         {
                             t.HasCheckConstraint("CK_CompanySubscription_ValidDates", "\"EndDate\" > \"StartDate\"");
                         });
-                });
+                }));
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.Resource", b =>
                 {
@@ -430,15 +659,61 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                     b.HasIndex("ResourceId");
 
                     b.ToTable("Subscriptions");
+                    b.ToTable("Payments", (string)null);
+                });
+
+            modelBuilder.Entity("Billing", b =>
+                {
+                    b.HasOne("CompanyDetails", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("Notification", b =>
+                {
+                    b.HasOne("CompanyDetails", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ResourceFlow.Domain.Entities.Authentication.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ResourceFlow.Domain.Entities.Authentication.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.Authentication.User", b =>
                 {
-                    b.HasOne("ResourceFlow.Domain.Entities.Authentication.Roles", "Role")
+                    b.HasOne("ResourceFlow.Domain.Entities.Authentication.Roles", "Role");
+
+                    b.HasOne("CompanyDetails", "Company")
+                        .WithMany("Users")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ResourceFlow.Domain.Entities.Authentication.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Company");
 
                     b.Navigation("Role");
                 });
@@ -446,7 +721,12 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("ResourceFlow.Domain.Entities.CompanyModels.Employees", b =>
                 {
                     b.HasOne("CompanyDetails", "Company")
-                        .WithMany("Employees")
+                        .WithMany("Employees");
+
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.Finance.Payment", b =>
+                {
+                    b.HasOne("CompanyDetails", "Company")
+                        .WithMany()
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -490,6 +770,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Resource");
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("CompanyDetails", b =>
@@ -500,6 +781,10 @@ namespace ResourceFlow.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.Authentication.Roles", b =>
+                    b.Navigation("Users"));
+                });
+
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authentication.Role", b =>
                 {
                     b.Navigation("Users");
                 });
