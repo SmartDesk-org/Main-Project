@@ -12,12 +12,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
-    <Folder Include="Persistence\EF\Context\" />
     <Folder Include="Persistence\EF\Configurations\" />
     <Folder Include="Persistence\EF\Migrations\" />
-    <Folder Include="Persistence\EF\Repositories\" />
     <Folder Include="Persistence\Dapper\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.21" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
   </ItemGroup>
 
 </Project>

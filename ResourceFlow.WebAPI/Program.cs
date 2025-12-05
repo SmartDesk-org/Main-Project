@@ -1,9 +1,14 @@
+using ResourceFlow.Application.Interfaces.Subscription;
+using ResourceFlow.Infrastructure.Repositories;
+using ResourceFlow.Infrastructure.Services;
 using ResourceFlow.WebAPI.DI;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+//builder.Services.AddScoped<SubscriptionRepository>();
+builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
