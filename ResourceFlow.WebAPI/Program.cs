@@ -1,6 +1,4 @@
-﻿
-
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using ResourceFlow.WebAPI.DI;
 using System.Text;
@@ -11,10 +9,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Register DI before Build()
+// Register DI (correct place)
 builder.Services.AddProjectServices(builder.Configuration);
 
-// configure auth
+// Configure authentication (JWT)
 var jwt = builder.Configuration.GetSection("JwtSettings");
 var secret = jwt["Secret"] ?? throw new Exception("Jwt Secret missing");
 var issuer = jwt["Issuer"];
@@ -31,9 +29,12 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuer = true,
         ValidIssuer = issuer,
+
         ValidateAudience = true,
         ValidAudience = audience,
+
         ValidateLifetime = true,
+
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
         ValidateIssuerSigningKey = true
     };
@@ -43,10 +44,7 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// ❌ Don't register services below this line!
-// builder.Services.AddProjectServices(builder.Configuration);
-
-// Configure the HTTP request pipeline.
+// Swagger in development
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
