@@ -9,6 +9,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ResourceFlow.Domain.Entities.Authentication
 {
+
     public  class User:BaseEntity
     {
         public int UserId { get; set; }

@@ -1,14 +1,18 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using ResourceFlow.WebAPI.DI;
+<<<<<<< HEAD
 using System.Text;
 
+=======
+>>>>>>> hub/rinshad
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+<<<<<<< HEAD
 // add project services
 builder.Services.AddProjectServices(builder.Configuration);
 
@@ -41,6 +45,17 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+=======
+
+ builder.Services.AddProjectServices(builder.Configuration);
+
+// builder.Services.AddApplication();
+//builder.Services.AddInfrastructure(builder.Configuration);
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline. 
+>>>>>>> hub/rinshad
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
