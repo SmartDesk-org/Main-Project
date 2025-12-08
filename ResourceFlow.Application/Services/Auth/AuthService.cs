@@ -11,6 +11,7 @@ namespace ResourceFlow.Application.Services
 {
     public class AuthService : IAuthService
     {
+
         private readonly IGenericRepository<User> _userRepo;
         private readonly IAuthRepository _authRepo;
         private readonly IMapper _mapper;
@@ -45,6 +46,7 @@ namespace ResourceFlow.Application.Services
                 throw new Exception("Password must be at least 6 characters long");
             if (dto.RoleId <= 0)
                 throw new Exception("Invalid role");
+
             var existing = await _userRepo.SingleOrDefaultAsync(u => u.Email == dto.Email);
             if (existing != null)
                 throw new Exception("Email already registered");
@@ -53,7 +55,6 @@ namespace ResourceFlow.Application.Services
             await _userRepo.AddAsync(user);
             return new AuthResponseDto(201, "User registered successfully");
         }
-
 
         public async Task<AuthResponseDto> LoginAsync(LoginRequestDto dto)
         {
