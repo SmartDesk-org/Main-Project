@@ -1,26 +1,68 @@
 using ResourceFlow.Application.Interfaces.Subscription;
 using ResourceFlow.Infrastructure.Repositories;
 using ResourceFlow.Infrastructure.Services;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using ResourceFlow.WebAPI.DI;
+
+
+
+using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-//builder.Services.AddScoped<SubscriptionRepository>();
-builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
-builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddProjectServices(builder.Configuration);
+
+// Configure authentication (JWT)
+var jwt = builder.Configuration.GetSection("JwtSettings");
+var secret = jwt["Secret"] ?? throw new Exception("Jwt Secret missing");
+var issuer = jwt["Issuer"];
+var audience = jwt["Audience"];
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = issuer,
+
+        ValidateAudience = true,
+        ValidAudience = audience,
+
+        ValidateLifetime = true,
+
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+        ValidateIssuerSigningKey = true
+    };
+});
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
+
+
+ //builder.Services.AddProjectServices(builder.Configuration);
+
+// builder.Services.AddApplication();
+//builder.Services.AddInfrastructure(builder.Configuration);
+
+
+
+// Configure the HTTP request pipeline. 
+
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -28,7 +70,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
