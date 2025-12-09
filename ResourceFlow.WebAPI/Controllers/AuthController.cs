@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using ResourceFlow.Application.DTOs.Auth;
 using ResourceFlow.Application.Interfaces.Auth;
+using ResourceFlow.Application.Services;
+using ResourceFlow.Infrastructure.Extensions;
 using System.Security.Claims;
 
 namespace ResourceFlow.WebAPI.Controllers
@@ -103,20 +105,33 @@ namespace ResourceFlow.WebAPI.Controllers
             return Ok(new { message = "Logged out" });
         }
 
+       
+
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
-            var ok = await _auth.GenerateForgotPasswordTokenAsync(dto.Email);
-            if (!ok) return NotFound(new { message = "Email not found" });
-            return Ok(new { message = "If email exists, reset link was sent." });
+            var result = await _auth.ForgotPasswordAsync(dto);
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
         {
-            var ok = await _auth.ResetPasswordAsync(dto);
-            if (!ok) return BadRequest(new { message = "Invalid token or expired" });
-            return StatusCode(200, new { message = "Password reset successful" });
+            // CASE 1: Forgot password -> dto contains Token
+            if (!string.IsNullOrEmpty(dto.Token))
+            {
+                var result = await _auth.ResetPasswordAsync(dto, null);
+                return StatusCode(result.StatusCode, result);
+            }
+
+            // CASE 2: Change password -> extract email from JWT
+            string email = User.GetUserEmail();
+
+            var result2 = await _auth.ResetPasswordAsync(dto, email);
+            return StatusCode(result2.StatusCode, result2);
         }
+
+
+
     }
 }

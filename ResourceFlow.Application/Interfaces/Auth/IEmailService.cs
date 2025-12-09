@@ -9,7 +9,7 @@ namespace ResourceFlow.Application.Interfaces.Auth
     public  interface IEmailService
     {
         Task<bool> SendAsync(string to, string subject, string htmlBody);
-        Task<bool> SendPasswordResetEmailAsync(string to, string resetLink);
+        Task<bool> SendPasswordResetEmailAsync(string toEmail, string resetLink);
         Task<bool> SendWelcomeEmailAsync(string to);
     }
 }

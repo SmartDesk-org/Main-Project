@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ResourceFlow.Application\ResourceFlow.Application.csproj" />
-    <ProjectReference Include="..\ResourceFlow.Domain\ResourceFlow.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Persistence\Dapper\" />
   </ItemGroup>
 
@@ -30,6 +25,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ResourceFlow.Application\ResourceFlow.Application.csproj" />
+    <ProjectReference Include="..\ResourceFlow.Domain\ResourceFlow.Domain.csproj" />
   </ItemGroup>
 
 </Project>
