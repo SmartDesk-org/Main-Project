@@ -1,4 +1,4 @@
-
+﻿
 
 ﻿using ResourceFlow.Domain.Entities.CompanyModels;
 using System;
@@ -15,6 +15,7 @@ namespace ResourceFlow.Domain.Entities.Authentication
 {
     public class User : BaseEntity
     {
+        [Key]
         public int UserId { get; set; }
         public int? CompanyId { get; set; }
         public string UserName { get; set; } = null!;
@@ -27,12 +28,8 @@ namespace ResourceFlow.Domain.Entities.Authentication
         public DateTime? PasswordResetExpiry { get; set; }
         public Roles? Role { get; set; }
         public virtual Employees? Employee { get; set; }
-
         public bool IsBlocked { get; set; } = false;
         public bool IsActive { get; set; } = true;
-        
         public CompanyDetails? Company { get; set; }
-      
-
     }
 }

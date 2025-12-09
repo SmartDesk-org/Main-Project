@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ResourceFlow.Application.Interfaces.Auth
+namespace ResourceFlow.Application.Interfaces.Services
 {
     public  interface IEmailService
     {

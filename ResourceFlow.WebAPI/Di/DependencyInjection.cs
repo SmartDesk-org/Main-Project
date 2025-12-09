@@ -1,9 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ResourceFlow.Application.Interfaces.Auth;
+using ResourceFlow.Application.Common;
+using ResourceFlow.Application.Interfaces;
 using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Application.Services;
+using ResourceFlow.Application.Validators.Employee;
 using ResourceFlow.Infrastructure.Ef.Repositories;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 using ResourceFlow.Infrastructure.Services;
@@ -19,22 +22,31 @@ namespace ResourceFlow.WebAPI.DI
             // Register Database Context
             services.AddDbContext<AppDbContext>(options =>
                     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
-              
-
             );
 
             // Repositories
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 
 
             // Services
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IEmployeeService, EmployeeService>();
+            services.AddScoped<IEmployeeEmailService, EmployeeEmailService>();
+
+            //helper
+            services.AddScoped<IExcelReader, ExcelReader>();
 
             //Automapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            //validator
+            services.AddScoped<IEmployeeImportValidator, EmployeeImportValidator>();
+
             return services;
         }
     }

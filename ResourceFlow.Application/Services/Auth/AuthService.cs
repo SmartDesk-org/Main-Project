@@ -1,11 +1,11 @@
 ﻿using ResourceFlow.Application.DTOs.Auth;
-using ResourceFlow.Application.Interfaces.Auth;
 using ResourceFlow.Application.Interfaces.Repositories;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
 using AutoMapper;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Application.Common;
+using ResourceFlow.Application.Interfaces.Services;
 
 namespace ResourceFlow.Application.Services
 {
@@ -53,6 +53,8 @@ namespace ResourceFlow.Application.Services
             var user = _mapper.Map<User>(dto);
             user.PassWord = BCrypt.Net.BCrypt.HashPassword(dto.Password.Trim());
             await _userRepo.AddAsync(user);
+            await _userRepo.SaveChangesAsync();
+
             return new AuthResponseDto(201, "User registered successfully");
         }
 

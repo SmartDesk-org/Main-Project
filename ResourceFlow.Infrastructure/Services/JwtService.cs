@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using ResourceFlow.Application.Interfaces.Auth;
+using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Domain.Entities.Authentication;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

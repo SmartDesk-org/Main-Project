@@ -1,21 +1,19 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using ResourceFlow.WebAPI.DI;
-
-
-
 using System.Text;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen();
+
 
 builder.Services.AddProjectServices(builder.Configuration);
 
-// Configure authentication (JWT)
+// JWT Config
 var jwt = builder.Configuration.GetSection("JwtSettings");
 var secret = jwt["Secret"] ?? throw new Exception("Jwt Secret missing");
 var issuer = jwt["Issuer"];
@@ -32,12 +30,9 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuer = true,
         ValidIssuer = issuer,
-
         ValidateAudience = true,
         ValidAudience = audience,
-
         ValidateLifetime = true,
-
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
         ValidateIssuerSigningKey = true
     };
@@ -46,19 +41,6 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
-
-
-
-
- //builder.Services.AddProjectServices(builder.Configuration);
-
-// builder.Services.AddApplication();
-//builder.Services.AddInfrastructure(builder.Configuration);
-
-
-
-// Configure the HTTP request pipeline. 
-
 
 if (app.Environment.IsDevelopment())
 {

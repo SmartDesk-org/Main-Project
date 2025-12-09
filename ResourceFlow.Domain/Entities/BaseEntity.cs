@@ -13,10 +13,10 @@ namespace ResourceFlow.Domain.Entities
         public int CreatedBy { get; set; }
 
         public DateTime? ModifiedAt { get; set; } = null;
-        public int ModifiedBy { get; set; }
+        public int? ModifiedBy { get; set; }
 
         public DateTime? DeletedAt { get; set; } = null;
-        public int DeletedBy { get; set; }
+        public int? DeletedBy { get; set; }
 
         public bool IsDelete { get; set; } = false;
     }

@@ -1,0 +1,163 @@
+﻿using Microsoft.AspNetCore.Http;
+using ResourceFlow.Application.Common;
+using ResourceFlow.Application.DTOs.Employees;
+using ResourceFlow.Application.Interfaces;
+using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Application.Interfaces.Services;
+using ResourceFlow.Application.Validators.Employee;
+using ResourceFlow.Domain.Entities.Authentication;
+using ResourceFlow.Domain.Entities.CompanyModels;
+using ResourceFlow.Domain.Entities.FloorModels;
+using ResourceFlow.Domain.Enums;
+
+public class EmployeeService : IEmployeeService
+{
+    private readonly IGenericRepository<User> _userRepo;
+    private readonly IGenericRepository<Employees> _employeeRepo;
+    private readonly IGenericRepository<Floors> _floorRepo;
+    private readonly IExcelReader _excelReader;
+    private readonly IEmployeeImportValidator _validator;
+    private readonly IUnitOfWork _uow;
+    private readonly IEmployeeEmailService _emailService;
+
+    public EmployeeService(
+        IGenericRepository<User> userRepo,
+        IGenericRepository<Employees> employeeRepo,
+        IGenericRepository<Floors> floorRepo,
+        IExcelReader excelReader,
+        IEmployeeImportValidator validator,
+        IUnitOfWork uow,
+        IEmployeeEmailService employeeEmailService
+    )
+    {
+        _userRepo = userRepo;
+        _employeeRepo = employeeRepo;
+        _floorRepo = floorRepo;
+        _excelReader = excelReader;
+        _validator = validator;
+        _uow = uow;
+        _emailService = employeeEmailService;
+    }
+
+    public async Task<ApiResponse<BulkUploadResponse>> BulkUploadAsync(IFormFile file)
+    {
+        var response = new BulkUploadResponse();
+
+        if (file == null || file.Length == 0)
+        {
+            return new ApiResponse<BulkUploadResponse>(400, "Invalid file length");
+        }
+
+        using var stream = file.OpenReadStream();
+        var rows = _excelReader.ReadEmployeeExcel(stream);
+
+        response.TotalRecords = rows.Count;
+        int companyId = 4; // TODO: dynamic later
+        var (validRows, errors) = await _validator.ValidateAsync(rows, companyId);
+
+        response.Errors = errors;
+        response.FailedRecords = errors.Count;
+
+        if (!validRows.Any())
+        {
+            return new ApiResponse<BulkUploadResponse>(
+                statusCode: 400,
+                message: "All rows failed validation. Please review the errors.",
+                data: new BulkUploadResponse
+                {
+                    TotalRecords = rows.Count,
+                    SuccessfulRecords = 0,
+                    FailedRecords = errors.Count,
+                    Errors = errors,
+                    ChunkSize = 0,
+                    TotalChunks = 0
+                }
+            );
+        }
+
+        int chunkSize = 150;
+        var chunks = validRows
+            .Select((row, index) => new { row, index })
+            .GroupBy(x => x.index / chunkSize)
+            .Select(g => g.Select(x => x.row).ToList())
+            .ToList();
+
+        response.ChunkSize = chunkSize;
+        response.TotalChunks = chunks.Count;
+
+        foreach (var chunk in chunks)
+        {
+            await _uow.BeginTransactionAsync();
+
+            try
+            {
+                var newUsers = new List<User>();
+                var passwordMap = new Dictionary<string, string>(); // email → raw password
+
+                foreach (var r in chunk)
+                {
+                    var rawPassword = "Emp@" + Guid.NewGuid().ToString("N")[..6];
+                    passwordMap[r.Email] = rawPassword;
+
+                    newUsers.Add(new User
+                    {
+                        UserName = r.Email,
+                        Email = r.Email,
+                        PassWord = BCrypt.Net.BCrypt.HashPassword(rawPassword),
+                        CompanyId = companyId,
+                        RoleId = 2,
+                        IsActive = true,
+                        IsBlocked = false
+                    });
+                }
+
+                await _userRepo.AddRangeAsync(newUsers);
+                await _uow.SaveChangesAsync();
+
+                var newEmployees = new List<Employees>();
+
+                for (int i = 0; i < newUsers.Count; i++)
+                {
+                    newEmployees.Add(new Employees
+                    {
+                        UserId = newUsers[i].UserId, // now has real ID
+                        CompanyId = companyId,
+                        Department = chunk[i].Department,
+                        DefaultFloorId = chunk[i].DefaultFloorId,
+                        Status = EmployeeStatus.Active
+                    });
+                }
+
+                await _employeeRepo.AddRangeAsync(newEmployees);
+
+                // Save & commit transaction
+                await _uow.SaveChangesAsync();
+                foreach (var user in newUsers)
+                {
+                    var rawPassword = passwordMap[user.Email];
+                    var html = EmployeeEmailTemplates.BuildWelcomeEmail(user.Email, rawPassword);
+
+                    await _emailService.SendAsync(
+                        to: user.Email,
+                        subject: "Welcome to SmartDesk – Your Login Credentials",
+                        html: html
+                    );
+                }
+
+                await _uow.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await _uow.RollbackAsync();
+                return new ApiResponse<BulkUploadResponse>(
+                    500,
+                    $"Import failed: {ex.InnerException?.Message ?? ex.Message}"
+                );
+            }
+
+        }
+
+        response.SuccessfulRecords = validRows.Count;
+        return new ApiResponse<BulkUploadResponse>(200, "file uploaded successfully", response);
+    }
+}

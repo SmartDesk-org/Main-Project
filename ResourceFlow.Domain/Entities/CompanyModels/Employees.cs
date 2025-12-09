@@ -13,7 +13,7 @@ namespace ResourceFlow.Domain.Entities.CompanyModels
         public int Id { get; set; }
         public int UserId { get; set; }
         public int CompanyId { get; set; }
-        public int DefaultFloorId { get; set; }
+        public int? DefaultFloorId { get; set; }
         public string Department { get; set; }
         public EmployeeStatus Status { get; set; }
         public virtual User User { get; set; } 

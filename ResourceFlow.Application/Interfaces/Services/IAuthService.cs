@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ResourceFlow.Application.DTOs.Auth;
 
-namespace ResourceFlow.Application.Interfaces.Auth
+namespace ResourceFlow.Application.Interfaces.Services
 {
     public interface IAuthService
     {

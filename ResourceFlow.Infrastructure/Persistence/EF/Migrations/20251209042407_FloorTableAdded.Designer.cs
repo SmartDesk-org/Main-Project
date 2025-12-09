@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 
@@ -11,9 +12,11 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251209042407_FloorTableAdded")]
+    partial class FloorTableAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,7 +51,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeletedBy")
+                    b.Property<int>("DeletedBy")
                         .HasColumnType("int");
 
                     b.Property<string>("InvoiceNumber")
@@ -62,7 +65,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ModifiedBy")
+                    b.Property<int>("ModifiedBy")
                         .HasColumnType("int");
 
                     b.Property<string>("PaymentMethod")
@@ -119,7 +122,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeletedBy")
+                    b.Property<int>("DeletedBy")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
@@ -131,7 +134,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ModifiedBy")
+                    b.Property<int>("ModifiedBy")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -163,7 +166,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeletedBy")
+                    b.Property<int>("DeletedBy")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDelete")
@@ -186,7 +189,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ModifiedBy")
+                    b.Property<int>("ModifiedBy")
                         .HasColumnType("int");
 
                     b.Property<string>("NotificationType")
@@ -261,7 +264,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeletedBy")
+                    b.Property<int>("DeletedBy")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDelete")
@@ -270,7 +273,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ModifiedBy")
+                    b.Property<int>("ModifiedBy")
                         .HasColumnType("int");
 
                     b.Property<string>("RoleName")
@@ -285,25 +288,31 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreateAt = new DateTime(2025, 12, 9, 6, 59, 19, 330, DateTimeKind.Utc).AddTicks(2598),
+                            CreateAt = new DateTime(2025, 12, 9, 4, 24, 6, 738, DateTimeKind.Utc).AddTicks(4699),
                             CreatedBy = 0,
+                            DeletedBy = 0,
                             IsDelete = false,
+                            ModifiedBy = 0,
                             RoleName = "SuperAdmin"
                         },
                         new
                         {
                             Id = 2,
-                            CreateAt = new DateTime(2025, 12, 9, 6, 59, 19, 330, DateTimeKind.Utc).AddTicks(2602),
+                            CreateAt = new DateTime(2025, 12, 9, 4, 24, 6, 738, DateTimeKind.Utc).AddTicks(4704),
                             CreatedBy = 0,
+                            DeletedBy = 0,
                             IsDelete = false,
+                            ModifiedBy = 0,
                             RoleName = "CompanyAdmin"
                         },
                         new
                         {
                             Id = 3,
-                            CreateAt = new DateTime(2025, 12, 9, 6, 59, 19, 330, DateTimeKind.Utc).AddTicks(2648),
+                            CreateAt = new DateTime(2025, 12, 9, 4, 24, 6, 738, DateTimeKind.Utc).AddTicks(4706),
                             CreatedBy = 0,
+                            DeletedBy = 0,
                             IsDelete = false,
+                            ModifiedBy = 0,
                             RoleName = "Employee"
                         });
                 });
@@ -328,7 +337,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeletedBy")
+                    b.Property<int>("DeletedBy")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
@@ -348,7 +357,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ModifiedBy")
+                    b.Property<int>("ModifiedBy")
                         .HasColumnType("int");
 
                     b.Property<string>("PassWord")
@@ -389,13 +398,15 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             UserId = 1,
-                            CreateAt = new DateTime(2025, 12, 9, 6, 59, 19, 621, DateTimeKind.Utc).AddTicks(9754),
+                            CreateAt = new DateTime(2025, 12, 9, 4, 24, 7, 113, DateTimeKind.Utc).AddTicks(5807),
                             CreatedBy = 0,
+                            DeletedBy = 0,
                             Email = "suhailpalakkal1@gmail.com",
                             IsActive = true,
                             IsBlocked = false,
                             IsDelete = false,
-                            PassWord = "$2a$11$89W1DxxD1aD78L7j3LAWu.CFbPUoph4j20xxQhf9Q69Nl.viVmbzG",
+                            ModifiedBy = 0,
+                            PassWord = "$2a$11$RJ/dnpQBB0NKaUpSoA..QOTDcUVGhaGi5Ab9sK2h0G/Wfj/54RKWq",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1,
@@ -426,7 +437,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeletedBy")
+                    b.Property<int>("DeletedBy")
                         .HasColumnType("int");
 
                     b.Property<string>("Department")
@@ -439,7 +450,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ModifiedBy")
+                    b.Property<int>("ModifiedBy")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -483,7 +494,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeletedBy")
+                    b.Property<int>("DeletedBy")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDelete")
@@ -492,7 +503,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ModifiedBy")
+                    b.Property<int>("ModifiedBy")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("PaymentDate")
@@ -566,7 +577,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeletedBy")
+                    b.Property<int>("DeletedBy")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("EndDate")
@@ -583,7 +594,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ModifiedBy")
+                    b.Property<int>("ModifiedBy")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("StartDate")
@@ -624,7 +635,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeletedBy")
+                    b.Property<int>("DeletedBy")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
@@ -638,7 +649,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ModifiedBy")
+                    b.Property<int>("ModifiedBy")
                         .HasColumnType("int");
 
                     b.Property<string>("ResourceName")
@@ -668,7 +679,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeletedBy")
+                    b.Property<int>("DeletedBy")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -682,7 +693,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ModifiedBy")
+                    b.Property<int>("ModifiedBy")
                         .HasColumnType("int");
 
                     b.Property<double>("PriceMonthly")
@@ -771,7 +782,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.HasOne("ResourceFlow.Domain.Entities.Authentication.User", "User")
                         .WithOne("Employee")
                         .HasForeignKey("ResourceFlow.Domain.Entities.CompanyModels.Employees", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Company");

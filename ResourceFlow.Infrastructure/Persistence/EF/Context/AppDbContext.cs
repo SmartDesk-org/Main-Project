@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.CompanyModels;
 using ResourceFlow.Domain.Entities.Finance;
-
+using ResourceFlow.Domain.Entities.FloorModels;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
 
 
@@ -33,6 +33,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
         public DbSet<Resource> Resources { get; set; }
         public DbSet<Subscriptions> Subscriptions { get; set; }
         public DbSet<CompanySubscription> companySubscriptions { get; set; }
+        public DbSet<Floors> Floors { get; set; }
 
 
 
