@@ -10,7 +10,6 @@ using ResourceFlow.Application.Validators.Employee;
 using ResourceFlow.Infrastructure.Ef.Repositories;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 using ResourceFlow.Infrastructure.Services;
-
 namespace ResourceFlow.WebAPI.DI
 {
     public static class DependencyInjection
@@ -21,6 +20,7 @@ namespace ResourceFlow.WebAPI.DI
         {
             // Register Database Context
             services.AddDbContext<AppDbContext>(options =>
+
                     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
             );
 
@@ -45,7 +45,17 @@ namespace ResourceFlow.WebAPI.DI
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             //validator
-            services.AddScoped<IEmployeeImportValidator, EmployeeImportValidator>();
+
+
+            // Register Repositories
+            
+            // Add all your repositories here...
+
+
+
+            // Register Services
+            
+            // Add all your services here...
 
             return services;
         }
