@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using ResourceFlow.Application.DTOs.Auth;
+using ResourceFlow.Application.DTOs.Subscription;
 using ResourceFlow.Domain.Entities.Authentication;
+using ResourceFlow.Domain.Entities.SubscriptionModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +16,8 @@ namespace ResourceFlow.Application.Mappings
         public AutoMappingProfile()
         {
             CreateMap<RegisterRequestDto, User>().ReverseMap();
+
+            CreateMap<CreateSubscriptionPlanDto, SubscriptionPlan>().ReverseMap();
         }
     }
 }

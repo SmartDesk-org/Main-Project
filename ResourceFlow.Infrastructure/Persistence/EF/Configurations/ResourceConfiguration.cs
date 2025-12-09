@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ResourceFlow.Domain.Entities.SubscriptionModels;
+using ResourceFlow.Domain.Entities.CompanyModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,9 +23,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
                    .IsRequired()
                    .HasDefaultValue(true);
 
-            builder.HasMany(r => r.Subscriptions)
-                   .WithOne(s => s.Resource)
-                   .HasForeignKey(s => s.ResourceId)
+            builder.HasOne(r => r.Company)
+                   .WithMany(s => s.Resources)
+                   .HasForeignKey(s => s.CompanyId)
                    .OnDelete(DeleteBehavior.Restrict);
         }
     }

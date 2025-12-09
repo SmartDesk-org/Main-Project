@@ -1,9 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ResourceFlow.Application.Interfaces.Auth;
 using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Application.Interfaces.Subscription;
 using ResourceFlow.Application.Services;
+using ResourceFlow.Application.Services.Subscription;
 using ResourceFlow.Infrastructure.Ef.Repositories;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 using ResourceFlow.Infrastructure.Services;
@@ -19,8 +23,6 @@ namespace ResourceFlow.WebAPI.DI
             // Register Database Context
             services.AddDbContext<AppDbContext>(options =>
                     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
-              
-
             );
 
             // Repositories
@@ -29,13 +31,24 @@ namespace ResourceFlow.WebAPI.DI
 
 
             // Services
-            services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ISubscriptionService, SubscriptionService>();
+
+            services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IEmailService, EmailService>();
 
             //Automapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+
+            //Fluent validation
+            services.AddFluentValidationAutoValidation();
+            services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
+
+
             return services;
+
+            
         }
     }
 }

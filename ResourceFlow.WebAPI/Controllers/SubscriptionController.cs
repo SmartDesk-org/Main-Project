@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ResourceFlow.Application.DTO.Subscription;
+using ResourceFlow.Application.DTOs.Subscription;
 using ResourceFlow.Application.Interfaces.Subscription;
 
 namespace ResourceFlow.WebAPI.Controllers
@@ -16,46 +16,41 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePlan(CreateSubscriptionDto dto)
+        public async Task<IActionResult> CreatePlan(CreateSubscriptionPlanDto dto)
         {
-            var result = await _service.CreatePlanAsync(dto);
-            return Ok(result);
+            var res = await _service.CreatePlanAsync(dto);
+            return StatusCode(res.StatusCode, res);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var data = await _service.GetAllPlansAsync();
-            return Ok(data);
+            var res = await _service.GetAllPlansAsync();
+            return StatusCode(res.StatusCode, res);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var data = await _service.GetPlanByIdAsync(id);
-            if (data == null) return NotFound();
-            return Ok(data);
+            var res = await _service.GetPlanByIdAsync(id);
+            return StatusCode(res.StatusCode,res);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, UpdateSubscriptionDto dto)
+        public async Task<IActionResult> Update(int id, UpdateSubscriptionPlanDto dto)
         {
             dto.Id = id;
             var result = await _service.UpdatePlanAsync(dto);
 
-            if (!result)
-                return NotFound("Plan not found");
-
-            return Ok("Updated successfully");
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var success = await _service.DeletePlanAsync(id);
-            if (!success) return NotFound();
+            var res = await _service.DeletePlanAsync(id);
 
-            return Ok("Deleted successfully");
+            return StatusCode(res.StatusCode, res);
         }
     }
 }
