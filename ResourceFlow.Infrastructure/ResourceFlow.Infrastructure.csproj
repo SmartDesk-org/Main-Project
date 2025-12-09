@@ -12,6 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Persistence\EF\Configurations\" />
+    <Folder Include="Persistence\EF\Migrations\" />
     <Folder Include="Persistence\Dapper\" />
   </ItemGroup>
 
