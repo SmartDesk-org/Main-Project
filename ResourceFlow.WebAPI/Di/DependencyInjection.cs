@@ -27,7 +27,7 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            // Validators (THIS was missing)
+            // Validators
             services.AddScoped<IEmployeeImportValidator, EmployeeImportValidator>();
 
             // Helper services
