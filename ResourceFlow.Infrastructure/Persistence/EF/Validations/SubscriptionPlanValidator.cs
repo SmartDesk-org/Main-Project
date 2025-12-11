@@ -15,7 +15,6 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Validations
         {
             RuleFor(s => s.SubscriptionPlanName)
                 .NotEmpty().WithMessage("Subscription name is required.")
-                //.MinimumLength(2).WithMessage("Should included at least one char")
                 .MaximumLength(100).WithMessage("Subscription name cannot exceed 100 characters.");
 
             //RuleFor(s => s.ResourceId)

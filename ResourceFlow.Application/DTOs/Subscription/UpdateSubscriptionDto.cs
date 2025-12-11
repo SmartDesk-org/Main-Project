@@ -8,7 +8,9 @@ namespace ResourceFlow.Application.DTOs.Subscription
 {
     public class UpdateSubscriptionPlanDto
     {
-        public int Id { get; set; }
+        public int SubscriptionPlanId { get; set; }
+        public string SubscriptionPlanName { get; set; } = null!;
+
         public int EmployeeLimit { get; set; }
         public int FloorLimit { get; set; }
         public int DeskLimit { get; set; }

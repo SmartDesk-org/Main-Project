@@ -1,4 +1,4 @@
-using ResourceFlow.Domain.Entities;
+using ResourceFlow.Domain.Enums;
 
 namespace ResourceFlow.Domain.Entities.Finance
 {
@@ -6,11 +6,11 @@ namespace ResourceFlow.Domain.Entities.Finance
     {
         public int Id { get; set; }
         public int CompanyId { get; set; }
-        public int SubscriptionId { get; set; }
-        public string TransactionId { get; set; } = default!;
+        public string PaymentIntentId { get; set; } = default!;
+        public string ReceiptId { get; set; } = default!;
         public double Amount { get; set; }
         public DateTime PaymentDate { get; set; }
-        public string PaymentStatus { get; set; } = default!; //enum paymentstatus
+        public PaymentStatus PaymentStatus { get; set; } = default!;//enum paymentstatus
         public CompanyDetails Company { get; set; } = default!;
 
     }

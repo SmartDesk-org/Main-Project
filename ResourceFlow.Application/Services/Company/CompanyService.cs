@@ -1,0 +1,151 @@
+﻿using AutoMapper;
+using ResourceFlow.Application.Common;
+using ResourceFlow.Application.DTOs.Company;
+using ResourceFlow.Application.Interfaces.Company;
+using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Domain.Entities.Authentication;
+using ResourceFlow.Domain.Entities.CompanyModels;
+using ResourceFlow.Domain.Entities.SubscriptionModels;
+using ResourceFlow.Domain.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ResourceFlow.Application.Services.Company
+{
+    public class CompanyService:ICompanyService
+    {
+        private readonly IGenericRepository<CompanyDetails> _companyRepo;
+        private readonly IGenericRepository<User> _userRepo;
+        private readonly IGenericRepository<CompanySubscription> _compSubRepo;
+        private readonly IGenericRepository<SubscriptionPlan> _subRepo;
+        private readonly IGenericRepository<Resource> _resourceRepo;
+        private readonly IGenericRepository<CompanyFloor> _floorRepo;
+        private readonly IMapper _mapper;
+
+        public CompanyService(
+            IGenericRepository<CompanyDetails> companyRepo,
+            IGenericRepository<User> userRepo,
+            IGenericRepository<CompanySubscription> compSubRepo,
+            IGenericRepository<SubscriptionPlan> subRepo,
+            IGenericRepository<Resource> resourceRepo,
+            IGenericRepository<CompanyFloor> floorRepo,
+            IMapper mapper
+            )
+        {
+            _companyRepo = companyRepo;
+            _userRepo = userRepo;
+            _compSubRepo = compSubRepo;
+            _subRepo = subRepo;
+            _resourceRepo = resourceRepo;
+            _floorRepo = floorRepo;
+            _mapper = mapper;
+        }
+        public async Task<Response> NewCompany(NewCompanyDto dto)
+        {
+            var existing = await _companyRepo.SingleOrDefaultAsync(x => x.Name == dto.Name && x.IsDeleted == false);
+            if (existing != null)
+                return new Response( 409, "There is already a company with same name ");
+
+            var company = new CompanyDetails
+            {
+                Name = dto.Name,
+                Address=dto.Address,
+                IsActive=false
+            };
+            var newCompany =await  _companyRepo.AddAsync(company);
+
+            var user = new User
+            {
+                UserName = newCompany.Name,
+                Email = dto.Email.Trim(),
+                PassWord = dto.PassWord,
+                RoleId = 2,
+                IsActive = false,
+                IsBlocked = false
+            };
+            var newUser = await _userRepo.AddAsync(user);
+
+            var companySubscription = new CompanySubscription
+            {
+                CompanyId = newCompany.CompanyId,
+                SubscriptionPlanId = dto.SelectedSubscritionPlanId,
+                StartDate = newCompany.CreatedAt,
+                EndDate = newCompany.CreatedAt.AddYears(dto.ExpitationYear).AddMonths(dto.ExpitationMonth),
+                IsActive = false,
+                Status=SubscriptionStatus.Pending
+            };
+            var newCompanySubscription =await  _compSubRepo.AddAsync(companySubscription);
+
+            var subPlan =await  _subRepo.GetByIdAsync(dto.SelectedSubscritionPlanId);
+
+            var start = newCompanySubscription.StartDate;
+            var end = newCompanySubscription.EndDate;
+
+            int years = end.Year - start.Year;
+            if(end.Month<start.Month || (end.Month==start.Month && end.Day<start.Day))
+            {
+                years--;
+            }
+
+            start = start.AddYears(years);
+            int months = end.Month - start.Month;
+            if(end.Day<start.Day)
+            {
+                months--;
+            }
+
+            start = start.AddMonths(months);
+
+            int days = (end - start).Days;
+
+            double totalAmount = (years * subPlan.PriceYearly)
+                                + (months * subPlan.PriceMonthly)
+                                + (days * (subPlan.PriceMonthly / 30));
+
+
+            var res = new
+            {
+                CompanyId = newCompany.CompanyId,
+                SubscritionName = subPlan.SubscriptionPlanName,
+                StartDate = newCompanySubscription.StartDate,
+                EndDate = newCompanySubscription.EndDate,
+                AmountToBEPaid = totalAmount,
+                Currency="INR"
+            };
+
+            return new Response(200, "Company added successfully ,Proceed to payment", res);
+        }
+
+
+        public async Task ActivateCompanyAsync(int companyId)
+        {
+            var company = await _companyRepo.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.IsDeleted == false);
+            var subscription = await _compSubRepo.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.IsDeleted == false);
+            var user = await _userRepo.SingleOrDefaultAsync(x => x.UserName == company.Name && x.CompanyId == company.CompanyId && x.IsDeleted == false);
+
+            company.IsActive = true;
+            subscription.IsActive = true;
+            user.IsActive = true;
+
+            var floor = new CompanyFloor
+
+            {
+                FloorName = "Default Floor",
+                CompanyId = company.CompanyId,
+                FloorNumber = 1
+            };
+
+            await _floorRepo.AddAsync(floor);
+
+            await _companyRepo.UpdateAsync(company);
+            await _compSubRepo.UpdateAsync(subscription);
+            await _userRepo.UpdateAsync(user);
+
+
+
+        }
+    }
+}
