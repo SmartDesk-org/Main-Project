@@ -43,7 +43,7 @@ namespace ResourceFlow.Infrastructure.Ef.Repositories
         }
         public IQueryable<User> Queryable()
         {
-            return _db.Users.AsQueryable();
+            return _context.Users.AsQueryable();
         }
     }
 }

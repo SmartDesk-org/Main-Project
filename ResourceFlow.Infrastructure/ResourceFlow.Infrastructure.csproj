@@ -1,55 +1,54 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-<<<<<<< HEAD
-=======
-    <ProjectReference Include="..\ResourceFlow.Application\ResourceFlow.Application.csproj" />
-    <ProjectReference Include="..\ResourceFlow.Domain\ResourceFlow.Domain.csproj" />
-  </ItemGroup>
+	<!-- Project References -->
+	<ItemGroup>
+		<ProjectReference Include="..\ResourceFlow.Application\ResourceFlow.Application.csproj" />
+		<ProjectReference Include="..\ResourceFlow.Domain\ResourceFlow.Domain.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Persistence\Dapper\" />
-    <Folder Include="Persistence\EF\Migrations\" />
-  </ItemGroup>
+	<!-- Folder Structure -->
+	<ItemGroup>
+		<Folder Include="Persistence\Dapper\" />
+		<Folder Include="Persistence\EF\Migrations\" />
+	</ItemGroup>
 
-  <ItemGroup>
->>>>>>> Suhail
-    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
-    <PackageReference Include="Dapper" Version="2.1.66" />
-    <PackageReference Include="FluentValidation" Version="12.1.1" />
-    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
-    <PackageReference Include="Stripe.NEt" Version="50.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ResourceFlow.Application\ResourceFlow.Application.csproj" />
-    <ProjectReference Include="..\ResourceFlow.Domain\ResourceFlow.Domain.csproj" />
-  </ItemGroup>
+	<!-- SQL File Copy -->
 	<ItemGroup>
 		<None Update="Persistence\StoredProcedures\**\*.sql">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
 
+	<!-- NuGet Packages -->
+	<ItemGroup>
+		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+		<PackageReference Include="Dapper" Version="2.1.66" />
+		<PackageReference Include="FluentValidation" Version="12.1.1" />
+		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
 
+		<!-- JWT -->
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
 
+		<!-- EF Core (Unified Version 8.0.2) -->
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.2">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
+
+		<!-- FIXED Stripe Package Name -->
+		<PackageReference Include="Stripe.net" Version="50.0.0" />
+	</ItemGroup>
 
 </Project>

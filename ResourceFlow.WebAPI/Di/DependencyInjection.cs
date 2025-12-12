@@ -29,15 +29,13 @@ namespace ResourceFlow.WebAPI.DI
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            // Register Database Context
+            // DbContext
             services.AddDbContext<AppDbContext>(options =>
-                    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
-            );
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
             // Repositories
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IAuthRepository, AuthRepository>();
-
 
             // Services
             services.AddScoped<IAuthService, AuthService>();
@@ -52,76 +50,64 @@ namespace ResourceFlow.WebAPI.DI
             services.AddTransient<StoredProcedureInstaller>();
             services.AddScoped<IUserDapperRepository, UserDapperRepository>();
 
-
-
-
-
-            //Automapper
+            // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-
-            //Fluent validation
+            // FluentValidation
             services.AddFluentValidationAutoValidation();
             services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 
-
-            //HttpContextAccessor
+            // HttpContext
             services.AddHttpContextAccessor();
 
+            // Controllers JSON cycle handling
             services.AddControllers().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
             });
 
-
-            //CORS
+            // CORS
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowFrontEnd", policy =>
                 {
                     policy.WithOrigins(configuration["FrontEndUrl:BaseUrl"])
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
                 });
             });
 
-
-
-            //Swaggerconfiguration
-           services.AddSwaggerGen(options =>
+            // Swagger
+            services.AddSwaggerGen(options =>
             {
-              options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                 {
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
                     Name = "Authorization",
                     Type = SecuritySchemeType.Http,
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
                     Description = "Enter token: Bearer {your token}"
-                 });
+                });
 
-              options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
-                   {
-
-                       new OpenApiSecurityScheme
+                    {
+                        new OpenApiSecurityScheme
                         {
                           Reference = new OpenApiReference
                           {
-                               Type = ReferenceType.SecurityScheme,
-                               Id = "Bearer"
+                              Type = ReferenceType.SecurityScheme,
+                              Id = "Bearer"
                           }
-                       },
+                        },
                         Array.Empty<string>()
-                   }
-              });
+                    }
+                });
             });
 
-
             return services;
-
-            
         }
     }
 }

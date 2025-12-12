@@ -3,15 +3,11 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ResourceFlow.Infrastructure.Persistence.Service;
 using ResourceFlow.WebAPI.DI;
-
-
-
 using System.Text;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+// Controllers & JSON options
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -20,43 +16,39 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddEndpointsApiExplorer();
+
+// Swagger configuration (single registration)
 builder.Services.AddSwaggerGen(c =>
-          {
-            // ?? JWT Authorization support
-            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid JWT token"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
             {
-                Name = "Authorization",
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = "bearer",
-                BearerFormat = "JWT",
-                In = ParameterLocation.Header,
-                Description = "Please enter a valid JWT token"
-            });
-
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                        {
-                            {
-                                new OpenApiSecurityScheme
-                                {
-                                    Reference = new OpenApiReference
-                                    {
-                                        Type = ReferenceType.SecurityScheme,
-                                        Id = "Bearer"
-                                    }
-                                },
-                                new string[] {}
-                            }
-                        });
-
-            // ?? File upload support
-
-                });
-
-builder.Services.AddSwaggerGen();
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 builder.Services.AddProjectServices(builder.Configuration);
 
-// Configure authentication (JWT)
+// JWT Authentication
 var jwt = builder.Configuration.GetSection("JwtSettings");
 var secret = jwt["Secret"] ?? throw new Exception("Jwt Secret missing");
 var issuer = jwt["Issuer"];
@@ -96,15 +88,12 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-
-using var scope = app.Services.CreateScope();
-var spInstaller = scope.ServiceProvider.GetRequiredService<StoredProcedureInstaller>();
-await spInstaller.RunStoredProceduresAsync();
-
-
-
-// Configure the HTTP request pipeline. 
-
+// Run stored procedure installer
+using (var scope = app.Services.CreateScope())
+{
+    var spInstaller = scope.ServiceProvider.GetRequiredService<StoredProcedureInstaller>();
+    await spInstaller.RunStoredProceduresAsync();
+}
 
 if (app.Environment.IsDevelopment())
 {

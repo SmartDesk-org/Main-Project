@@ -43,11 +43,11 @@ namespace ResourceFlow.Application.Services.Company
             _floorRepo = floorRepo;
             _mapper = mapper;
         }
-        public async Task<Response> NewCompany(NewCompanyDto dto)
+        public async Task<Response<Object>> NewCompany(NewCompanyDto dto)
         {
             var existing = await _companyRepo.SingleOrDefaultAsync(x => x.Name == dto.Name && x.IsDeleted == false);
             if (existing != null)
-                return new Response( 409, "There is already a company with same name ");
+                return new Response<Object>( 409, "There is already a company with same name ");
 
             var company = new CompanyDetails
             {
@@ -116,7 +116,7 @@ namespace ResourceFlow.Application.Services.Company
                 Currency="INR"
             };
 
-            return new Response(200, "Company added successfully ,Proceed to payment", res);
+            return new Response<Object>(200, "Company added successfully ,Proceed to payment", res);
         }
 
 

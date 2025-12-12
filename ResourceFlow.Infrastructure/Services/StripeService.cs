@@ -3,13 +3,13 @@ using ResourceFlow.Application.Interfaces.Payments;
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Domain.Entities.Finance;
 using ResourceFlow.Domain.Enums;
-using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ResourceFlow.Application.DTOs.Payments;
+using Stripe;
 
 namespace ResourceFlow.Infrastructure.Services
 {
