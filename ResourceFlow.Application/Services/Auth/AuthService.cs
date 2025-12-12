@@ -8,6 +8,7 @@ using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Application.Common;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 
 
 
@@ -106,7 +107,11 @@ namespace ResourceFlow.Application.Services
 
                 await _authRepo.SaveAsync();
 
-                return new Response<object>(200, "User logged in successfully", new { token, refresh });
+                return new Response<object>(200, "User logged in successfully", new AuthTokensDTO
+                {
+                    AccessToken=token,
+                    RefreshToken=refresh
+                });
             }
             catch (Exception ex)
             {
@@ -143,11 +148,12 @@ namespace ResourceFlow.Application.Services
                 await _authRepo.SaveAsync();
 
                 // STEP 5: RETURN RESPONSE
-                return new Response<object>(200, "Token refreshed", new
+                return new Response<object>(200, "Token refreshed", new AuthTokensDTO
                 {
-                    accessToken,
-                    refreshToken = newRefreshToken,
-                    expiresIn = expires
+                    AccessToken=accessToken,
+                    RefreshToken=RefreshToken,
+                    ExpiresIn=expires
+                
                 });
             }
             catch (Exception ex)
@@ -170,11 +176,12 @@ namespace ResourceFlow.Application.Services
                 user.RefreshTokenExpiry = DateTime.MinValue;
 
                 await _authRepo.SaveAsync();
-                return new Response<object>(200, "Logout Success full.");
+                return new Response<object>(200, "Logout successfull.");
 
             }
             catch (Exception ex)
             {
+
                 return new Response<object>(500, ex.Message);
 
             }
@@ -224,9 +231,7 @@ namespace ResourceFlow.Application.Services
                 dto.CurrentPassword=dto.CurrentPassword.Trim();
                 dto.NewPassword=dto.NewPassword.Trim();
 
-                // -------------------------
-                // CASE 1 → Forgot Password
-                // -------------------------
+                
                 if (!string.IsNullOrWhiteSpace(dto.Token))
                 {
                     if (string.IsNullOrWhiteSpace(dto.NewPassword))
@@ -246,9 +251,6 @@ namespace ResourceFlow.Application.Services
                     return new Response<string>(200, "Password has been reset successfully.");
                 }
 
-                // -------------------------
-                // CASE 2 → Logged-in user changing password
-                // -------------------------
                 if (!userId.HasValue)
                     return new Response<string>(401, "Unauthorized");
 

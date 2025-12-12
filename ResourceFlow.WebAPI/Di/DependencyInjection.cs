@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ResourceFlow.Application.Interfaces.Auth;
 using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Services;
 using ResourceFlow.Infrastructure.Ef.Repositories;
 using ResourceFlow.Infrastructure.Persistence.Dapper;

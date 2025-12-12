@@ -52,7 +52,6 @@ BEGIN
 
             RETURN;
         END
-
         
         IF @FLAG = 'GETBYEMAIL'
         BEGIN

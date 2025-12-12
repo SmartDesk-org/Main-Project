@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Auth;
 using ResourceFlow.Application.Interfaces.Auth;
 using ResourceFlow.Application.Services;
@@ -33,16 +34,17 @@ namespace ResourceFlow.WebAPI.Controllers
             }
         }
 
-        [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+ 
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
             try
             {
-                var res = await _auth.RefreshTokenAsync(refreshToken);
+                var res = await _auth.LoginAsync(dto);
 
-                if (!string.IsNullOrEmpty(res.RefreshToken))
+                if (res.Data is AuthTokensDTO data && !string.IsNullOrEmpty(data.RefreshToken))
                 {
-                    Response.Cookies.Append("refreshToken", res.RefreshToken, new CookieOptions
+                    Response.Cookies.Append("refreshToken", data.RefreshToken, new CookieOptions
                     {
                         HttpOnly = true,
                         Secure = true,
@@ -59,30 +61,29 @@ namespace ResourceFlow.WebAPI.Controllers
             }
         }
 
-
-        
-
-
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
         {
             try
             {
-                var res = await _auth.LoginAsync(dto);
+                var res = await _auth.RefreshTokenAsync(refreshToken);
 
-                if (!string.IsNullOrEmpty(res.RefreshToken))
+                if (res.Data is AuthTokensDTO tokens)
                 {
-                    Response.Cookies.Append("refreshToken", res.RefreshToken, new CookieOptions
+                    // Set refresh token cookie
+                    if (!string.IsNullOrEmpty(tokens.RefreshToken))
                     {
-                        HttpOnly = true,
-                        Secure = true,
-                        SameSite = SameSiteMode.Strict
-                       
-                    });
+                        Response.Cookies.Append("refreshToken", tokens.RefreshToken, new CookieOptions
+                        {
+                            HttpOnly = true,
+                            Secure = true,
+                            SameSite = SameSiteMode.Strict,
+                            Expires = DateTime.UtcNow.AddDays(7)
+                        });
+                    }
                 }
 
-                return StatusCode(res.StatusCode,res);
+                return StatusCode(res.StatusCode, res);
             }
             catch (Exception ex)
             {
@@ -90,21 +91,24 @@ namespace ResourceFlow.WebAPI.Controllers
             }
         }
 
-     
+
+
+
 
         [Authorize]
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
+        [HttpPost("logout/{userId}")]
+        public async Task<IActionResult> Logout(int userId)
         {
-            var userId = User.GetUserId();
-            await _auth.LogoutAsync(userId);
+            var result = await _auth.LogoutAsync(userId);
 
             // delete cookie
             Response.Cookies.Delete("refreshToken");
-            return Ok(new { message = "Logged out" });
+
+            return StatusCode(result.StatusCode, result);
         }
 
-       
+
+
 
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)

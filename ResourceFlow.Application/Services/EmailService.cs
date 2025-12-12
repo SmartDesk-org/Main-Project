@@ -36,19 +36,73 @@ namespace ResourceFlow.Application.Services
                         smtp["Password"]
                     )
                 };
-
                 var message = new MailMessage
                 {
-                    From = new MailAddress(smtp["SenderEmail"], "ResourceFlow"),
-                    Subject = "Password Reset Request",
+                    From = new MailAddress(smtp["SenderEmail"], "SmartDesk"),
+                    Subject = "Reset Your SmartDesk Password",
                     Body = $@"
-                        <h2>Password Reset Request</h2>
-                        <p>Click the link below to reset your password:</p>
-                        <p><a href=""{resetLink}"">{resetLink}</a></p>
-                        <p>This link is valid for a limited time.</p>
+                        <div style='
+                            font-family: Arial, sans-serif; 
+                            max-width: 650px; 
+                            margin: auto; 
+                            padding: 0; 
+                            background: linear-gradient(135deg, #e3f2fd, #fce4ec);
+                            border-radius: 12px;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                        '>
+                            <div style='
+                                background: linear-gradient(135deg, #42a5f5, #ec407a);
+                                padding: 25px; 
+                                border-radius: 12px 12px 0 0; 
+                                text-align: center;
+                            '>
+                                <h1 style='color: white; margin: 0; font-size: 26px;'>SmartDesk</h1>
+                                <h3 style='color: #fefefe; margin-top: 10px;'>Password Reset Request</h3>
+                            </div>
+
+                            <div style='padding: 25px; background-color: rgba(255,255,255,0.85); border-radius: 0 0 12px 12px;'>
+                                <p style='font-size: 15px; color: #333;'>Hello,</p>
+                                <p style='font-size: 15px; color: #333;'>
+                                    You requested to reset the password for your <strong>SmartDesk</strong> account.
+                                </p>
+
+                                <div style='text-align: center; margin: 35px 0;'>
+                                    <a href='{resetLink}' 
+                                       style='
+                                           background: linear-gradient(135deg, #42a5f5, #7e57c2);
+                                           color: #fff;
+                                           padding: 14px 28px;
+                                           text-decoration: none;
+                                           border-radius: 30px;
+                                           font-weight: bold;
+                                           font-size: 16px;
+                                           box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                                       '>
+                                        Reset Password
+                                    </a>
+                                </div>
+
+                                <p style='font-size: 14px; color: #555;'>If the button above does not work, copy and paste this link:</p>
+
+                                <p style='word-break: break-all;'>
+                                    <a href='{resetLink}' style='color: #7e57c2; font-weight: bold;'>{resetLink}</a>
+                                </p>
+
+                                <p style='margin-top: 20px; font-size: 14px; color: #333;'>
+                                    This link will expire shortly. If you did not request this password reset, you may safely ignore this email.
+                                </p>
+
+                                <p style='margin-top: 25px; font-size: 14px; color: #333;'>
+                                    Regards,<br/>
+                                    <strong>SmartDesk Team</strong>
+                                </p>
+                            </div>
+                        </div>
                     ",
                     IsBodyHtml = true
                 };
+
+
 
                 message.To.Add(toEmail);
 
