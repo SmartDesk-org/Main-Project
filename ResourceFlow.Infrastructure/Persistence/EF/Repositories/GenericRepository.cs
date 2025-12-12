@@ -58,5 +58,10 @@ namespace ResourceFlow.Infrastructure.Ef.Repositories
         {
             await _db.SaveChangesAsync();
         }
+
+         public IQueryable<T> Queryable()
+        {
+            return   _dbSet.AsQueryable();
+        }
     }
 }

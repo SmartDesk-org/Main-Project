@@ -16,6 +16,7 @@ using ResourceFlow.Application.Services.Subscription;
 using ResourceFlow.Infrastructure.Ef.Repositories;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 using ResourceFlow.Infrastructure.Services;
+using System.Text.Json.Serialization;
 
 namespace ResourceFlow.WebAPI.DI
 {
@@ -56,6 +57,24 @@ namespace ResourceFlow.WebAPI.DI
 
             //HttpContextAccessor
             services.AddHttpContextAccessor();
+
+            services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            });
+
+
+            //CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontEnd", policy =>
+                {
+                    policy.WithOrigins(configuration["FrontEndUrl:BaseUrl"])
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+                });
+            });
 
 
 

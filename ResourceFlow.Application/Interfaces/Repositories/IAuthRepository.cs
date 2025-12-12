@@ -14,5 +14,6 @@ namespace ResourceFlow.Application.Interfaces.Repositories
         Task<User?> GetByIdAsync(int id);
 
          Task SaveAsync();
+        IQueryable<User> Queryable();
     }
 }

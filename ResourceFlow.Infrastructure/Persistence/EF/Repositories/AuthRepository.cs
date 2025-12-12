@@ -18,5 +18,10 @@ namespace ResourceFlow.Infrastructure.Ef.Repositories
 
         public async Task SaveAsync()
             => await _db.SaveChangesAsync();
+
+        public IQueryable<User> Queryable()
+        {
+            return _db.Users.AsQueryable();
+        }
     }
 }

@@ -6,7 +6,6 @@ using ResourceFlow.Infrastructure.Extensions;
 
 namespace ResourceFlow.WebAPI.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class SubscriptionController : ControllerBase
