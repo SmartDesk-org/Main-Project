@@ -16,7 +16,7 @@ namespace ResourceFlow.Domain.Entities.SubscriptionModels
         public double PriceMonthly { get; set; }
         public double PriceYearly { get; set; }
         public string Description { get; set; } = string.Empty;
-
+        public bool IsActive { get; set; } = true;
         public Resource? Resource { get; set; }
         public virtual ICollection<CompanySubscription> CompanySubscriptions { get; set; }  = new List<CompanySubscription>();
 

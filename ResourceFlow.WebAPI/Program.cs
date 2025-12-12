@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using ResourceFlow.Infrastructure.Persistence.Service;
 using ResourceFlow.WebAPI.DI;
 
 
@@ -10,7 +12,46 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.DefaultIgnoreCondition =
+            System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
+
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+          {
+            // ?? JWT Authorization support
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Please enter a valid JWT token"
+            });
+
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                        {
+                            {
+                                new OpenApiSecurityScheme
+                                {
+                                    Reference = new OpenApiReference
+                                    {
+                                        Type = ReferenceType.SecurityScheme,
+                                        Id = "Bearer"
+                                    }
+                                },
+                                new string[] {}
+                            }
+                        });
+
+            // ?? File upload support
+
+                });
+
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddProjectServices(builder.Configuration);
@@ -47,14 +88,9 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-
-
-
- //builder.Services.AddProjectServices(builder.Configuration);
-
-// builder.Services.AddApplication();
-//builder.Services.AddInfrastructure(builder.Configuration);
-
+using var scope = app.Services.CreateScope();
+var spInstaller = scope.ServiceProvider.GetRequiredService<StoredProcedureInstaller>();
+await spInstaller.RunStoredProceduresAsync();
 
 
 // Configure the HTTP request pipeline. 

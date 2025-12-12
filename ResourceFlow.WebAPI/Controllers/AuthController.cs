@@ -25,6 +25,20 @@ namespace ResourceFlow.WebAPI.Controllers
             try
             {
                 var res = await _auth.RegisterAsync(dto);
+                return StatusCode(res.StatusCode,res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+        {
+            try
+            {
+                var res = await _auth.RefreshTokenAsync(refreshToken);
 
                 if (!string.IsNullOrEmpty(res.RefreshToken))
                 {
@@ -33,17 +47,22 @@ namespace ResourceFlow.WebAPI.Controllers
                         HttpOnly = true,
                         Secure = true,
                         SameSite = SameSiteMode.Strict,
-                        Expires = res.RefreshTokenExpiry
+                        Expires = DateTime.UtcNow.AddDays(7)
                     });
                 }
 
-                return StatusCode(res.StatusCode,res);
+                return StatusCode(res.StatusCode, res);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+
+
+        
+
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
@@ -58,8 +77,8 @@ namespace ResourceFlow.WebAPI.Controllers
                     {
                         HttpOnly = true,
                         Secure = true,
-                        SameSite = SameSiteMode.Strict,
-                        Expires = res.RefreshTokenExpiry
+                        SameSite = SameSiteMode.Strict
+                       
                     });
                 }
 
@@ -71,33 +90,13 @@ namespace ResourceFlow.WebAPI.Controllers
             }
         }
 
-        [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh()
-        {
-            // prefer cookie-based refresh token
-            var refresh = Request.Cookies["refreshToken"];
-            if (string.IsNullOrEmpty(refresh)) return Unauthorized();
-
-            var res = await _auth.RefreshTokenAsync(refresh);
-            if (res == null) return Unauthorized();
-
-            // update cookie
-            Response.Cookies.Append("refreshToken", res.RefreshToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = res.RefreshTokenExpiry
-            });
-
-            return StatusCode(res.StatusCode,res);
-        }
+     
 
         [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            var userId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+            var userId = User.GetUserId();
             await _auth.LogoutAsync(userId);
 
             // delete cookie
@@ -117,19 +116,20 @@ namespace ResourceFlow.WebAPI.Controllers
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
         {
-            // CASE 1: Forgot password -> dto contains Token
-            if (!string.IsNullOrEmpty(dto.Token))
+            // CASE 1: Forgot password -> token is provided
+            if (!string.IsNullOrWhiteSpace(dto.Token))
             {
-                var result = await _auth.ResetPasswordAsync(dto, null);
+                var result = await _auth.ResetPasswordAsync(dto, null); // token flow
                 return StatusCode(result.StatusCode, result);
             }
 
-            // CASE 2: Change password -> extract email from JWT
-            string email = User.GetUserEmail();
-
-            var result2 = await _auth.ResetPasswordAsync(dto, email);
+            // CASE 2: Logged-in user -> get userId from JWT claims
+            int userId = User.GetUserId(); // uses your ClaimsPrincipal extension
+            var result2 = await _auth.ResetPasswordAsync(dto, userId);
             return StatusCode(result2.StatusCode, result2);
         }
+
+
 
 
 

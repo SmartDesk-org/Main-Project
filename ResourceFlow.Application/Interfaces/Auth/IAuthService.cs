@@ -7,18 +7,18 @@ namespace ResourceFlow.Application.Interfaces.Auth
 {
     public interface IAuthService
     {
-        Task<AuthResponseDto> RegisterAsync(RegisterRequestDto dto);
+        Task<Response<object>> RegisterAsync(RegisterRequestDto dto);
 
-        Task<AuthResponseDto> LoginAsync(LoginRequestDto dto);
+        Task<Response<object>> LoginAsync(LoginRequestDto dto);
 
-        Task<AuthResponseDto?> RefreshTokenAsync(string refreshToken);
+        Task<Response<object>> RefreshTokenAsync(string RefreshToken);
 
-        Task<bool> LogoutAsync(int userId);
+        Task<Response<object>> LogoutAsync(int userId);
 
-        // FORGOT PASSWORD → sends reset link with token
-        Task<Response<string>> ForgotPasswordAsync(ForgotPasswordDto dto);
 
-        // RESET PASSWORD → uses token from link
-        Task<Response<string>> ResetPasswordAsync(ResetPasswordDto dto, string? email);
+        Task<Response<object>> ForgotPasswordAsync(ForgotPasswordDto dto);
+
+
+        Task<Response<string>> ResetPasswordAsync(ResetPasswordDto dto, int? userId);
     }
 }

@@ -12,7 +12,6 @@ public class CompanyDetails : BaseEntity
     public string Address { get; set; } = default!;
     public bool IsActive { get; set; } = false;
 
-
     public ICollection<Employees> Employees { get; set; } = new List<Employees>();
     public virtual ICollection<CompanySubscription> CompanySubscriptions { get; set; } = new List<CompanySubscription>();
 

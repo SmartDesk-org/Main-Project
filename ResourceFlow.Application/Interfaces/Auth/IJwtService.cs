@@ -12,4 +12,5 @@ namespace ResourceFlow.Application.Interfaces.Auth
         (string token, DateTime expiry) GenerateAccessToken(User user);
         string GenerateRefreshToken();
     }
+
 }
