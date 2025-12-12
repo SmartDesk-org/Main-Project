@@ -17,7 +17,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Validations
                 .WithMessage("CompanyId must be a positive integer.");
 
             
-            RuleFor(x => x.SubscriptionId)
+            RuleFor(x => x.Id)
                 .GreaterThan(0)
                 .WithMessage("SubscriptionId must be a positive integer.");
 

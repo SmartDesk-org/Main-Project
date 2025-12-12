@@ -11,14 +11,14 @@ namespace ResourceFlow.Domain.Entities.SubscriptionModels
     {
         public int Id { get; set; }
         public int CompanyId { get; set; }
-        public int SubscriptionId { get; set; }
-        public DateTime StartDate { get; set; }
+        public int SubscriptionPlanId { get; set; }
+        public DateTime StartDate { get; set; } = DateTime.UtcNow;
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
         public SubscriptionStatus Status { get; set; }
 
 
-        public virtual CompanyDetails Company { get; set; }
-        public virtual Subscriptions Subscription { get; set; }
+        public virtual CompanyDetails? Company { get; set; }
+        public virtual SubscriptionPlan? SubscriptionPlan { get; set; }
     }
 }

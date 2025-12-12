@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using ResourceFlow.Domain.Entities.SubscriptionModels;
+using ResourceFlow.Domain.Entities.CompanyModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

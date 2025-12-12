@@ -13,12 +13,12 @@ using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 
 
 
+using Microsoft.EntityFrameworkCore;
 
 namespace ResourceFlow.Application.Services
 {
     public class AuthService : IAuthService
     {
-
         private readonly IGenericRepository<User> _userRepo;
         private readonly IAuthRepository _authRepo;
         private readonly IMapper _mapper;

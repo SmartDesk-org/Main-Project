@@ -17,38 +17,16 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
 
             builder.HasKey(c => c.Id);
 
-            builder.Property(c => c.StartDate)
-                .IsRequired();
-
-            builder.Property(c => c.EndDate)
-                .IsRequired();
-
-            builder.Property(c => c.IsActive)
-                .HasDefaultValue(true)
-                .IsRequired();
-            builder.Property(c => c.Status)
-                   .IsRequired()
-                   .HasConversion<int>();
-
-            builder.ToTable(t =>
-            {
-                t.HasCheckConstraint(
-                    "CK_CompanySubscription_ValidDates",
-                    "\"EndDate\" > \"StartDate\""
-                );
-            });
-
-
-
             builder.HasOne(c => c.Company)
-                .WithMany(c => c.CompanySubscriptions)
-                .HasForeignKey(c => c.CompanyId)
+                .WithOne(c => c.CompanySubscription)
+                .HasForeignKey<CompanySubscription>(c => c.CompanyId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(c => c.Subscription)
-                .WithMany(s => s.CompanySubscriptions)
-                .HasForeignKey(c => c.SubscriptionId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(u => u.SubscriptionPlan)
+                .WithMany(u => u.CompanySubscriptions)
+                .HasForeignKey(u => u.SubscriptionPlanId)
+                .OnDelete(DeleteBehavior.Cascade);
+           
         }
 
     }

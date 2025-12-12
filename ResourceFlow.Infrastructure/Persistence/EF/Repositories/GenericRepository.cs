@@ -17,6 +17,8 @@ namespace ResourceFlow.Infrastructure.Ef.Repositories
 
         public async Task<T> AddAsync(T entity)
         {
+            if (entity == null)
+                throw new  ArgumentNullException(nameof(entity));
             await _dbSet.AddAsync(entity);
             await _db.SaveChangesAsync();
             return entity;
@@ -45,6 +47,9 @@ namespace ResourceFlow.Infrastructure.Ef.Repositories
 
         public async Task UpdateAsync(T entity)
         {
+
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
             _dbSet.Update(entity);
             await _db.SaveChangesAsync();
         }
@@ -52,6 +57,11 @@ namespace ResourceFlow.Infrastructure.Ef.Repositories
         public async Task SaveChangesAsync()
         {
             await _db.SaveChangesAsync();
+        }
+
+         public IQueryable<T> Queryable()
+        {
+            return   _dbSet.AsQueryable();
         }
     }
 }
