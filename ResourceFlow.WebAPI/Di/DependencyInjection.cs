@@ -7,6 +7,7 @@ using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Services;
 using ResourceFlow.Infrastructure.Ef.Repositories;
 using ResourceFlow.Infrastructure.Persistence.Dapper;
+using ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories;
 using ResourceFlow.Infrastructure.Persistence.Dapper.Repositories;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 using ResourceFlow.Infrastructure.Persistence.Service;
@@ -39,6 +40,9 @@ namespace ResourceFlow.WebAPI.DI
             services.AddSingleton<DapperContext>();
             services.AddTransient<StoredProcedureInstaller>();
             services.AddScoped<IUserDapperRepository, UserDapperRepository>();
+            services.AddScoped<ICompanyDapperRepository, CompanyDapperRepository>();
+            services.AddScoped<IEmployeeDapperRepository, EmployeeDapperRepository>();
+
 
 
 
