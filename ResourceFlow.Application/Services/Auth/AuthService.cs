@@ -12,12 +12,12 @@ using Microsoft.AspNetCore.Http;
 
 
 
+using Microsoft.EntityFrameworkCore;
 
 namespace ResourceFlow.Application.Services
 {
     public class AuthService : IAuthService
     {
-
         private readonly IGenericRepository<User> _userRepo;
         private readonly IAuthRepository _authRepo;
         private readonly IMapper _mapper;

@@ -69,6 +69,14 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            context.Token = context.Request.Cookies["accessToken"];
+            return Task.CompletedTask;
+        }
+    };
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -88,9 +96,11 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+
 using var scope = app.Services.CreateScope();
 var spInstaller = scope.ServiceProvider.GetRequiredService<StoredProcedureInstaller>();
 await spInstaller.RunStoredProceduresAsync();
+
 
 
 // Configure the HTTP request pipeline. 
@@ -101,6 +111,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("AllowFrontEnd");
 
 app.UseHttpsRedirection();
 app.UseAuthentication();

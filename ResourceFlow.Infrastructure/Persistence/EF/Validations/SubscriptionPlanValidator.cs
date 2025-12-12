@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using ResourceFlow.Application.DTOs.Subscription;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
 using System;
 using System.Collections.Generic;
@@ -8,16 +9,16 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Infrastructure.Persistence.EF.Validations
 {
-    internal class SubscriptionValidator :AbstractValidator<Subscriptions>
+    public class SubscriptionPlanValidator :AbstractValidator<CreateSubscriptionPlanDto>
     {
-        public SubscriptionValidator()
+        public SubscriptionPlanValidator()
         {
-            RuleFor(s => s.SubscriptionName)
+            RuleFor(s => s.SubscriptionPlanName)
                 .NotEmpty().WithMessage("Subscription name is required.")
                 .MaximumLength(100).WithMessage("Subscription name cannot exceed 100 characters.");
 
-            RuleFor(s => s.ResourceId)
-                .GreaterThan(0).WithMessage("Subscription must reference a valid resource.");
+            //RuleFor(s => s.ResourceId)
+            //    .GreaterThan(0).WithMessage("Subscription must reference a valid resource.");
 
             RuleFor(s => s.PriceMonthly)
                 .GreaterThanOrEqualTo(0).WithMessage("Monthly price must be non-negative.");

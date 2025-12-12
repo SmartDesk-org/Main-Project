@@ -41,5 +41,9 @@ namespace ResourceFlow.Infrastructure.Ef.Repositories
                 x => x.PasswordResetToken == token && x.PasswordResetExpiry > DateTime.UtcNow
             );
         }
+        public IQueryable<User> Queryable()
+        {
+            return _db.Users.AsQueryable();
+        }
     }
 }

@@ -14,11 +14,14 @@ namespace ResourceFlow.WebAPI.Controllers
     {
         private readonly IAuthService _auth;
 
-        public AuthController(IAuthService auth) 
+        public AuthController(IAuthService auth)
         {
             _auth = auth;
         }
 
+        // ----------------------------------------------------
+        // REGISTER
+        // ----------------------------------------------------
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto dto)
         {
@@ -59,17 +62,16 @@ namespace ResourceFlow.WebAPI.Controllers
             }
         }
 
-
+    
         
 
 
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
-        {
-            try
-            {
-                var res = await _auth.LoginAsync(dto);
+        {try{
+            var res = await _auth.LoginAsync(dto);
+            var data = res.Data as AuthTokensDto;
 
                 if (!string.IsNullOrEmpty(res.RefreshToken))
                 {
@@ -88,10 +90,46 @@ namespace ResourceFlow.WebAPI.Controllers
             {
                 return StatusCode(500, new { message = ex.Message });
             }
-        }
+    }
 
      
 
+        // ----------------------------------------------------
+        // REFRESH TOKEN
+        // ----------------------------------------------------
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (string.IsNullOrEmpty(refreshToken)) return Unauthorized();
+
+            var res = await _auth.RefreshTokenAsync(refreshToken);
+            if (res == null) return Unauthorized();
+
+            var data = res.Data as AuthTokensDto;
+
+            Response.Cookies.Append("accessToken", data.AccessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = data.AccessTokenExpiry
+            });
+
+            Response.Cookies.Append("refreshToken", data.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = data.RefreshTokenExpiry
+            });
+
+            return StatusCode(res.StatusCode, res);
+        }
+
+        // ----------------------------------------------------
+        // LOGOUT
+        // ----------------------------------------------------
         [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
@@ -99,8 +137,10 @@ namespace ResourceFlow.WebAPI.Controllers
             var userId = User.GetUserId();
             await _auth.LogoutAsync(userId);
 
-            // delete cookie
+            await _auth.LogoutAsync(userId);
+            Response.Cookies.Delete("accessToken");
             Response.Cookies.Delete("refreshToken");
+
             return Ok(new { message = "Logged out" });
         }
 
@@ -113,6 +153,9 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        // ----------------------------------------------------
+        // RESET PASSWORD
+        // ----------------------------------------------------
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
         {

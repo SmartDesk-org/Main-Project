@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class Initialmigrationbysuhail : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,38 +22,18 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CompanySubscriptionId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<int>(type: "int", nullable: false),
-                    IsDelete = table.Column<bool>(type: "bit", nullable: false)
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CompanyDetails", x => x.CompanyId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Resources",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ResourceName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<int>(type: "int", nullable: false),
-                    IsDelete = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Resources", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -63,17 +43,44 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RoleName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<int>(type: "int", nullable: false),
-                    IsDelete = table.Column<bool>(type: "bit", nullable: false)
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SubscriptionPlans",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SubscriptionPlanName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EmployeeLimit = table.Column<int>(type: "int", nullable: false),
+                    FloorLimit = table.Column<int>(type: "int", nullable: false),
+                    DeskLimit = table.Column<int>(type: "int", nullable: false),
+                    MeetingRoomLimit = table.Column<int>(type: "int", nullable: false),
+                    PriceMonthly = table.Column<double>(type: "float", nullable: false),
+                    PriceYearly = table.Column<double>(type: "float", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubscriptionPlans", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -93,13 +100,13 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     BillingDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SubscriptionStartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SubscriptionEndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<int>(type: "int", nullable: false),
-                    IsDelete = table.Column<bool>(type: "bit", nullable: false)
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -113,24 +120,45 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CompanyFloors",
+                columns: table => new
+                {
+                    FloorId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FloorName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FloorNumber = table.Column<int>(type: "int", nullable: false),
+                    CompanyId = table.Column<int>(type: "int", nullable: false),
+                    Map = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CompanyFloors", x => x.FloorId);
+                    table.ForeignKey(
+                        name: "FK_CompanyFloors_CompanyDetails_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "CompanyDetails",
+                        principalColumn: "CompanyId");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Payments",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CompanyId = table.Column<int>(type: "int", nullable: false),
-                    SubscriptionId = table.Column<int>(type: "int", nullable: false),
-                    TransactionId = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    PaymentIntentId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReceiptId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Amount = table.Column<double>(type: "float", nullable: false),
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PaymentStatus = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    PaymentStatus = table.Column<int>(type: "int", maxLength: 50, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<int>(type: "int", nullable: false),
-                    IsDelete = table.Column<bool>(type: "bit", nullable: false)
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -144,32 +172,30 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Subscriptions",
+                name: "Resources",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SubscriptionName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    ResourceId = table.Column<int>(type: "int", nullable: false),
-                    PriceMonthly = table.Column<double>(type: "float", nullable: false),
-                    PriceYearly = table.Column<double>(type: "float", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    ResourceName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    CompanyId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<int>(type: "int", nullable: false),
-                    IsDelete = table.Column<bool>(type: "bit", nullable: false)
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Subscriptions", x => x.Id);
+                    table.PrimaryKey("PK_Resources", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Subscriptions_Resources_ResourceId",
-                        column: x => x.ResourceId,
-                        principalTable: "Resources",
-                        principalColumn: "Id",
+                        name: "FK_Resources_CompanyDetails_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "CompanyDetails",
+                        principalColumn: "CompanyId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -190,13 +216,13 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     PasswordResetExpiry = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsBlocked = table.Column<bool>(type: "bit", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<int>(type: "int", nullable: false),
-                    IsDelete = table.Column<bool>(type: "bit", nullable: false)
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -222,23 +248,22 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CompanyId = table.Column<int>(type: "int", nullable: false),
-                    SubscriptionId = table.Column<int>(type: "int", nullable: false),
+                    SubscriptionPlanId = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<int>(type: "int", nullable: false),
-                    IsDelete = table.Column<bool>(type: "bit", nullable: false)
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CompanySubscription", x => x.Id);
-                    table.CheckConstraint("CK_CompanySubscription_ValidDates", "\"EndDate\" > \"StartDate\"");
                     table.ForeignKey(
                         name: "FK_CompanySubscription_CompanyDetails_CompanyId",
                         column: x => x.CompanyId,
@@ -246,11 +271,11 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         principalColumn: "CompanyId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_CompanySubscription_Subscriptions_SubscriptionId",
-                        column: x => x.SubscriptionId,
-                        principalTable: "Subscriptions",
+                        name: "FK_CompanySubscription_SubscriptionPlans_SubscriptionPlanId",
+                        column: x => x.SubscriptionPlanId,
+                        principalTable: "SubscriptionPlans",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -264,13 +289,13 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     DefaultFloorId = table.Column<int>(type: "int", nullable: false),
                     Department = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<int>(type: "int", nullable: false),
-                    IsDelete = table.Column<bool>(type: "bit", nullable: false)
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -310,13 +335,13 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     ReadAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsRead = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     RetryCount = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<int>(type: "int", nullable: false),
-                    IsDelete = table.Column<bool>(type: "bit", nullable: false)
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -343,18 +368,18 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 
             migrationBuilder.InsertData(
                 table: "Roles",
-                columns: new[] { "Id", "CreateAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDelete", "ModifiedAt", "ModifiedBy", "RoleName" },
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "RoleName" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 12, 8, 7, 21, 19, 361, DateTimeKind.Utc).AddTicks(6634), 0, null, 0, false, null, 0, "SuperAdmin" },
-                    { 2, new DateTime(2025, 12, 8, 7, 21, 19, 361, DateTimeKind.Utc).AddTicks(6639), 0, null, 0, false, null, 0, "CompanyAdmin" },
-                    { 3, new DateTime(2025, 12, 8, 7, 21, 19, 361, DateTimeKind.Utc).AddTicks(6640), 0, null, 0, false, null, 0, "Employee" }
+                    { 1, new DateTime(2025, 12, 11, 9, 39, 9, 746, DateTimeKind.Utc).AddTicks(4454), null, null, null, false, null, null, "SuperAdmin" },
+                    { 2, new DateTime(2025, 12, 11, 9, 39, 9, 746, DateTimeKind.Utc).AddTicks(4462), null, null, null, false, null, null, "CompanyAdmin" },
+                    { 3, new DateTime(2025, 12, 11, 9, 39, 9, 746, DateTimeKind.Utc).AddTicks(4463), null, null, null, false, null, null, "Employee" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "UserId", "CompanyId", "CreateAt", "CreatedBy", "DeletedAt", "DeletedBy", "Email", "IsActive", "IsBlocked", "IsDelete", "ModifiedAt", "ModifiedBy", "PassWord", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiry", "RoleId", "UserName" },
-                values: new object[] { 1, null, new DateTime(2025, 12, 8, 7, 21, 19, 726, DateTimeKind.Utc).AddTicks(1063), 0, null, 0, "suhailpalakkal1@gmail.com", true, false, false, null, 0, "$2a$11$8vaDk1cb0B3xDDJu9Swvu.kYZtZ7ltBAeZ5xO3i2Lyt0P3wlkQWsW", null, null, "", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Suhail" });
+                columns: new[] { "UserId", "CompanyId", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "Email", "IsActive", "IsBlocked", "IsDeleted", "ModifiedAt", "ModifiedBy", "PassWord", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiry", "RoleId", "UserName" },
+                values: new object[] { 1, null, new DateTime(2025, 12, 11, 9, 39, 9, 957, DateTimeKind.Utc).AddTicks(7619), null, null, null, "suhailpalakkal1@gmail.com", true, false, false, null, null, "$2a$11$B7M7jhLwoo08d7f1QjWAKuytiwGZ2LODdukRrxX3oSNHJq56Qmiem", null, null, "", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Suhail" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Billing_CompanyId",
@@ -362,14 +387,20 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CompanySubscription_CompanyId",
-                table: "CompanySubscription",
+                name: "IX_CompanyFloors_CompanyId",
+                table: "CompanyFloors",
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CompanySubscription_SubscriptionId",
+                name: "IX_CompanySubscription_CompanyId",
                 table: "CompanySubscription",
-                column: "SubscriptionId");
+                column: "CompanyId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CompanySubscription_SubscriptionPlanId",
+                table: "CompanySubscription",
+                column: "SubscriptionPlanId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Employees_CompanyId",
@@ -403,9 +434,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Subscriptions_ResourceId",
-                table: "Subscriptions",
-                column: "ResourceId");
+                name: "IX_Resources_CompanyId",
+                table: "Resources",
+                column: "CompanyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_CompanyId",
@@ -425,6 +456,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 name: "Billing");
 
             migrationBuilder.DropTable(
+                name: "CompanyFloors");
+
+            migrationBuilder.DropTable(
                 name: "CompanySubscription");
 
             migrationBuilder.DropTable(
@@ -437,13 +471,13 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 name: "Payments");
 
             migrationBuilder.DropTable(
-                name: "Subscriptions");
+                name: "Resources");
+
+            migrationBuilder.DropTable(
+                name: "SubscriptionPlans");
 
             migrationBuilder.DropTable(
                 name: "Users");
-
-            migrationBuilder.DropTable(
-                name: "Resources");
 
             migrationBuilder.DropTable(
                 name: "CompanyDetails");

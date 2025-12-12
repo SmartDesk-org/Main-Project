@@ -21,5 +21,6 @@ namespace ResourceFlow.Application.Interfaces.Repositories
         Task SaveAsync();
 
 
+        IQueryable<User> Queryable();
     }
 }

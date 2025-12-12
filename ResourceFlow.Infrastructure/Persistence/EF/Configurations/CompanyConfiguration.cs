@@ -11,7 +11,17 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
             builder.ToTable("CompanyDetails");
 
             builder.HasKey(c => c.CompanyId);
-           
+
+            builder.HasMany(c => c.Employees)
+                .WithOne(c => c.Company)
+                .HasForeignKey(c => c.CompanyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(u => u.Resources)
+                .WithOne(u => u.Company)
+                .HasForeignKey(u => u.CompanyId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
                 
         }
     }

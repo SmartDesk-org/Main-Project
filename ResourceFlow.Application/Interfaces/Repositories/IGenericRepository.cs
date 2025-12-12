@@ -16,5 +16,6 @@ namespace ResourceFlow.Application.Interfaces.Repositories
     Task DeleteAsync(T entity);
     Task<T?> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate);
     Task SaveChangesAsync();
+    IQueryable<T> Queryable();
 }
 }

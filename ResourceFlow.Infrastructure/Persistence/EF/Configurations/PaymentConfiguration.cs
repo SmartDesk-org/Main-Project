@@ -14,9 +14,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
             builder.HasKey(p => p.Id);
 
             // Properties
-            builder.Property(p => p.TransactionId)
-                   .IsRequired()
-                   .HasMaxLength(200);
+            //builder.Property(p => p.TransactionId)
+            //       .IsRequired()
+            //       .HasMaxLength(200);
 
             builder.Property(p => p.Amount)
                    .IsRequired();
