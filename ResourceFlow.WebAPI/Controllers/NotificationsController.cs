@@ -13,7 +13,6 @@ namespace ResourceFlow.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    //[Authorize] 
     public class NotificationsController : ControllerBase
     {
         private readonly INotificationService _notificationService;
@@ -34,7 +33,7 @@ namespace ResourceFlow.WebAPI.Controllers
         /// Create a new notification
         /// </summary>
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<NotificationDto>>> CreateNotification(
+        public async Task<IActionResult> CreateNotification(
             [FromBody] CreateNotificationDto createDto)
         {
             // ✅ ADDED: Model validation
@@ -60,7 +59,7 @@ namespace ResourceFlow.WebAPI.Controllers
                         createDto.Message);
                 }
 
-                return ApiResponse<NotificationDto>.Created(notification, "Notification created successfully");
+                return Ok(ApiResponse<NotificationDto>.Created(notification, "Notification created successfully"));
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -84,7 +83,7 @@ namespace ResourceFlow.WebAPI.Controllers
         /// </summary>
         [HttpPost("realtime/user/{userId}")]
         [Authorize(Roles = "Admin,Manager")] // ✅ Added role authorization
-        public async Task<ActionResult<ApiResponse<bool>>> SendRealTimeToUser(
+        public async Task<IActionResult> SendRealTimeToUser(
             int userId,
             [FromBody] CreateNotificationDto createDto)
         {
@@ -105,7 +104,7 @@ namespace ResourceFlow.WebAPI.Controllers
                 // Send via SignalR
                 await _hubClientService.SendToUserAsync(userId, createDto.Title, createDto.Message);
 
-                return ApiResponse<bool>.Success(true, "Real-time notification sent successfully");
+                return Ok(ApiResponse<bool>.Success(true, "Real-time notification sent successfully"));
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -123,7 +122,7 @@ namespace ResourceFlow.WebAPI.Controllers
         /// Get notification by ID
         /// </summary>
         [HttpGet("{id}")]
-        public async Task<ActionResult<ApiResponse<NotificationDto>>> GetNotification(int id)
+        public async Task<IActionResult> GetNotification(int id)
         {
             try
             {
@@ -134,7 +133,7 @@ namespace ResourceFlow.WebAPI.Controllers
                     return NotFound(ApiResponse<NotificationDto>.Error("Notification not found"));
                 }
 
-                return ApiResponse<NotificationDto>.Success(notification);
+                return Ok(ApiResponse<NotificationDto>.Success(notification));
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -152,14 +151,14 @@ namespace ResourceFlow.WebAPI.Controllers
         /// Get user notifications
         /// </summary>
         [HttpGet("user/{userId}")]
-        public async Task<ActionResult<ApiResponse<IEnumerable<NotificationDto>>>> GetUserNotifications(
+        public async Task<IActionResult> GetUserNotifications(
             int userId,
             [FromQuery] bool unreadOnly = false)
         {
             try
             {
                 var notifications = await _notificationService.GetUserNotificationsAsync(userId, unreadOnly);
-                return ApiResponse<IEnumerable<NotificationDto>>.Success(notifications);
+                return Ok(ApiResponse<IEnumerable<NotificationDto>>.Success(notifications));
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -177,12 +176,12 @@ namespace ResourceFlow.WebAPI.Controllers
         /// Get unread count for user
         /// </summary>
         [HttpGet("user/{userId}/unread-count")]
-        public async Task<ActionResult<ApiResponse<int>>> GetUnreadCount(int userId)
+        public async Task<IActionResult> GetUnreadCount(int userId)
         {
             try
             {
                 var count = await _notificationService.GetUnreadCountAsync(userId);
-                return ApiResponse<int>.Success(count);
+                return Ok(ApiResponse<int>.Success(count));
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -200,7 +199,7 @@ namespace ResourceFlow.WebAPI.Controllers
         /// Mark notification as read
         /// </summary>
         [HttpPost("mark-read/{notificationId}")]
-        public async Task<ActionResult<ApiResponse<bool>>> MarkAsRead(int notificationId)
+        public async Task<IActionResult> MarkAsRead(int notificationId)
         {
             try
             {
@@ -211,7 +210,7 @@ namespace ResourceFlow.WebAPI.Controllers
                     return NotFound(ApiResponse<bool>.Error("Notification not found"));
                 }
 
-                return ApiResponse<bool>.Success(true, "Notification marked as read");
+                return Ok(ApiResponse<bool>.Success(true, "Notification marked as read"));
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -229,7 +228,7 @@ namespace ResourceFlow.WebAPI.Controllers
         /// Mark multiple notifications as read
         /// </summary>
         [HttpPost("mark-multiple-read")]
-        public async Task<ActionResult<ApiResponse<int>>> MarkMultipleAsRead(
+        public async Task<IActionResult> MarkMultipleAsRead(
             [FromBody] MarkMultipleNotificationsDto markDto)
         {
             try
@@ -240,7 +239,7 @@ namespace ResourceFlow.WebAPI.Controllers
                 }
 
                 var count = await _notificationService.MarkMultipleAsReadAsync(markDto.NotificationIds);
-                return ApiResponse<int>.Success(count, $"{count} notifications marked as read");
+                return Ok(ApiResponse<int>.Success(count, $"{count} notifications marked as read"));
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -258,12 +257,12 @@ namespace ResourceFlow.WebAPI.Controllers
         /// Mark all notifications as read for user
         /// </summary>
         [HttpPost("user/{userId}/mark-all-read")]
-        public async Task<ActionResult<ApiResponse<bool>>> MarkAllAsRead(int userId)
+        public async Task<IActionResult> MarkAllAsRead(int userId)
         {
             try
             {
                 var result = await _notificationService.MarkAllAsReadAsync(userId);
-                return ApiResponse<bool>.Success(result, "All notifications marked as read");
+                return Ok(ApiResponse<bool>.Success(result, "All notifications marked as read"));
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -281,7 +280,7 @@ namespace ResourceFlow.WebAPI.Controllers
         /// Delete notification
         /// </summary>
         [HttpDelete("{notificationId}")]
-        public async Task<ActionResult<ApiResponse<bool>>> DeleteNotification(int notificationId)
+        public async Task<IActionResult> DeleteNotification(int notificationId)
         {
             try
             {
@@ -292,7 +291,7 @@ namespace ResourceFlow.WebAPI.Controllers
                     return NotFound(ApiResponse<bool>.Error("Notification not found"));
                 }
 
-                return ApiResponse<bool>.Success(true, "Notification deleted successfully");
+                return Ok(ApiResponse<bool>.Success(true, "Notification deleted successfully"));
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -310,14 +309,14 @@ namespace ResourceFlow.WebAPI.Controllers
         /// Get company notifications
         /// </summary>
         [HttpGet("company/{companyId}")]
-        public async Task<ActionResult<ApiResponse<IEnumerable<NotificationDto>>>> GetCompanyNotifications(
+        public async Task<IActionResult> GetCompanyNotifications(
             int companyId,
             [FromQuery] bool unreadOnly = false)
         {
             try
             {
                 var notifications = await _notificationService.GetCompanyNotificationsAsync(companyId, unreadOnly);
-                return ApiResponse<IEnumerable<NotificationDto>>.Success(notifications);
+                return Ok(ApiResponse<IEnumerable<NotificationDto>>.Success(notifications));
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -335,14 +334,14 @@ namespace ResourceFlow.WebAPI.Controllers
         /// Get role notifications
         /// </summary>
         [HttpGet("role/{roleId}")]
-        public async Task<ActionResult<ApiResponse<IEnumerable<NotificationDto>>>> GetRoleNotifications(
+        public async Task<IActionResult> GetRoleNotifications(
             int roleId,
             [FromQuery] bool unreadOnly = false)
         {
             try
             {
                 var notifications = await _notificationService.GetRoleNotificationsAsync(roleId, unreadOnly);
-                return ApiResponse<IEnumerable<NotificationDto>>.Success(notifications);
+                return Ok(ApiResponse<IEnumerable<NotificationDto>>.Success(notifications));
             }
             catch (UnauthorizedAccessException ex)
             {
