@@ -1,5 +1,5 @@
 ﻿using ResourceFlow.Application.DTOs.Auth;
-using ResourceFlow.Application.Interfaces.Auth;
+using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Application.Interfaces.Repositories;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Configuration;

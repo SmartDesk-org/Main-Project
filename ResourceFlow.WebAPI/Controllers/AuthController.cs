@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResourceFlow.Application.DTOs.Auth;
-using ResourceFlow.Application.Interfaces.Auth;
+using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Application.Services;
 using ResourceFlow.Infrastructure.Extensions;
 using System.Security.Claims;

@@ -1,12 +1,10 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using ResourceFlow.Domain.Entities;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.CompanyModels;
 using ResourceFlow.Domain.Entities.Finance;
-
 using ResourceFlow.Domain.Entities.SubscriptionModels;
-
-
 using System;
 using System.Collections.Generic;
 using System.Linq;

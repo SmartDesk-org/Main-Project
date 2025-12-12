@@ -1,7 +1,10 @@
 using ResourceFlow.Domain.Entities;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Enums;
+ 
+namespace ResourceFlow.Domain.Entities
 
+{
 public class Notification : BaseEntity
 {
     public int Id { get; set; }
@@ -33,4 +36,10 @@ public class Notification : BaseEntity
     public CompanyDetails Company { get; set; }
     public User User { get; set; }
     public Roles Role { get; set; }
+
+
+
+   
+   
+}
 }

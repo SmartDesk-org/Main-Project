@@ -3,7 +3,7 @@ using ResourceFlow.Application.DTOs.Auth;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace ResourceFlow.Application.Interfaces.Auth
+namespace ResourceFlow.Application.Interfaces.Services
 {
     public interface IAuthService
     {

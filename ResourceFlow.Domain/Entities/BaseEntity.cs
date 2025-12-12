@@ -9,7 +9,7 @@ namespace ResourceFlow.Domain.Entities
 {
     public class BaseEntity
     {
-        public DateTime CreateAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public int CreatedBy { get; set; }
 
         public DateTime? ModifiedAt { get; set; } = null;
@@ -19,5 +19,7 @@ namespace ResourceFlow.Domain.Entities
         public int DeletedBy { get; set; }
 
         public bool IsDelete { get; set; } = false;
+
+        public DateTime? UpdatedAt { get; set; }
     }
 }
