@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResourceFlow.Application.DTOs.Subscription;
-using ResourceFlow.Application.Interfaces.Subscription;
+using ResourceFlow.Application.Interfaces.Subscriptions;
 using ResourceFlow.Infrastructure.Extensions;
 
 namespace ResourceFlow.WebAPI.Controllers
@@ -16,7 +16,7 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             _service = service;
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreatePlan(CreateSubscriptionPlanDto dto)
         {
@@ -39,12 +39,12 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(res.StatusCode,res);
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, UpdateSubscriptionPlanDto dto)
         {
             var userId = User.GetUserId();
-            dto.SubscriptionPlanId = id;
-            var result = await _service.UpdatePlanAsync(dto,userId);
+            var result = await _service.UpdatePlanAsync(dto,userId,id);
 
             return StatusCode(result.StatusCode, result);
         }

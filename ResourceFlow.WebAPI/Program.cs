@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using ResourceFlow.Infrastructure.Persistence.Service;
+using ResourceFlow.Infrastructure.Services;
 using ResourceFlow.WebAPI.DI;
 using System.Text;
 
@@ -65,7 +65,18 @@ builder.Services.AddAuthentication(options =>
     {
         OnMessageReceived = context =>
         {
-            context.Token = context.Request.Cookies["accessToken"];
+            var authHeader = context.Request.Headers["Authorization"].ToString();
+            if (!string.IsNullOrWhiteSpace(authHeader) && authHeader.StartsWith("Bearer "))
+            {
+                context.Token = authHeader.Substring("Bearer ".Length).Trim();
+                return Task.CompletedTask;
+            }
+
+            // 2. Fallback to cookie
+            if (context.Request.Cookies.ContainsKey("accessToken"))
+            {
+                context.Token = context.Request.Cookies["accessToken"];
+            }
             return Task.CompletedTask;
         }
     };

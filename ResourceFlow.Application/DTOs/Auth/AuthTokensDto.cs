@@ -9,7 +9,6 @@ namespace ResourceFlow.Application.DTOs.Auth
 
         public string RefreshToken { get; set; } = string.Empty;
         public DateTime RefreshTokenExpiry { get; set; }
-
-        public Roles? Role { get; set; } 
+        public int Role { get; set; } 
     }
 }

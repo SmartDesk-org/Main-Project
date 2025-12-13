@@ -17,9 +17,9 @@ namespace ResourceFlow.Application.Mappings
         {
             CreateMap<RegisterRequestDto, User>().ReverseMap();
 
-            CreateMap<CreateSubscriptionPlanDto, SubscriptionPlan>().ReverseMap();
+            CreateMap<CreateSubscriptionPlanDto, Subscription>().ReverseMap();
 
-            CreateMap<UpdateSubscriptionPlanDto, SubscriptionPlan>().ReverseMap();
+            CreateMap<UpdateSubscriptionPlanDto, Subscription>().ReverseMap();
         }
     }
 }

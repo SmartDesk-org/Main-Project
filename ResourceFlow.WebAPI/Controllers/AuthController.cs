@@ -36,36 +36,6 @@ namespace ResourceFlow.WebAPI.Controllers
             }
         }
 
-        [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
-        {
-            try
-            {
-                var res = await _auth.RefreshTokenAsync(refreshToken);
-
-                if (!string.IsNullOrEmpty(res.RefreshToken))
-                {
-                    Response.Cookies.Append("refreshToken", res.RefreshToken, new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Secure = true,
-                        SameSite = SameSiteMode.Strict,
-                        Expires = DateTime.UtcNow.AddDays(7)
-                    });
-                }
-
-                return StatusCode(res.StatusCode, res);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ex.Message });
-            }
-        }
-
-    
-        
-
-
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
@@ -78,9 +48,10 @@ namespace ResourceFlow.WebAPI.Controllers
                     Response.Cookies.Append("refreshToken", res.RefreshToken, new CookieOptions
                     {
                         HttpOnly = true,
-                        Secure = true,
-                        SameSite = SameSiteMode.Strict
-                       
+                        Secure = false,
+                        SameSite = SameSiteMode.None,
+                        Expires = DateTime.UtcNow.AddDays(7)
+
                     });
                 }
 
@@ -92,35 +63,38 @@ namespace ResourceFlow.WebAPI.Controllers
             }
     }
 
-     
+
 
         // ----------------------------------------------------
         // REFRESH TOKEN
         // ----------------------------------------------------
+        [Authorize]
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh()
         {
             var refreshToken = Request.Cookies["refreshToken"];
+            Console.WriteLine("refresh");
+            Console.WriteLine( refreshToken);
             if (string.IsNullOrEmpty(refreshToken)) return Unauthorized();
 
             var res = await _auth.RefreshTokenAsync(refreshToken);
             if (res == null) return Unauthorized();
 
-            var data = res.Data as AuthTokensDto;
 
-            Response.Cookies.Append("accessToken", data.AccessToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = data.AccessTokenExpiry
-            });
+            //Response.Cookies.Append("accessToken", data.AccessToken, new CookieOptions
+            //{
+            //    HttpOnly = true,
+            //    Secure = true,
+            //    SameSite = SameSiteMode.None,
+            //    Expires = data.AccessTokenExpiry
+            //});
+            var data = res.Data as AuthTokensDto;
 
             Response.Cookies.Append("refreshToken", data.RefreshToken, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = data.RefreshTokenExpiry
             });
 

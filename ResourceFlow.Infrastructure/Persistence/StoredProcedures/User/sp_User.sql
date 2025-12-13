@@ -18,7 +18,7 @@
     @MODIFIEDBY            INT              = NULL,
     @DELETEDAT             DATETIME2        = NULL,
     @DELETEDBY             INT              = NULL,
-    @ISDELETE              BIT              = NULL
+    @ISDELETED              BIT              = NULL
 AS
 BEGIN
     BEGIN TRY
@@ -27,7 +27,7 @@ BEGIN
         BEGIN
             SELECT UserId, CompanyId, UserName, Email, RoleId, IsBlocked, IsActive
             FROM Users
-            WHERE IsDelete = 0;
+            WHERE IsDeleted = 0;
 
             RETURN;
         END
@@ -40,7 +40,7 @@ BEGIN
                 RETURN;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM Users WHERE UserId = @USERID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM Users WHERE UserId = @USERID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('User not found', 16, 1);
                 RETURN;
@@ -48,7 +48,7 @@ BEGIN
 
             SELECT UserId, CompanyId, UserName, Email, RoleId, IsBlocked,PassWord,IsActive,RefreshToken,RefreshTokenExpiry,PasswordResetToken,PasswordResetExpiry
             FROM Users
-            WHERE UserId = @USERID AND IsDelete = 0;
+            WHERE UserId = @USERID AND IsDeleted = 0;
 
             RETURN;
         END
@@ -65,7 +65,7 @@ BEGIN
             SELECT UserId, CompanyId, UserName, Email, RoleId, PassWord,
                    RefreshToken, RefreshTokenExpiry, IsBlocked, IsActive
             FROM Users
-            WHERE Email = @EMAIL AND IsDelete = 0;
+            WHERE Email = @EMAIL AND IsDeleted = 0;
 
             RETURN;
         END
@@ -82,7 +82,7 @@ BEGIN
                 SELECT 1 FROM Users
                 WHERE PasswordResetToken = @PASSWORDRESETTOKEN
                   AND PasswordResetExpiry > GETUTCDATE() 
-                  AND IsDelete = 0
+                  AND IsDeleted = 0
             )
             BEGIN
                 RAISERROR('Invalid or expired password reset token', 16, 1);
@@ -93,7 +93,7 @@ BEGIN
             FROM Users
             WHERE PasswordResetToken = @PASSWORDRESETTOKEN
               AND PasswordResetExpiry > GETUTCDATE() 
-              AND IsDelete = 0;
+              AND IsDeleted = 0;
 
             RETURN;
             END
@@ -107,7 +107,7 @@ BEGIN
                 RETURN;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM Users WHERE RoleId = @ROLEID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM Users WHERE RoleId = @ROLEID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('No users found for given RoleId', 16, 1);
                 RETURN;
@@ -115,7 +115,7 @@ BEGIN
 
             SELECT UserId, CompanyId, UserName, Email, RoleId, IsBlocked, IsActive
             FROM Users
-            WHERE RoleId = @ROLEID AND IsDelete = 0;
+            WHERE RoleId = @ROLEID AND IsDeleted = 0;
 
             RETURN;
         END
@@ -134,7 +134,7 @@ BEGIN
                 SELECT 1 FROM Users
                 WHERE RefreshToken = @REFRESHTOKEN
                   AND RefreshTokenExpiry > GETUTCDATE()
-                  AND IsDelete = 0
+                  AND IsDeleted = 0
             )
             BEGIN
                 RAISERROR('Invalid or expired refresh token', 16, 1);
@@ -155,7 +155,7 @@ BEGIN
             FROM Users
             WHERE RefreshToken = @REFRESHTOKEN
               AND RefreshTokenExpiry > GETUTCDATE()
-              AND IsDelete = 0;
+              AND IsDeleted = 0;
 
             RETURN;
         END
@@ -170,7 +170,7 @@ BEGIN
                 RETURN;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM Users WHERE CompanyId = @COMPANYID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM Users WHERE CompanyId = @COMPANYID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('No users found for given CompanyId', 16, 1);
                 RETURN;
@@ -178,7 +178,7 @@ BEGIN
 
             SELECT UserId, CompanyId, UserName, Email, RoleId, IsBlocked, IsActive
             FROM Users
-            WHERE CompanyId = @COMPANYID AND IsDelete = 0;
+            WHERE CompanyId = @COMPANYID AND IsDeleted = 0;
 
             RETURN;
         END
@@ -188,7 +188,7 @@ BEGIN
         BEGIN
             SELECT UserId, CompanyId, UserName, Email, RoleId, IsBlocked, IsActive
             FROM Users
-            WHERE RoleId = 1 AND IsDelete = 0;
+            WHERE RoleId = 1 AND IsDeleted = 0;
             RETURN;
         END
 

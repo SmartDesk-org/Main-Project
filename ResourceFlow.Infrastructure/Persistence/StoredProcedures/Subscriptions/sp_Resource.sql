@@ -9,7 +9,7 @@
     @MODIFIEDBY INT              = NULL,
     @DELETEDAT  DATETIME2        = NULL,
     @DELETEDBY  INT              = NULL,
-    @ISDELETE   BIT              = NULL
+    @ISDELETED   BIT              = NULL
 AS
 BEGIN
     BEGIN TRY
@@ -19,7 +19,7 @@ BEGIN
             SELECT 
                 Id, ResourceName, IsActive
             FROM Resources
-            WHERE IsDelete = 0;
+            WHERE IsDeleted = 0;
             RETURN;
         END
 
@@ -31,7 +31,7 @@ BEGIN
                 RETURN;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM Resources WHERE Id = @RESOURCEID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM Resources WHERE Id = @RESOURCEID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('Resource with this id not found', 16, 1);
                 RETURN;
@@ -40,7 +40,7 @@ BEGIN
             SELECT 
                 Id, ResourceName, IsActive
             FROM Resources
-            WHERE Id = @RESOURCEID AND IsDelete = 0;
+            WHERE Id = @RESOURCEID AND IsDeleted = 0;
             RETURN;
         END
 
@@ -56,7 +56,7 @@ BEGIN
             SELECT 
                 Id, ResourceName, IsActive 
             FROM Resources
-            WHERE IsActive = @ISACTIVE AND IsDelete = 0;
+            WHERE IsActive = @ISACTIVE AND IsDeleted = 0;
             RETURN;
         END
 
@@ -72,7 +72,7 @@ BEGIN
             SELECT 
                 Id, ResourceName, IsActive
             FROM Resources
-            WHERE ResourceName = @RESOURCENAME AND IsDelete = 0;
+            WHERE ResourceName = @RESOURCENAME AND IsDeleted = 0;
             RETURN;
         END
 

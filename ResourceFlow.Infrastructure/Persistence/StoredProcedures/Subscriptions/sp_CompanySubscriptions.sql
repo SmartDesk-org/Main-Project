@@ -13,7 +13,7 @@
     @MODIFIEDBY          INT              = NULL,
     @DELETEDAT           DATETIME2        = NULL,
     @DELETEDBY           INT              = NULL,
-    @ISDELETE            BIT              = NULL
+    @ISDELETED            BIT              = NULL
 AS
 BEGIN
     BEGIN TRY
@@ -24,7 +24,7 @@ BEGIN
                 Id, CompanyId, SubscriptionId, StartDate, EndDate,
                 IsActive, Status
             FROM CompanySubscriptions
-            WHERE IsDelete = 0;
+            WHERE IsDeleted = 0;
             RETURN;
         END
 
@@ -38,7 +38,7 @@ BEGIN
             END
 
            
-            IF NOT EXISTS (SELECT 1 FROM CompanySubscriptions WHERE Id = @ID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM CompanySubscriptions WHERE Id = @ID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('CompanySubscription record not found for the given ID', 16, 1);
                 RETURN;
@@ -48,7 +48,7 @@ BEGIN
                 Id, CompanyId, SubscriptionId, StartDate, EndDate,
                 IsActive, Status
             FROM CompanySubscriptions
-            WHERE Id = @ID AND IsDelete = 0;
+            WHERE Id = @ID AND IsDeleted = 0;
 
             RETURN;
         END
@@ -60,7 +60,7 @@ BEGIN
                 RAISERROR('COMPANYID is required for GETBYCOMPANYID', 16, 1);
                 RETURN;
             END
-            IF NOT EXISTS (SELECT 1 FROM CompanySubscriptions WHERE CompanyId = @COMPANYID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM CompanySubscriptions WHERE CompanyId = @COMPANYID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('CompanySubscription record not found for the given CompanyId', 16, 1);
                 RETURN;
@@ -70,7 +70,7 @@ BEGIN
                 Id, CompanyId, SubscriptionId, StartDate, EndDate,
                 IsActive, Status
             FROM CompanySubscriptions
-            WHERE CompanyId = @COMPANYID AND IsDelete = 0;
+            WHERE CompanyId = @COMPANYID AND IsDeleted = 0;
             RETURN;
         END
       
@@ -81,7 +81,7 @@ BEGIN
                 RAISERROR('SUBSCRIPTIONID is required for GETBYSUBSCRIPTIONID', 16, 1);
                 RETURN;
             END
-            IF NOT EXISTS (SELECT 1 FROM CompanySubscriptions WHERE SubscriptionId = @SUBSCRIPTIONID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM CompanySubscriptions WHERE SubscriptionId = @SUBSCRIPTIONID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('CompanySubscription record not found for the given ID', 16, 1);
                 RETURN;
@@ -91,7 +91,7 @@ BEGIN
                 Id, CompanyId, SubscriptionId, StartDate, EndDate,
                 IsActive, Status
             FROM CompanySubscriptions
-            WHERE SubscriptionId = @SUBSCRIPTIONID AND IsDelete = 0;
+            WHERE SubscriptionId = @SUBSCRIPTIONID AND IsDeleted = 0;
             RETURN;
         END
 
@@ -101,7 +101,7 @@ BEGIN
                 Id, CompanyId, SubscriptionId, StartDate, EndDate,
                 IsActive, Status
             FROM CompanySubscriptions
-            WHERE IsActive = 1 AND IsDelete = 0;
+            WHERE IsActive = 1 AND IsDeleted = 0;
             RETURN;
         END
 
@@ -118,7 +118,7 @@ BEGIN
                 Id, CompanyId, SubscriptionId, StartDate, EndDate,
                 IsActive, Status
             FROM CompanySubscriptions
-            WHERE Status = @STATUS AND IsDelete = 0;
+            WHERE Status = @STATUS AND IsDeleted = 0;
             RETURN;
         END
 
@@ -129,7 +129,7 @@ BEGIN
                 IsActive, Status
             FROM CompanySubscriptions
             WHERE EndDate < GETUTCDATE() 
-              AND IsDelete = 0;
+              AND IsDeleted = 0;
             RETURN;
         END
         IF @FLAG = 'GETEXPIRINGTODAY'
@@ -140,7 +140,7 @@ BEGIN
             FROM CompanySubscriptions
             WHERE 
                 CAST(EndDate AS DATE) = CAST(GETUTCDATE()  AS DATE)
-                AND IsDelete = 0;
+                AND IsDeleted = 0;
 
             RETURN;
         END
@@ -154,7 +154,7 @@ BEGIN
             WHERE 
                 EndDate >= GETUTCDATE() 
                 AND EndDate <= DATEADD(DAY, 7, GETUTCDATE() )
-                AND IsDelete = 0;
+                AND IsDeleted = 0;
 
             RETURN;
         END

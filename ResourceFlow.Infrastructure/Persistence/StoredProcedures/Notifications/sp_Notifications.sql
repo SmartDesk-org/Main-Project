@@ -17,7 +17,7 @@
     @MODIFIEDBY       INT             = NULL,
     @DELETEDAT        DATETIME2       = NULL,
     @DELETEDBY        INT             = NULL,
-    @ISDELETE         BIT             = NULL
+    @ISDELETED         BIT             = NULL
 AS
 BEGIN
     BEGIN TRY
@@ -31,7 +31,7 @@ BEGIN
                 ReferenceType, ReferenceId, SentAt, IsSent,
                 ReadAt, IsRead, RetryCount
             FROM Notification
-            WHERE IsDelete = 0;
+            WHERE IsDeleted = 0;
             RETURN;
         END
 
@@ -43,7 +43,7 @@ BEGIN
                 RETURN;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM Notification WHERE Id = @ID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM Notification WHERE Id = @ID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('Notification record not found for the given ID', 16, 1);
                 RETURN;
@@ -55,7 +55,7 @@ BEGIN
                 ReferenceType, ReferenceId, SentAt, IsSent,
                 ReadAt, IsRead, RetryCount
             FROM Notification
-            WHERE Id = @ID AND IsDelete = 0;
+            WHERE Id = @ID AND IsDeleted = 0;
             RETURN;
         END
 
@@ -67,7 +67,7 @@ BEGIN
                 RETURN;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM Notification WHERE CompanyId = @COMPANYID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM Notification WHERE CompanyId = @COMPANYID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('No notifications found for the given CompanyId', 16, 1);
                 RETURN;
@@ -79,7 +79,7 @@ BEGIN
                 ReferenceType, ReferenceId, SentAt, IsSent,
                 ReadAt, IsRead, RetryCount
             FROM Notification
-            WHERE CompanyId = @COMPANYID AND IsDelete = 0;
+            WHERE CompanyId = @COMPANYID AND IsDeleted = 0;
             RETURN;
         END
 
@@ -91,7 +91,7 @@ BEGIN
                 RETURN;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM Notification WHERE UserId = @USERID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM Notification WHERE UserId = @USERID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('No notifications found for the given UserId', 16, 1);
                 RETURN;
@@ -103,7 +103,7 @@ BEGIN
                 ReferenceType, ReferenceId, SentAt, IsSent,
                 ReadAt, IsRead, RetryCount
             FROM Notification
-            WHERE UserId = @USERID AND IsDelete = 0;
+            WHERE UserId = @USERID AND IsDeleted = 0;
             RETURN;
         END
 
@@ -115,7 +115,7 @@ BEGIN
                 RETURN;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM Notification WHERE RoleId = @ROLEID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM Notification WHERE RoleId = @ROLEID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('No notifications found for the given RoleId', 16, 1);
                 RETURN;
@@ -127,7 +127,7 @@ BEGIN
                 ReferenceType, ReferenceId, SentAt, IsSent,
                 ReadAt, IsRead, RetryCount
             FROM Notification
-            WHERE RoleId = @ROLEID AND IsDelete = 0;
+            WHERE RoleId = @ROLEID AND IsDeleted = 0;
             RETURN;
         END
 
@@ -145,7 +145,7 @@ BEGIN
                 ReferenceType, ReferenceId, SentAt, IsSent,
                 ReadAt, IsRead, RetryCount
             FROM Notification
-            WHERE IsSent = @ISSENT AND IsDelete = 0;
+            WHERE IsSent = @ISSENT AND IsDeleted = 0;
             RETURN;
         END
 
@@ -163,7 +163,7 @@ BEGIN
                 ReferenceType, ReferenceId, SentAt, IsSent,
                 ReadAt, IsRead, RetryCount
             FROM Notification
-            WHERE IsRead = @ISREAD AND IsDelete = 0;
+            WHERE IsRead = @ISREAD AND IsDeleted = 0;
             RETURN;
         END
 

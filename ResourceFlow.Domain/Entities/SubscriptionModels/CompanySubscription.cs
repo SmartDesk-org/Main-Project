@@ -19,6 +19,6 @@ namespace ResourceFlow.Domain.Entities.SubscriptionModels
 
 
         public virtual CompanyDetails? Company { get; set; }
-        public virtual SubscriptionPlan? SubscriptionPlan { get; set; }
+        public virtual Subscription? Subscription { get; set; }
     }
 }

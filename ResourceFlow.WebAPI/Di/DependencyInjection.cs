@@ -8,16 +8,16 @@ using ResourceFlow.Application.Interfaces.Auth;
 using ResourceFlow.Application.Interfaces.Company;
 using ResourceFlow.Application.Interfaces.Payments;
 using ResourceFlow.Application.Interfaces.Repositories;
-using ResourceFlow.Application.Interfaces.Subscription;
+using ResourceFlow.Application.Interfaces.Subscriptions;
 using ResourceFlow.Application.Services;
 using ResourceFlow.Application.Services.Company;
 using ResourceFlow.Application.Services.Payments;
-using ResourceFlow.Application.Services.Subscription;
+using ResourceFlow.Application.Services.Subscriptions;
 using ResourceFlow.Infrastructure.Ef.Repositories;
 using ResourceFlow.Infrastructure.Persistence.Dapper;
+using ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories;
 using ResourceFlow.Infrastructure.Persistence.Dapper.Repositories;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
-using ResourceFlow.Infrastructure.Persistence.Service;
 using ResourceFlow.Infrastructure.Services;
 using System.Text.Json.Serialization;
 
@@ -49,6 +49,7 @@ namespace ResourceFlow.WebAPI.DI
             services.AddSingleton<DapperContext>();
             services.AddTransient<StoredProcedureInstaller>();
             services.AddScoped<IUserDapperRepository, UserDapperRepository>();
+            services.AddScoped<ISubscriptionDapperRepository, SubscriptionDapperRepository>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -81,29 +82,11 @@ namespace ResourceFlow.WebAPI.DI
             // Swagger
             services.AddSwaggerGen(options =>
             {
-                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
-                    In = ParameterLocation.Header,
-                    Description = "Enter token: Bearer {your token}"
-                });
+               
 
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                          Reference = new OpenApiReference
-                          {
-                              Type = ReferenceType.SecurityScheme,
-                              Id = "Bearer"
-                          }
-                        },
-                        Array.Empty<string>()
-                    }
+                   
                 });
             });
 

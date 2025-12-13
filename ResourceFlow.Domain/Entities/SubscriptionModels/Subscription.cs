@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Domain.Entities.SubscriptionModels
 {
-    public class SubscriptionPlan:BaseEntity
+    public class Subscription:BaseEntity
     {
         public int Id { get; set; }
-        public string SubscriptionPlanName { get; set; } = null!;
+        public string SubscriptionName { get; set; } = null!;
 
         public int EmployeeLimit { get; set; }
         public int FloorLimit { get; set; }
@@ -19,6 +19,8 @@ namespace ResourceFlow.Domain.Entities.SubscriptionModels
         public double PriceMonthly { get; set; }
         public double PriceYearly { get; set; }
         public string Description { get; set; } = string.Empty;
+
+        public bool IsActive { get; set; } = true;
 
         public virtual ICollection<CompanySubscription> CompanySubscriptions { get; set; }  = new List<CompanySubscription>();
 

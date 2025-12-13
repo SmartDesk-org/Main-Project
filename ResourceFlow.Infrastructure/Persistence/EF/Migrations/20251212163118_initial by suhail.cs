@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     /// <inheritdoc />
-    public partial class Initialmigrationbysuhail : Migration
+    public partial class initialbysuhail : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,12 +57,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SubscriptionPlans",
+                name: "Subscriptions",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SubscriptionPlanName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SubscriptionName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EmployeeLimit = table.Column<int>(type: "int", nullable: false),
                     FloorLimit = table.Column<int>(type: "int", nullable: false),
                     DeskLimit = table.Column<int>(type: "int", nullable: false),
@@ -80,7 +80,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SubscriptionPlans", x => x.Id);
+                    table.PrimaryKey("PK_Subscriptions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -271,9 +271,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         principalColumn: "CompanyId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_CompanySubscription_SubscriptionPlans_SubscriptionPlanId",
+                        name: "FK_CompanySubscription_Subscriptions_SubscriptionPlanId",
                         column: x => x.SubscriptionPlanId,
-                        principalTable: "SubscriptionPlans",
+                        principalTable: "Subscriptions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -371,15 +371,15 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "RoleName" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 12, 11, 9, 39, 9, 746, DateTimeKind.Utc).AddTicks(4454), null, null, null, false, null, null, "SuperAdmin" },
-                    { 2, new DateTime(2025, 12, 11, 9, 39, 9, 746, DateTimeKind.Utc).AddTicks(4462), null, null, null, false, null, null, "CompanyAdmin" },
-                    { 3, new DateTime(2025, 12, 11, 9, 39, 9, 746, DateTimeKind.Utc).AddTicks(4463), null, null, null, false, null, null, "Employee" }
+                    { 1, new DateTime(2025, 12, 12, 16, 31, 16, 321, DateTimeKind.Utc).AddTicks(7810), null, null, null, false, null, null, "SuperAdmin" },
+                    { 2, new DateTime(2025, 12, 12, 16, 31, 16, 321, DateTimeKind.Utc).AddTicks(7820), null, null, null, false, null, null, "CompanyAdmin" },
+                    { 3, new DateTime(2025, 12, 12, 16, 31, 16, 321, DateTimeKind.Utc).AddTicks(7823), null, null, null, false, null, null, "Employee" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "UserId", "CompanyId", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "Email", "IsActive", "IsBlocked", "IsDeleted", "ModifiedAt", "ModifiedBy", "PassWord", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiry", "RoleId", "UserName" },
-                values: new object[] { 1, null, new DateTime(2025, 12, 11, 9, 39, 9, 957, DateTimeKind.Utc).AddTicks(7619), null, null, null, "suhailpalakkal1@gmail.com", true, false, false, null, null, "$2a$11$B7M7jhLwoo08d7f1QjWAKuytiwGZ2LODdukRrxX3oSNHJq56Qmiem", null, null, "", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Suhail" });
+                values: new object[] { 1, null, new DateTime(2025, 12, 12, 16, 31, 16, 668, DateTimeKind.Utc).AddTicks(8680), null, null, null, "suhailpalakkal1@gmail.com", true, false, false, null, null, "$2a$11$SHJxoMRoe.yoF4osObeQM.HiYgX5eh0mkOxa3M4/8s4fMbAevcoJC", null, null, "", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Suhail" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Billing_CompanyId",
@@ -474,7 +474,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 name: "Resources");
 
             migrationBuilder.DropTable(
-                name: "SubscriptionPlans");
+                name: "Subscriptions");
 
             migrationBuilder.DropTable(
                 name: "Users");

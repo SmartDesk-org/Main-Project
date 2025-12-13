@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
 {
-    public class SubscriptionPlanConfigurations:IEntityTypeConfiguration<SubscriptionPlan>
+    public class SubscriptionPlanConfigurations:IEntityTypeConfiguration<Subscription>
     {
-        public void Configure(EntityTypeBuilder<SubscriptionPlan> builder)
+        public void Configure(EntityTypeBuilder<Subscription> builder)
         {
             builder.HasKey(s => s.Id);
 
-            builder.ToTable("SubscriptionPlans");
+            builder.ToTable("Subscriptions");
 
         }
 

@@ -106,7 +106,14 @@ namespace ResourceFlow.Application.Services
 
                 await _authRepo.SaveAsync();
 
-                return new Response<object>(200, "User logged in successfully", new { token, refresh });
+                var res = new 
+                {
+                    AccessToken = token,
+                    RefreshToken = refresh,
+                    Role = user.RoleId
+                };
+
+                return new Response<object>(200, "User logged in successfully", res);
             }
             catch (Exception ex)
             {
@@ -141,14 +148,16 @@ namespace ResourceFlow.Application.Services
                 trackedUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
                 await _authRepo.SaveAsync();
-
-                // STEP 5: RETURN RESPONSE
-                return new Response<object>(200, "Token refreshed", new
+                var res = new AuthTokensDto
                 {
-                    accessToken,
-                    refreshToken = newRefreshToken,
-                    expiresIn = expires
-                });
+                    AccessToken = accessToken,
+                    RefreshToken = newRefreshToken,
+                    AccessTokenExpiry = expires,
+                    RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
+                    Role = user.RoleId
+                };
+                // STEP 5: RETURN RESPONSE
+                return new Response<object>(200, "Token refreshed",res );
             }
             catch (Exception ex)
             {
@@ -277,23 +286,5 @@ namespace ResourceFlow.Application.Services
                 return new Response<string>(500, ex.Message);
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }

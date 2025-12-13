@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Company;
+using ResourceFlow.Application.Interfaces.Auth;
 using ResourceFlow.Application.Interfaces.Company;
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Domain.Entities.Authentication;
@@ -20,16 +21,17 @@ namespace ResourceFlow.Application.Services.Company
         private readonly IGenericRepository<CompanyDetails> _companyRepo;
         private readonly IGenericRepository<User> _userRepo;
         private readonly IGenericRepository<CompanySubscription> _compSubRepo;
-        private readonly IGenericRepository<SubscriptionPlan> _subRepo;
+        private readonly IGenericRepository<Subscription> _subRepo;
         private readonly IGenericRepository<Resource> _resourceRepo;
         private readonly IGenericRepository<CompanyFloor> _floorRepo;
+        private readonly IJwtService _jwtservice;
         private readonly IMapper _mapper;
 
         public CompanyService(
             IGenericRepository<CompanyDetails> companyRepo,
             IGenericRepository<User> userRepo,
             IGenericRepository<CompanySubscription> compSubRepo,
-            IGenericRepository<SubscriptionPlan> subRepo,
+            IGenericRepository<Subscription> subRepo,
             IGenericRepository<Resource> resourceRepo,
             IGenericRepository<CompanyFloor> floorRepo,
             IMapper mapper
@@ -109,7 +111,7 @@ namespace ResourceFlow.Application.Services.Company
             var res = new
             {
                 CompanyId = newCompany.CompanyId,
-                SubscritionName = subPlan.SubscriptionPlanName,
+                SubscritionName = subPlan.SubscriptionName,
                 StartDate = newCompanySubscription.StartDate,
                 EndDate = newCompanySubscription.EndDate,
                 AmountToBEPaid = totalAmount,

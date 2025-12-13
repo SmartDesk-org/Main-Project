@@ -11,7 +11,7 @@
     @MODIFIEDBY     INT              = NULL,
     @DELETEDAT      DATETIME2        = NULL,
     @DELETEDBY      INT              = NULL,
-    @ISDELETE       BIT              = NULL
+    @ISDELETED       BIT              = NULL
 AS
 BEGIN
     BEGIN TRY
@@ -22,7 +22,7 @@ BEGIN
             SELECT 
                 Id, CompanyId, SubscriptionId, TransactionId, Amount, PaymentDate, PaymentStatus
             FROM Payment
-            WHERE IsDelete = 0;
+            WHERE IsDeleted = 0;
             RETURN;
         END
 
@@ -35,7 +35,7 @@ BEGIN
                 RETURN;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM Payment WHERE Id = @PAYMENTID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM Payment WHERE Id = @PAYMENTID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('Payment with this id not found', 16, 1);
                 RETURN;
@@ -44,7 +44,7 @@ BEGIN
             SELECT 
                 Id, CompanyId, SubscriptionId, TransactionId, Amount, PaymentDate, PaymentStatus
             FROM Payment
-            WHERE Id = @PAYMENTID AND IsDelete = 0;
+            WHERE Id = @PAYMENTID AND IsDeleted = 0;
             RETURN;
         END
 
@@ -56,7 +56,7 @@ BEGIN
                 RETURN;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM Payment WHERE CompanyId = @COMPANYID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM Payment WHERE CompanyId = @COMPANYID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('No payments found for the given CompanyId', 16, 1);
                 RETURN;
@@ -65,7 +65,7 @@ BEGIN
             SELECT 
                 Id, CompanyId, SubscriptionId, TransactionId, Amount, PaymentDate, PaymentStatus
             FROM Payment
-            WHERE CompanyId = @COMPANYID AND IsDelete = 0;
+            WHERE CompanyId = @COMPANYID AND IsDeleted = 0;
             RETURN;
         END
 
@@ -78,7 +78,7 @@ BEGIN
                 RETURN;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM Payment WHERE SubscriptionId = @SUBSCRIPTIONID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM Payment WHERE SubscriptionId = @SUBSCRIPTIONID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('No payments found for the given SubscriptionId', 16, 1);
                 RETURN;
@@ -87,7 +87,7 @@ BEGIN
             SELECT 
                 Id, CompanyId, SubscriptionId, TransactionId, Amount, PaymentDate, PaymentStatus
             FROM Payment
-            WHERE SubscriptionId = @SUBSCRIPTIONID AND IsDelete = 0;
+            WHERE SubscriptionId = @SUBSCRIPTIONID AND IsDeleted = 0;
             RETURN;
         END
 
@@ -102,7 +102,7 @@ BEGIN
             SELECT 
                 Id, CompanyId, SubscriptionId, TransactionId, Amount, PaymentDate, PaymentStatus
             FROM Payment
-            WHERE PaymentStatus = @PAYMENTSTATUS AND IsDelete = 0;
+            WHERE PaymentStatus = @PAYMENTSTATUS AND IsDeleted = 0;
             RETURN;
         END
 

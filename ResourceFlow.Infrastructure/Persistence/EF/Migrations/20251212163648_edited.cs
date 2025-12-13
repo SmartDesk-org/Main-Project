@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     /// <inheritdoc />
-    public partial class AddedAcoluminSubscription : Migration
+    public partial class edited : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,29 +22,29 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 table: "Roles",
                 keyColumn: "Id",
                 keyValue: 1,
-                column: "CreateAt",
-                value: new DateTime(2025, 12, 10, 9, 17, 9, 133, DateTimeKind.Utc).AddTicks(9336));
+                column: "CreatedAt",
+                value: new DateTime(2025, 12, 12, 16, 36, 46, 659, DateTimeKind.Utc).AddTicks(7978));
 
             migrationBuilder.UpdateData(
                 table: "Roles",
                 keyColumn: "Id",
                 keyValue: 2,
-                column: "CreateAt",
-                value: new DateTime(2025, 12, 10, 9, 17, 9, 133, DateTimeKind.Utc).AddTicks(9339));
+                column: "CreatedAt",
+                value: new DateTime(2025, 12, 12, 16, 36, 46, 659, DateTimeKind.Utc).AddTicks(7984));
 
             migrationBuilder.UpdateData(
                 table: "Roles",
                 keyColumn: "Id",
                 keyValue: 3,
-                column: "CreateAt",
-                value: new DateTime(2025, 12, 10, 9, 17, 9, 133, DateTimeKind.Utc).AddTicks(9340));
+                column: "CreatedAt",
+                value: new DateTime(2025, 12, 12, 16, 36, 46, 659, DateTimeKind.Utc).AddTicks(7987));
 
             migrationBuilder.UpdateData(
                 table: "Users",
                 keyColumn: "UserId",
                 keyValue: 1,
-                columns: new[] { "CreateAt", "PassWord" },
-                values: new object[] { new DateTime(2025, 12, 10, 9, 17, 9, 396, DateTimeKind.Utc).AddTicks(3948), "$2a$11$U84JqYLY6gPj.hNMBqzdX.ktxFvLK/NDv8cuaNe0cym/PFv2hqYH2" });
+                columns: new[] { "CreatedAt", "PassWord" },
+                values: new object[] { new DateTime(2025, 12, 12, 16, 36, 47, 64, DateTimeKind.Utc).AddTicks(905), "$2a$11$ZEXNSXRXpl0Uz3CapLP0aOTjLKCk1YX1DgWjunvQDNu5yJN741Qly" });
         }
 
         /// <inheritdoc />
@@ -58,29 +58,29 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 table: "Roles",
                 keyColumn: "Id",
                 keyValue: 1,
-                column: "CreateAt",
-                value: new DateTime(2025, 12, 8, 7, 21, 19, 361, DateTimeKind.Utc).AddTicks(6634));
+                column: "CreatedAt",
+                value: new DateTime(2025, 12, 12, 16, 31, 16, 321, DateTimeKind.Utc).AddTicks(7810));
 
             migrationBuilder.UpdateData(
                 table: "Roles",
                 keyColumn: "Id",
                 keyValue: 2,
-                column: "CreateAt",
-                value: new DateTime(2025, 12, 8, 7, 21, 19, 361, DateTimeKind.Utc).AddTicks(6639));
+                column: "CreatedAt",
+                value: new DateTime(2025, 12, 12, 16, 31, 16, 321, DateTimeKind.Utc).AddTicks(7820));
 
             migrationBuilder.UpdateData(
                 table: "Roles",
                 keyColumn: "Id",
                 keyValue: 3,
-                column: "CreateAt",
-                value: new DateTime(2025, 12, 8, 7, 21, 19, 361, DateTimeKind.Utc).AddTicks(6640));
+                column: "CreatedAt",
+                value: new DateTime(2025, 12, 12, 16, 31, 16, 321, DateTimeKind.Utc).AddTicks(7823));
 
             migrationBuilder.UpdateData(
                 table: "Users",
                 keyColumn: "UserId",
                 keyValue: 1,
-                columns: new[] { "CreateAt", "PassWord" },
-                values: new object[] { new DateTime(2025, 12, 8, 7, 21, 19, 726, DateTimeKind.Utc).AddTicks(1063), "$2a$11$8vaDk1cb0B3xDDJu9Swvu.kYZtZ7ltBAeZ5xO3i2Lyt0P3wlkQWsW" });
+                columns: new[] { "CreatedAt", "PassWord" },
+                values: new object[] { new DateTime(2025, 12, 12, 16, 31, 16, 668, DateTimeKind.Utc).AddTicks(8680), "$2a$11$SHJxoMRoe.yoF4osObeQM.HiYgX5eh0mkOxa3M4/8s4fMbAevcoJC" });
         }
     }
 }

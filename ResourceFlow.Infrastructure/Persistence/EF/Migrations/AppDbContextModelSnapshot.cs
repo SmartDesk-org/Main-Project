@@ -288,21 +288,21 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 11, 9, 39, 9, 746, DateTimeKind.Utc).AddTicks(4454),
+                            CreatedAt = new DateTime(2025, 12, 12, 16, 36, 46, 659, DateTimeKind.Utc).AddTicks(7978),
                             IsDeleted = false,
                             RoleName = "SuperAdmin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 11, 9, 39, 9, 746, DateTimeKind.Utc).AddTicks(4462),
+                            CreatedAt = new DateTime(2025, 12, 12, 16, 36, 46, 659, DateTimeKind.Utc).AddTicks(7984),
                             IsDeleted = false,
                             RoleName = "CompanyAdmin"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 11, 9, 39, 9, 746, DateTimeKind.Utc).AddTicks(4463),
+                            CreatedAt = new DateTime(2025, 12, 12, 16, 36, 46, 659, DateTimeKind.Utc).AddTicks(7987),
                             IsDeleted = false,
                             RoleName = "Employee"
                         });
@@ -389,12 +389,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 12, 11, 9, 39, 9, 957, DateTimeKind.Utc).AddTicks(7619),
+                            CreatedAt = new DateTime(2025, 12, 12, 16, 36, 47, 64, DateTimeKind.Utc).AddTicks(905),
                             Email = "suhailpalakkal1@gmail.com",
                             IsActive = true,
                             IsBlocked = false,
                             IsDeleted = false,
-                            PassWord = "$2a$11$B7M7jhLwoo08d7f1QjWAKuytiwGZ2LODdukRrxX3oSNHJq56Qmiem",
+                            PassWord = "$2a$11$ZEXNSXRXpl0Uz3CapLP0aOTjLKCk1YX1DgWjunvQDNu5yJN741Qly",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1,
@@ -651,7 +651,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.ToTable("CompanySubscription", (string)null);
                 });
 
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.SubscriptionPlan", b =>
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.Subscription", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -684,6 +684,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<int>("FloorLimit")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -702,13 +705,13 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<double>("PriceYearly")
                         .HasColumnType("float");
 
-                    b.Property<string>("SubscriptionPlanName")
+                    b.Property<string>("SubscriptionName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("SubscriptionPlans", (string)null);
+                    b.ToTable("Subscriptions", (string)null);
                 });
 
             modelBuilder.Entity("Billing", b =>
@@ -823,7 +826,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ResourceFlow.Domain.Entities.SubscriptionModels.SubscriptionPlan", "SubscriptionPlan")
+                    b.HasOne("ResourceFlow.Domain.Entities.SubscriptionModels.Subscription", "Subscription")
                         .WithMany("CompanySubscriptions")
                         .HasForeignKey("SubscriptionPlanId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -831,7 +834,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 
                     b.Navigation("Company");
 
-                    b.Navigation("SubscriptionPlan");
+                    b.Navigation("Subscription");
                 });
 
             modelBuilder.Entity("CompanyDetails", b =>
@@ -858,7 +861,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.SubscriptionPlan", b =>
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.Subscription", b =>
                 {
                     b.Navigation("CompanySubscriptions");
                 });

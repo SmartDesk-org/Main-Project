@@ -2,7 +2,7 @@
 using ResourceFlow.Infrastructure.Persistence.Dapper;
 using System.Data;
 
-namespace ResourceFlow.Infrastructure.Persistence.Service
+namespace ResourceFlow.Infrastructure.Services
 {
     public class StoredProcedureInstaller
     {

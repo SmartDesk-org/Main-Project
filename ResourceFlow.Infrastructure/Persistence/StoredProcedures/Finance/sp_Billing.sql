@@ -17,7 +17,7 @@
     @MODIFIEDBY            INT              = NULL,
     @DELETEDAT             DATETIME2        = NULL,
     @DELETEDBY             INT              = NULL,
-    @ISDELETE              BIT              = NULL
+    @ISDELETED              BIT              = NULL
 AS
 BEGIN
     BEGIN TRY
@@ -30,7 +30,7 @@ BEGIN
                 InvoiceNumber, TotalAmount, PaymentStatus, PaymentMethod,
                 TransactionId, BillingDate, SubscriptionStartDate, SubscriptionEndDate
             FROM Billing
-            WHERE IsDelete = 0;
+            WHERE IsDeleted = 0;
             RETURN;
         END
 
@@ -42,7 +42,7 @@ BEGIN
                 RETURN;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM Billing WHERE BillingId = @BILLINGID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM Billing WHERE BillingId = @BILLINGID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('Billing record not found for the given ID', 16, 1);
                 RETURN;
@@ -53,7 +53,7 @@ BEGIN
                 InvoiceNumber, TotalAmount, PaymentStatus, PaymentMethod,
                 TransactionId, BillingDate, SubscriptionStartDate, SubscriptionEndDate
             FROM Billing
-            WHERE BillingId = @BILLINGID AND IsDelete = 0;
+            WHERE BillingId = @BILLINGID AND IsDeleted = 0;
             RETURN;
         END
 
@@ -65,7 +65,7 @@ BEGIN
                 RETURN;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM Billing WHERE CompanyId = @COMPANYID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM Billing WHERE CompanyId = @COMPANYID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('No billing records found for the given CompanyId', 16, 1);
                 RETURN;
@@ -76,7 +76,7 @@ BEGIN
                 InvoiceNumber, TotalAmount, PaymentStatus, PaymentMethod,
                 TransactionId, BillingDate, SubscriptionStartDate, SubscriptionEndDate
             FROM Billing
-            WHERE CompanyId = @COMPANYID AND IsDelete = 0;
+            WHERE CompanyId = @COMPANYID AND IsDeleted = 0;
             RETURN;
         END
 
@@ -95,7 +95,7 @@ BEGIN
                 InvoiceNumber, TotalAmount, PaymentStatus, PaymentMethod,
                 TransactionId, BillingDate, SubscriptionStartDate, SubscriptionEndDate
             FROM Billing
-            WHERE PaymentStatus = @PAYMENTSTATUS AND IsDelete = 0;
+            WHERE PaymentStatus = @PAYMENTSTATUS AND IsDeleted = 0;
             RETURN;
         END
 

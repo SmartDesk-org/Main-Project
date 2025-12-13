@@ -12,7 +12,7 @@
     @MODIFIEDBY        INT              = NULL,
     @DELETEDAT         DATETIME2        = NULL,
     @DELETEDBY         INT              = NULL,
-    @ISDELETE          BIT              = NULL
+    @ISDELETED          BIT              = NULL
 AS
 BEGIN
     BEGIN TRY
@@ -24,7 +24,7 @@ BEGIN
                 Id, UserId, CompanyId, DefaultFloorId, 
                 Department, Status
             FROM Employees
-            WHERE IsDelete = 0;
+            WHERE IsDeleted = 0;
             RETURN;
         END
 
@@ -36,7 +36,7 @@ BEGIN
                 RAISERROR('ID is required for GETBYID', 16, 1);
                 RETURN;
             END
-             IF NOT EXISTS (SELECT 1 FROM Employees WHERE Id = @ID AND IsDelete = 0)
+             IF NOT EXISTS (SELECT 1 FROM Employees WHERE Id = @ID AND IsDeleted = 0)
              BEGIN
               RAISERROR('Employee not found for the given ID', 16, 1);
             RETURN;
@@ -46,7 +46,7 @@ BEGIN
                 Id, UserId, CompanyId, DefaultFloorId, 
                 Department, Status
             FROM Employees
-            WHERE Id = @ID AND IsDelete = 0;
+            WHERE Id = @ID AND IsDeleted = 0;
             RETURN;
         END
 
@@ -57,7 +57,7 @@ BEGIN
                 RAISERROR('USERID is required for GETBYUSERID', 16, 1);
                 RETURN;
             END
-              IF NOT EXISTS (SELECT 1 FROM Employees WHERE UserId = @USERID AND IsDelete = 0)
+              IF NOT EXISTS (SELECT 1 FROM Employees WHERE UserId = @USERID AND IsDeleted = 0)
              BEGIN
               RAISERROR('Employee not found for the given UserId', 16, 1);
             RETURN;
@@ -67,7 +67,7 @@ BEGIN
                 Id, UserId, CompanyId, DefaultFloorId, 
                 Department, Status
             FROM Employees
-            WHERE UserId = @USERID AND IsDelete = 0;
+            WHERE UserId = @USERID AND IsDeleted = 0;
             RETURN;
         END
 
@@ -78,7 +78,7 @@ BEGIN
                 RAISERROR('COMPANYID is required for GETBYCOMPANYID', 16, 1);
                 RETURN;
             END
-              IF NOT EXISTS (SELECT 1 FROM Employees WHERE CompanyId = @COMPANYID AND IsDelete = 0)
+              IF NOT EXISTS (SELECT 1 FROM Employees WHERE CompanyId = @COMPANYID AND IsDeleted = 0)
              BEGIN
               RAISERROR('Employees not found for the given CompanyId', 16, 1);
             RETURN;
@@ -88,7 +88,7 @@ BEGIN
                 Id, UserId, CompanyId, DefaultFloorId, 
                 Department, Status
             FROM Employees
-            WHERE CompanyId = @COMPANYID AND IsDelete = 0;
+            WHERE CompanyId = @COMPANYID AND IsDeleted = 0;
             RETURN;
         END
 
@@ -104,7 +104,7 @@ BEGIN
                 Id, UserId, CompanyId, DefaultFloorId, 
                 Department, Status
             FROM Employees
-            WHERE Status = @STATUS AND IsDelete = 0;
+            WHERE Status = @STATUS AND IsDeleted = 0;
             RETURN;
         END
 
@@ -120,7 +120,7 @@ BEGIN
                 Id, UserId, CompanyId, DefaultFloorId, 
                 Department, Status
             FROM Employees
-            WHERE Department = @DEPARTMENT AND IsDelete = 0;
+            WHERE Department = @DEPARTMENT AND IsDeleted = 0;
             RETURN;
         END
 
