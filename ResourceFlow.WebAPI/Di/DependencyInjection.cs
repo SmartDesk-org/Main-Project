@@ -8,11 +8,8 @@ using ResourceFlow.Application.Interfaces.Auth;
 using ResourceFlow.Application.Interfaces.Company;
 using ResourceFlow.Application.Interfaces.Payments;
 using ResourceFlow.Application.Interfaces.Repositories;
-<<<<<<< HEAD
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
-=======
 using ResourceFlow.Application.Interfaces.Subscription;
->>>>>>> ea69d59f84af7192488e1d468688bfd7e652e26f
 using ResourceFlow.Application.Services;
 using ResourceFlow.Application.Services.Company;
 using ResourceFlow.Application.Services.Payments;
@@ -85,37 +82,9 @@ namespace ResourceFlow.WebAPI.DI
                           .AllowCredentials();
                 });
             });
-
-            // Swagger
-            services.AddSwaggerGen(options =>
-            {
-                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
-                    In = ParameterLocation.Header,
-                    Description = "Enter token: Bearer {your token}"
-                });
-
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                          Reference = new OpenApiReference
-                          {
-                              Type = ReferenceType.SecurityScheme,
-                              Id = "Bearer"
-                          }
-                        },
-                        Array.Empty<string>()
-                    }
-                });
-            });
-
             return services;
+
         }
+
     }
 }

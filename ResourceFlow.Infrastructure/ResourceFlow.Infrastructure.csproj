@@ -15,7 +15,6 @@
 	<!-- Folder Structure -->
 	<ItemGroup>
 		<Folder Include="Persistence\Dapper\" />
-		<Folder Include="Persistence\EF\Migrations\" />
 	</ItemGroup>
 
 	<!-- SQL File Copy -->

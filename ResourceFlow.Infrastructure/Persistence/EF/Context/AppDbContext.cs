@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using ResourceFlow.Domain.Entities;
 using ResourceFlow.Domain.Entities.Authentication;
+using ResourceFlow.Domain.Entities.Authorization;
 using ResourceFlow.Domain.Entities.CompanyModels;
 using ResourceFlow.Domain.Entities.Finance;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
@@ -98,5 +99,8 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
         public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
         public DbSet<CompanySubscription> CompanySubscriptions { get; set; }
         public DbSet<CompanyFloor> CompanyFloors { get; set; }
+        public DbSet<AppModule> Modules { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
     }
 }

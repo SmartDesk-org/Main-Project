@@ -38,40 +38,40 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
  
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
-        {
-            try
-            {
-                var res = await _auth.LoginAsync(dto);
+        //[HttpPost("login")]
+        //public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
+        //{
+        //    try
+        //    {
+        //        var res = await _auth.LoginAsync(dto);
 
-                if (res.Data is AuthTokensDTO data && !string.IsNullOrEmpty(data.RefreshToken))
-                {
-                    Response.Cookies.Append("refreshToken", data.RefreshToken, new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Secure = true,
-                        SameSite = SameSiteMode.Strict,
-                        Expires = DateTime.UtcNow.AddDays(7)
-                    });
-                }
+        //        if (res.Data is AuthTokensDTO data && !string.IsNullOrEmpty(data.RefreshToken))
+        //        {
+        //            Response.Cookies.Append("refreshToken", data.RefreshToken, new CookieOptions
+        //            {
+        //                HttpOnly = true,
+        //                Secure = true,
+        //                SameSite = SameSiteMode.Strict,
+        //                Expires = DateTime.UtcNow.AddDays(7)
+        //            });
+        //        }
 
-                return StatusCode(res.StatusCode, res);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ex.Message });
-            }
-        }
+        //        return StatusCode(res.StatusCode, res);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = ex.Message });
+        //    }
+        //}
 
-<<<<<<< HEAD
-        [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
-        {
-            try
-            {
-                var res = await _auth.RefreshTokenAsync(refreshToken);
-=======
+
+        //[HttpPost("refresh-token")]
+        //public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+        //{
+        //    try
+        //    {
+        //        var res = await _auth.RefreshTokenAsync(refreshToken);
+
     
         
 
@@ -82,11 +82,10 @@ namespace ResourceFlow.WebAPI.Controllers
         {try{
             var res = await _auth.LoginAsync(dto);
             var data = res.Data as AuthTokensDto;
->>>>>>> ea69d59f84af7192488e1d468688bfd7e652e26f
 
                 if (res.Data is AuthTokensDTO tokens)
                 {
-                    // Set refresh token cookie
+                   
                     if (!string.IsNullOrEmpty(tokens.RefreshToken))
                     {
                         Response.Cookies.Append("refreshToken", tokens.RefreshToken, new CookieOptions
@@ -111,9 +110,7 @@ namespace ResourceFlow.WebAPI.Controllers
 
 
 
-        // ----------------------------------------------------
-        // REFRESH TOKEN
-        // ----------------------------------------------------
+     
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh()
         {
@@ -144,9 +141,7 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        // ----------------------------------------------------
-        // LOGOUT
-        // ----------------------------------------------------
+   
         [Authorize]
         [HttpPost("logout/{userId}")]
         public async Task<IActionResult> Logout(int userId)
@@ -157,11 +152,11 @@ namespace ResourceFlow.WebAPI.Controllers
             Response.Cookies.Delete("accessToken");
             Response.Cookies.Delete("refreshToken");
 
-<<<<<<< HEAD
+
             return StatusCode(result.StatusCode, result);
-=======
+
             return Ok(new { message = "Logged out" });
->>>>>>> ea69d59f84af7192488e1d468688bfd7e652e26f
+
         }
 
 
@@ -174,21 +169,19 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        // ----------------------------------------------------
-        // RESET PASSWORD
-        // ----------------------------------------------------
+      
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
         {
-            // CASE 1: Forgot password -> token is provided
+            
             if (!string.IsNullOrWhiteSpace(dto.Token))
             {
-                var result = await _auth.ResetPasswordAsync(dto, null); // token flow
+                var result = await _auth.ResetPasswordAsync(dto, null); 
                 return StatusCode(result.StatusCode, result);
             }
 
-            // CASE 2: Logged-in user -> get userId from JWT claims
-            int userId = User.GetUserId(); // uses your ClaimsPrincipal extension
+            
+            int userId = User.GetUserId(); 
             var result2 = await _auth.ResetPasswordAsync(dto, userId);
             return StatusCode(result2.StatusCode, result2);
         }
