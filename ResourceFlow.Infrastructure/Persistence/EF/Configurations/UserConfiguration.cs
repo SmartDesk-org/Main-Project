@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ResourceFlow.Domain.Entities.Authntication;
+using ResourceFlow.Domain.Entities.Authentication;
+using ResourceFlow.Domain.Entities.CompanyModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
 {
-    internal  class UserConfiguration:IEntityTypeConfiguration<User> 
+    internal class UserConfiguration : IEntityTypeConfiguration<User>
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
@@ -19,16 +20,32 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
 
             builder.Property(u => u.Email)
                 .IsRequired()
-                .HasMaxLength(200);
+                .HasMaxLength(100);
 
+            builder.Property(u => u.UserName)
+                .IsRequired()
+                .HasMaxLength(50);
             builder.Property(u => u.PassWord)
                 .IsRequired()
-                .HasMaxLength(200);
-
+                .HasMaxLength(260);
             builder.HasOne(u => u.Role)
-                .WithMany(u=>u.Users)
+                .WithMany(u => u.Users)
                 .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+
+            builder.HasOne(u=>u.Employee)
+                .WithOne(u=>u.User)
+                .HasForeignKey<Employees>(u=>u.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+
+            builder.HasOne(u => u.Company)
+                .WithMany(c => c.Users)
+                .HasForeignKey(u => u.CompanyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
         }
     }
 }
