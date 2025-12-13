@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
 {
-    public  class SubscriptionDapperRepository:ISubscriptionDapperRepository
+    public  class SubscriptionDapperRepository: ISubscriptionDapperRepository
     {
         private readonly string _connectionString;
         public SubscriptionDapperRepository(IConfiguration config)
@@ -30,7 +30,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
                     }
                 );
             Console.WriteLine("from dapper repo");
-            Console.WriteLine(res.First().EmployeeLimit);
+            //Console.WriteLine(res.First().EmployeeLimit);
             return res;
         }
     }

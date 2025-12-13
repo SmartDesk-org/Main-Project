@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ResourceFlow.Infrastructure.Services;
 using ResourceFlow.WebAPI.DI;
+using ResourceFlow.WebAPI.Middleware;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -115,6 +116,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowFrontEnd");
 
 app.UseHttpsRedirection();
+//app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 

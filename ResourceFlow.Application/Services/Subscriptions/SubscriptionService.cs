@@ -12,11 +12,11 @@ namespace ResourceFlow.Application.Services.Subscriptions
     public class SubscriptionService : ISubscriptionService
     {
         private readonly IGenericRepository<Subscription> _repo;
-        private readonly ISubscriptionPlanDapperRepository _dapperRepo;
+        private readonly ISubscriptionDapperRepository _dapperRepo;
         private readonly IMapper _mapper;
 
         public SubscriptionService(IGenericRepository<Subscription> repo,
-            ISubscriptionPlanDapperRepository dapperRepo,
+            ISubscriptionDapperRepository dapperRepo,
             IMapper mapper)
         {
             _repo = repo;
@@ -26,7 +26,7 @@ namespace ResourceFlow.Application.Services.Subscriptions
 
         public async Task<ApiResponse<Subscription>> CreatePlanAsync(CreateSubscriptionPlanDto dto, int userId)
         {
-            var exists = await _repo.SingleOrDefaultAsync(x => x.SubscriptionName == dto.SubscriptionName);
+            var exists = await _repo.SingleOrDefaultAsync(x => x.SubscriptionName == dto.SubscriptionName && x.IsDeleted==false);
             if (exists != null)
                 return new ApiResponse<Subscription>(400, "Plan already exists");
 
