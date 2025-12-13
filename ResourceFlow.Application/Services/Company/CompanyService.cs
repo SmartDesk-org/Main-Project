@@ -61,9 +61,10 @@ namespace ResourceFlow.Application.Services.Company
 
             var user = new User
             {
+                CompanyId=newCompany.CompanyId,
                 UserName = newCompany.Name,
                 Email = dto.Email.Trim(),
-                PassWord = dto.PassWord,
+                PassWord = BCrypt.Net.BCrypt.HashPassword(dto.PassWord),
                 RoleId = 2,
                 IsActive = false,
                 IsBlocked = false
@@ -73,15 +74,17 @@ namespace ResourceFlow.Application.Services.Company
             var companySubscription = new CompanySubscription
             {
                 CompanyId = newCompany.CompanyId,
-                SubscriptionPlanId = dto.SelectedSubscritionPlanId,
+                SubscriptionId = dto.SelectedSubscriptionId,
                 StartDate = newCompany.CreatedAt,
-                EndDate = newCompany.CreatedAt.AddYears(dto.ExpitationYear).AddMonths(dto.ExpitationMonth),
+                EndDate = newCompany.CreatedAt.AddYears(dto.ExpirationYear).AddMonths(dto.ExpirationMonth),
                 IsActive = false,
                 Status=SubscriptionStatus.Pending
             };
-            var newCompanySubscription =await  _compSubRepo.AddAsync(companySubscription);
+           
 
-            var subPlan =await  _subRepo.GetByIdAsync(dto.SelectedSubscritionPlanId);
+            var subPlan =await  _subRepo.GetByIdAsync(dto.SelectedSubscriptionId);
+
+            var newCompanySubscription = await _compSubRepo.AddAsync(companySubscription);
 
             var start = newCompanySubscription.StartDate;
             var end = newCompanySubscription.EndDate;
@@ -107,6 +110,11 @@ namespace ResourceFlow.Application.Services.Company
                                 + (months * subPlan.PriceMonthly)
                                 + (days * (subPlan.PriceMonthly / 30));
 
+            newCompanySubscription.AmoutToBePaid = totalAmount;
+
+            await _compSubRepo.UpdateAsync(newCompanySubscription);
+
+           
 
             var res = new
             {
@@ -128,6 +136,9 @@ namespace ResourceFlow.Application.Services.Company
             var subscription = await _compSubRepo.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.IsDeleted == false);
             var user = await _userRepo.SingleOrDefaultAsync(x => x.UserName == company.Name && x.CompanyId == company.CompanyId && x.IsDeleted == false);
 
+            if (user == null)
+                throw new Exception("User not found for company");
+
             company.IsActive = true;
             subscription.IsActive = true;
             user.IsActive = true;
@@ -137,11 +148,11 @@ namespace ResourceFlow.Application.Services.Company
             {
                 FloorName = "Default Floor",
                 CompanyId = company.CompanyId,
-                FloorNumber = 1
+                FloorNumber = 1,
+                Map="just test"
             };
 
             await _floorRepo.AddAsync(floor);
-
             await _companyRepo.UpdateAsync(company);
             await _compSubRepo.UpdateAsync(subscription);
             await _userRepo.UpdateAsync(user);

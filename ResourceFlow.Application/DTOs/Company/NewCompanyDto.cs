@@ -23,9 +23,9 @@ namespace ResourceFlow.Application.DTOs.Company
         public string? ConfirmPassword { get; set; } = default;
 
 
-        public int SelectedSubscritionPlanId { get; set; }
-        public int ExpitationMonth { get; set; }
-        public int ExpitationYear { get; set; }
+        public int SelectedSubscriptionId { get; set; }
+        public int ExpirationMonth { get; set; }
+        public int ExpirationYear { get; set; }
 
     }
 

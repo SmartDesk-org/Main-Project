@@ -23,7 +23,7 @@ namespace ResourceFlow.WebAPI.Controllers
         [HttpPost("create-intent")]
         public async Task<IActionResult> CreateIntent([FromBody] CreatePaymentIntentRequestDto dto)
         {
-            var res = await _paymentService.CreatePaymentIntent(dto.CompanyId, dto.AmountInRupees);
+            var res = await _paymentService.CreatePaymentIntent(dto.CompanyId);
             return Ok(res);
         }
 

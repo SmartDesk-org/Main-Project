@@ -12,8 +12,8 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251212163118_initial by suhail")]
-    partial class initialbysuhail
+    [Migration("20251213134625_after test")]
+    partial class aftertest
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -291,21 +291,21 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 12, 16, 31, 16, 321, DateTimeKind.Utc).AddTicks(7810),
+                            CreatedAt = new DateTime(2025, 12, 13, 13, 46, 24, 597, DateTimeKind.Utc).AddTicks(2592),
                             IsDeleted = false,
                             RoleName = "SuperAdmin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 12, 16, 31, 16, 321, DateTimeKind.Utc).AddTicks(7820),
+                            CreatedAt = new DateTime(2025, 12, 13, 13, 46, 24, 597, DateTimeKind.Utc).AddTicks(2602),
                             IsDeleted = false,
                             RoleName = "CompanyAdmin"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 12, 16, 31, 16, 321, DateTimeKind.Utc).AddTicks(7823),
+                            CreatedAt = new DateTime(2025, 12, 13, 13, 46, 24, 597, DateTimeKind.Utc).AddTicks(2605),
                             IsDeleted = false,
                             RoleName = "Employee"
                         });
@@ -392,12 +392,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 12, 12, 16, 31, 16, 668, DateTimeKind.Utc).AddTicks(8680),
+                            CreatedAt = new DateTime(2025, 12, 13, 13, 46, 24, 835, DateTimeKind.Utc).AddTicks(6678),
                             Email = "suhailpalakkal1@gmail.com",
                             IsActive = true,
                             IsBlocked = false,
                             IsDeleted = false,
-                            PassWord = "$2a$11$SHJxoMRoe.yoF4osObeQM.HiYgX5eh0mkOxa3M4/8s4fMbAevcoJC",
+                            PassWord = "$2a$11$P2J6Alc0TMDhULvSef0wROG5Lxr4hL4IpxvH/Ac4RDVUbF9AaYJ2u",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1,
@@ -605,6 +605,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<double>("AmoutToBePaid")
+                        .HasColumnType("float");
+
                     b.Property<int>("CompanyId")
                         .HasColumnType("int");
 
@@ -641,7 +644,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("SubscriptionPlanId")
+                    b.Property<int>("SubscriptionId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -649,7 +652,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.HasIndex("CompanyId")
                         .IsUnique();
 
-                    b.HasIndex("SubscriptionPlanId");
+                    b.HasIndex("SubscriptionId");
 
                     b.ToTable("CompanySubscription", (string)null);
                 });
@@ -686,6 +689,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 
                     b.Property<int>("FloorLimit")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -828,7 +834,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 
                     b.HasOne("ResourceFlow.Domain.Entities.SubscriptionModels.Subscription", "Subscription")
                         .WithMany("CompanySubscriptions")
-                        .HasForeignKey("SubscriptionPlanId")
+                        .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

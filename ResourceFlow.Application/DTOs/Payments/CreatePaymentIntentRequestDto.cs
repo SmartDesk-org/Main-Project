@@ -9,7 +9,6 @@ namespace ResourceFlow.Application.DTOs.Payments
     public class CreatePaymentIntentRequestDto
     {
         public int CompanyId { get; set; }
-        public int AmountInRupees { get; set; }
     }
 
    

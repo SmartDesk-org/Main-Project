@@ -57,5 +57,14 @@ namespace ResourceFlow.WebAPI.Controllers
 
             return StatusCode(res.StatusCode, res);
         }
+
+        [Authorize]
+        [HttpPatch("{id}/changeStatus")]
+        public async Task<IActionResult> Activate(int id)
+        {
+            var userId = User.GetUserId();
+            var res = await _service.ChangeStatusAsync(id, userId);
+            return StatusCode(res.StatusCode, res);
+        }
     }
 }

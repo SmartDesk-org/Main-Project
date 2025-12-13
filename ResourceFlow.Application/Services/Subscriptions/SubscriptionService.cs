@@ -77,5 +77,25 @@ namespace ResourceFlow.Application.Services.Subscriptions
             await _repo.DeleteAsync(item);
             return new ApiResponse<bool>(200, "Plan deleted ");
         }
+
+        public async Task<Response<object>> ChangeStatusAsync(int planId, int userId)
+        {
+            var plan = await _repo.GetByIdAsync(planId);
+
+            if (plan == null || plan.IsDeleted)
+                return new Response<object>(404, "Plan not found");
+
+            if (plan.IsActive)
+                plan.IsActive = false;
+            else
+                plan.IsActive = true;
+
+            await _repo.UpdateAsync(plan);
+
+            return new Response<object>(200, "Status changed successfully");
+        }
+
+       
+
     }
 }

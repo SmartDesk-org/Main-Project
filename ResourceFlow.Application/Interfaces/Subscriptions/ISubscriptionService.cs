@@ -12,5 +12,6 @@ namespace ResourceFlow.Application.Interfaces.Subscriptions
         Task<ApiResponse<Subscription>?> GetPlanByIdAsync(int id);
         Task<Response<Object>> UpdatePlanAsync(UpdateSubscriptionPlanDto dto,int userId, int planId);
         Task<ApiResponse<bool>> DeletePlanAsync(int id,int userId);
+        Task<Response<object>> ChangeStatusAsync(int planId, int userId);
     }
 }

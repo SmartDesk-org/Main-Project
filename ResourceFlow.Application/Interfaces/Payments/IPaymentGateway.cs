@@ -9,7 +9,7 @@ namespace ResourceFlow.Application.Interfaces.Payments
 {
     public  interface IPaymentGateway
     {
-        Task<CreatePaymentIntentResponseDto> CreatePaymentIntentAsync(int companyId, int amountInRupees);
+        Task<CreatePaymentIntentResponseDto> CreatePaymentIntentAsync(int companyId ,double amount);
         Task<bool> VerifyPaymentAsync(string paymentIntentId);
     }
 }

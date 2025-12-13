@@ -1,15 +1,16 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
+using ResourceFlow.Application.DTOs.Payments;
 using ResourceFlow.Application.Interfaces.Payments;
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Domain.Entities.Finance;
 using ResourceFlow.Domain.Enums;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ResourceFlow.Application.DTOs.Payments;
-using Stripe;
 
 namespace ResourceFlow.Infrastructure.Services
 {
@@ -26,9 +27,9 @@ namespace ResourceFlow.Infrastructure.Services
             _paymentRepo = paymentRepo;
         }
 
-        public async Task<CreatePaymentIntentResponseDto> CreatePaymentIntentAsync(int companyId, int amountInRupees)
+        public async Task<CreatePaymentIntentResponseDto> CreatePaymentIntentAsync(int companyId, double amountInRupees)
         {
-            var amountInPaise = amountInRupees * 100;
+            var amountInPaise = Convert.ToInt64(Math.Ceiling(amountInRupees * 100));
 
             var receiptId = $"COMP-{companyId}-{DateTime.UtcNow.Ticks}";
 

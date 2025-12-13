@@ -24,7 +24,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
 
             builder.HasOne(u => u.Subscription)
                 .WithMany(u => u.CompanySubscriptions)
-                .HasForeignKey(u => u.SubscriptionPlanId)
+                .HasForeignKey(u => u.SubscriptionId)
                 .OnDelete(DeleteBehavior.Cascade);
            
         }
