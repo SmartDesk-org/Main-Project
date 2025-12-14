@@ -10,6 +10,7 @@ namespace ResourceFlow.Application.Interfaces.Company
 {
     public interface ICompanyService
     {
+        Task<Response<IEnumerable<CompanyDetails>>> GetAllAsync();
         Task<Response<Object>> NewCompany(NewCompanyDto dto);
         Task ActivateCompanyAsync(int companyId);
     }

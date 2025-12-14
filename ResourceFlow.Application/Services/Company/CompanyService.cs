@@ -45,11 +45,20 @@ namespace ResourceFlow.Application.Services.Company
             _floorRepo = floorRepo;
             _mapper = mapper;
         }
+
+
+        public async Task<Response<IEnumerable<CompanyDetails>>> GetAllAsync()
+        {
+            var res =await  _companyRepo.GetAllAsync();
+            if (res == null || !res.Any())
+                return new Response<IEnumerable<CompanyDetails>>(404, "no client companies", res);
+            return new Response<IEnumerable<CompanyDetails>>(200, "companies found", res);
+        }
         public async Task<Response<Object>> NewCompany(NewCompanyDto dto)
         {
             var existing = await _companyRepo.SingleOrDefaultAsync(x => x.Name == dto.Name && x.IsDeleted == false);
             if (existing != null)
-                return new Response<Object>( 409, "There is already a company with same name ");
+                return new Response<Object>( 404, "There is already a company with same name ");
 
             var company = new CompanyDetails
             {

@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ResourceFlow.Infrastructure.Services;
 using ResourceFlow.WebAPI.DI;
 using ResourceFlow.WebAPI.Middleware;
 using System.Text;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -98,6 +100,20 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("Fixed", opt =>
+    {
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.PermitLimit = 10;
+        opt.QueueLimit = 0;
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
+
 var app = builder.Build();
 
 // Run stored procedure installer
@@ -113,10 +129,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+
+
 app.UseCors("AllowFrontEnd");
 
 app.UseHttpsRedirection();
+
 //app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseRateLimiter();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

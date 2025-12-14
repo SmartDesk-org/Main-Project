@@ -60,7 +60,7 @@ namespace ResourceFlow.WebAPI.Controllers
 
         [Authorize]
         [HttpPatch("{id}/changeStatus")]
-        public async Task<IActionResult> Activate(int id)
+        public async Task<IActionResult> ChangeStatus(int id)
         {
             var userId = User.GetUserId();
             var res = await _service.ChangeStatusAsync(id, userId);

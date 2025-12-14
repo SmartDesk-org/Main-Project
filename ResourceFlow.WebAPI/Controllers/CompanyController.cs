@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ResourceFlow.Application.DTOs.Company;
 using ResourceFlow.Application.Interfaces.Company;
@@ -15,6 +16,14 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             _service = service;
         }
+        [Authorize]
+        [HttpGet("GetAll")]
+        public async Task<ActionResult> GetAll()
+        {
+            var res =await  _service.GetAllAsync();
+            return StatusCode(res.StatusCode, res);
+        }
+
         [HttpPost("NewCompany")]
         public async Task<ActionResult> NewCompany([FromBody]NewCompanyDto dto)
         {
