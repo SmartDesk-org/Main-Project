@@ -8,7 +8,7 @@
     @MODIFIEDBY    INT             = NULL,
     @DELETEDAT     DATETIME2       = NULL,
     @DELETEDBY     INT             = NULL,
-    @ISDELETE      BIT             = NULL
+    @ISDELETED      BIT             = NULL
 AS
 BEGIN
 
@@ -19,7 +19,7 @@ BEGIN
         BEGIN
             SELECT Id AS RoleId,RoleName,CreatedBy
             FROM Roles
-            WHERE IsDelete = 0;
+            WHERE IsDeleted = 0;
             RETURN;
         END
 
@@ -30,7 +30,7 @@ BEGIN
                 RAISERROR('ROLEID is required for GETBYID', 16, 1);
                 RETURN;
             END
-             IF NOT EXISTS (SELECT 1 FROM Roles  WHERE Id =@ROLEID  AND IsDelete = 0)
+             IF NOT EXISTS (SELECT 1 FROM Roles  WHERE Id =@ROLEID  AND IsDeleted = 0)
             BEGIN
                 RAISERROR('Role with this id not found', 16, 1);
                 RETURN;
@@ -38,7 +38,7 @@ BEGIN
 
            SELECT Id AS RoleId,RoleName,CreatedBy
             FROM Roles
-            WHERE Id = @ROLEID AND IsDelete = 0;
+            WHERE Id = @ROLEID AND IsDeleted = 0;
 
             RETURN;
         END
@@ -53,7 +53,7 @@ BEGIN
 
            SELECT Id AS RoleId,RoleName,CreatedBy
             FROM Roles
-            WHERE RoleName = @ROLENAME AND IsDelete = 0;
+            WHERE RoleName = @ROLENAME AND IsDeleted = 0;
 
             RETURN;
         END

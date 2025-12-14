@@ -14,10 +14,7 @@ public class AppModuleConfiguration : IEntityTypeConfiguration<AppModule>
                .IsRequired()
                .HasMaxLength(100);
 
-        builder.HasMany(m => m.Permission)
-               .WithOne(p => p.Module)
-               .HasForeignKey(p => p.ModuleId)
-               .OnDelete(DeleteBehavior.Restrict);
+       
 
     }
 }

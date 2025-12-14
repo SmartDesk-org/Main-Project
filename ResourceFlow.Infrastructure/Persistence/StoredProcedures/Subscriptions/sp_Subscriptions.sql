@@ -1,8 +1,7 @@
-﻿CREATE OR ALTER PROCEDURE [dbo].[SUBSCRIPTIONS_SP] 
+﻿CREATE OR ALTER PROCEDURE [dbo].[SUBSCRIPTION_SP] 
     @FLAG           VARCHAR(40),
     @SUBSCRIPTIONID INT              = NULL,
     @SUBSCRIPTIONNAME NVARCHAR(200)  = NULL,
-    @RESOURCEID     INT              = NULL,
     @ISACTIVE       BIT              = NULL,
     @CREATEAT       DATETIME2        = NULL,
     @CREATEDBY      INT              = NULL,
@@ -10,7 +9,7 @@
     @MODIFIEDBY     INT              = NULL,
     @DELETEDAT      DATETIME2        = NULL,
     @DELETEDBY      INT              = NULL,
-    @ISDELETE       BIT              = NULL
+    @ISDELETED       BIT              = NULL
 AS
 BEGIN
     BEGIN TRY
@@ -18,9 +17,18 @@ BEGIN
         IF @FLAG = 'GETALL'
         BEGIN
             SELECT 
-                Id, SubscriptionName, ResourceId, PriceMonthly, PriceYearly, Description,IsActive
+                Id,
+        SubscriptionName,
+        EmployeeLimit,
+        FloorLimit,
+        DeskLimit,
+        MeetingRoomLimit,
+        PriceMonthly,
+        PriceYearly,
+        Description,
+        IsActive
             FROM Subscriptions
-            WHERE IsDelete = 0;
+            WHERE IsDeleted = 0;
             RETURN;
         END
        
@@ -32,16 +40,16 @@ BEGIN
                 RETURN;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM Subscriptions WHERE Id = @SUBSCRIPTIONID AND IsDelete = 0)
+            IF NOT EXISTS (SELECT 1 FROM Subscriptions WHERE Id = @SUBSCRIPTIONID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('Subscription with this id not found', 16, 1);
                 RETURN;
             END
 
             SELECT 
-                Id, SubscriptionName, ResourceId, PriceMonthly, PriceYearly, Description,IsActive
+                Id, SubscriptionName, PriceMonthly, PriceYearly, Description,IsActive
             FROM Subscriptions
-            WHERE Id = @SUBSCRIPTIONID AND IsDelete = 0;
+            WHERE Id = @SUBSCRIPTIONID AND IsDeleted = 0;
             RETURN;
         END
 
@@ -54,32 +62,13 @@ BEGIN
             END
 
             SELECT 
-                Id, SubscriptionName, ResourceId, PriceMonthly, PriceYearly, Description,IsActive
+                Id, SubscriptionName, PriceMonthly, PriceYearly, Description,IsActive
             FROM Subscriptions
-            WHERE SubscriptionName = @SUBSCRIPTIONNAME AND IsDelete = 0;
+            WHERE SubscriptionName = @SUBSCRIPTIONNAME AND IsDeleted = 0;
             RETURN;
         END
 
-        IF @FLAG = 'GETBYRESOURCEID'
-        BEGIN
-            IF @RESOURCEID IS NULL
-            BEGIN
-                RAISERROR('RESOURCEID is required for GETBYRESOURCEID', 16, 1);
-                RETURN;
-            END
-
-            IF NOT EXISTS (SELECT 1 FROM Subscriptions WHERE ResourceId = @RESOURCEID AND IsDelete = 0)
-            BEGIN
-                RAISERROR('No subscriptions found for the given ResourceId', 16, 1);
-                RETURN;
-            END
-
-            SELECT 
-                Id, SubscriptionName, ResourceId, PriceMonthly, PriceYearly, Description,IsActive
-            FROM Subscriptions
-            WHERE ResourceId = @RESOURCEID AND IsDelete = 0;
-            RETURN;
-        END
+       
 
      
         IF @FLAG = 'GETBYACTIVE'
@@ -91,9 +80,9 @@ BEGIN
             END
 
             SELECT 
-                Id, SubscriptionName, ResourceId, PriceMonthly, PriceYearly, Description,IsActive
+                Id, SubscriptionName,  PriceMonthly, PriceYearly, Description,IsActive
             FROM Subscriptions
-            WHERE IsActive = @ISACTIVE AND IsDelete = 0;
+            WHERE IsActive = @ISACTIVE AND IsDeleted = 0;
             RETURN;
         END
 

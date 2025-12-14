@@ -20,16 +20,14 @@ namespace ResourceFlow.WebAPI.Controllers
             _auth = auth;
         }
 
-        // ----------------------------------------------------
-        // REGISTER
-        // ----------------------------------------------------
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto dto)
         {
             try
             {
                 var res = await _auth.RegisterAsync(dto);
-                return StatusCode(res.StatusCode,res);
+                return StatusCode(res.StatusCode, res);
             }
             catch (Exception ex)
             {
@@ -37,7 +35,8 @@ namespace ResourceFlow.WebAPI.Controllers
             }
         }
 
- 
+
+
         //[HttpPost("login")]
         //public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         //{
@@ -72,30 +71,37 @@ namespace ResourceFlow.WebAPI.Controllers
         //    {
         //        var res = await _auth.RefreshTokenAsync(refreshToken);
 
-    
-        
+
+
+
 
 
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
-        {try{
-            var res = await _auth.LoginAsync(dto);
-            var data = res.Data as AuthTokensDto;
+        { try
+            {
+                var res = await _auth.LoginAsync(dto);
+                var data = res.Data as AuthTokensDto;
 
                 if (res.Data is AuthTokensDTO tokens)
                 {
-                   
+
                     if (!string.IsNullOrEmpty(tokens.RefreshToken))
                     {
+
                         Response.Cookies.Append("refreshToken", tokens.RefreshToken, new CookieOptions
                         {
                             HttpOnly = true,
-                            Secure = true,
-                            SameSite = SameSiteMode.Strict,
+                            Secure = false,
+                            SameSite = SameSiteMode.None,
                             Expires = DateTime.UtcNow.AddDays(7)
                         });
+
                     }
+
+
+
                 }
 
                 return StatusCode(res.StatusCode, res);
@@ -104,37 +110,27 @@ namespace ResourceFlow.WebAPI.Controllers
             {
                 return StatusCode(500, new { message = ex.Message });
             }
-    }
+        }
 
+        [Authorize]
 
-
-
-
-     
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh()
+        public async Task<IActionResult> Refresh([FromBody] string refreshToken)
         {
-            var refreshToken = Request.Cookies["refreshToken"];
+            //var refreshToken = Request.Cookies["refreshToken"];
+            Console.WriteLine("refresh");
+            Console.WriteLine( refreshToken);
             if (string.IsNullOrEmpty(refreshToken)) return Unauthorized();
 
             var res = await _auth.RefreshTokenAsync(refreshToken);
-            if (res == null) return Unauthorized();
-
+            if (res == null) return Unauthorized();           
             var data = res.Data as AuthTokensDto;
-
-            Response.Cookies.Append("accessToken", data.AccessToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = data.AccessTokenExpiry
-            });
 
             Response.Cookies.Append("refreshToken", data.RefreshToken, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = data.RefreshTokenExpiry
             });
 
@@ -155,7 +151,7 @@ namespace ResourceFlow.WebAPI.Controllers
 
             return StatusCode(result.StatusCode, result);
 
-            return Ok(new { message = "Logged out" });
+            //return Ok(new { message = "Logged out" });
 
         }
 

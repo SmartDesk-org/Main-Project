@@ -107,11 +107,16 @@ namespace ResourceFlow.Application.Services
 
                 await _authRepo.SaveAsync();
 
-                return new Response<object>(200, "User logged in successfully", new AuthTokensDTO
+
+                var res = new 
                 {
-                    AccessToken=token,
-                    RefreshToken=refresh
-                });
+                    AccessToken = token,
+                    RefreshToken = refresh,
+                    Role = user.RoleId
+                };
+
+                return new Response<object>(200, "User logged in successfully", res);
+
             }
             catch (Exception ex)
             {
@@ -123,38 +128,45 @@ namespace ResourceFlow.Application.Services
         {
             try
             {
-                // STEP 1: CHECK REFRESH TOKEN USING DAPPER SP
+               
                 var user = await _userDapperRepository.GetByRefreshToken(RefreshToken);
 
                 if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
                     return new Response<object>(401, "Invalid or expired refresh token");
 
-                // STEP 2: LOAD FULL USER AGAIN USING YOUR DAPPER GETBYID
+               
                 var dbUser = await _userDapperRepository.GetByUserIdAsync(user.UserId);
 
                 if (dbUser == null)
                     return new Response<object>(404, "User not found");
 
-                // STEP 3: GENERATE NEW TOKENS
+                if (user.RefreshTokenExpiry < DateTime.UtcNow ||
+                      user.RefreshTokenExpiry < DateTime.UtcNow)
+                    return new Response<object>(401, "Session expired. Please login again.");
+
+
                 var (accessToken, expires) = _jwtService.GenerateAccessToken(dbUser);
                 var newRefreshToken = _jwtService.GenerateRefreshToken();
 
-                // STEP 4: UPDATE USING EF CORE (**IMPORTANT**)
-                var trackedUser = await _authRepo.GetByIdAsync(dbUser.UserId);  // EF tracked entity
+               
+                var trackedUser = await _authRepo.GetByIdAsync(dbUser.UserId);  
 
                 trackedUser.RefreshToken = newRefreshToken;
                 trackedUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
                 await _authRepo.SaveAsync();
 
-                // STEP 5: RETURN RESPONSE
-                return new Response<object>(200, "Token refreshed", new AuthTokensDTO
+                var res = new AuthTokensDto
                 {
-                    AccessToken=accessToken,
-                    RefreshToken=RefreshToken,
-                    ExpiresIn=expires
-                
-                });
+                    AccessToken = accessToken,
+                    RefreshToken = newRefreshToken,
+                    AccessTokenExpiry = expires,
+                    RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
+                    Role = user.RoleId
+                };
+                // STEP 5: RETURN RESPONSE
+                return new Response<object>(200, "Token refreshed",res );
+
             }
             catch (Exception ex)
             {
@@ -279,23 +291,5 @@ namespace ResourceFlow.Application.Services
                 return new Response<string>(500, ex.Message);
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }

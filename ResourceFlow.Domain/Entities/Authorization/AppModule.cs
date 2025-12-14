@@ -14,6 +14,6 @@ namespace ResourceFlow.Domain.Entities.Authorization
         [Required, MaxLength(100)]
         public string Name { get; set; }
 
-        public ICollection<Permission> Permission { get; set; }
+        
     }
 }

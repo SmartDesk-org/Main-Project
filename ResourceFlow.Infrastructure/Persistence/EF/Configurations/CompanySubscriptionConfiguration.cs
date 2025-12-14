@@ -22,7 +22,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
                 .HasForeignKey<CompanySubscription>(c => c.CompanyId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(u => u.SubscriptionPlan)
+            builder.HasOne(u => u.Subscription)
                 .WithMany(u => u.CompanySubscriptions)
                 .HasForeignKey(u => u.SubscriptionPlanId)
                 .OnDelete(DeleteBehavior.Cascade);

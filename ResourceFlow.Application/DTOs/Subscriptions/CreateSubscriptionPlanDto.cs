@@ -2,7 +2,7 @@
 {
     public class CreateSubscriptionPlanDto
     {
-        public string SubscriptionPlanName { get; set; } = null!;
+        public string SubscriptionName { get; set; } = null!;
 
         public int EmployeeLimit { get; set; }
         public int FloorLimit { get; set; }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 
@@ -11,9 +12,11 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251213105247_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -288,21 +291,21 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 13, 11, 25, 58, 705, DateTimeKind.Utc).AddTicks(1420),
+                            CreatedAt = new DateTime(2025, 12, 13, 10, 52, 46, 350, DateTimeKind.Utc).AddTicks(2588),
                             IsDeleted = false,
                             RoleName = "SuperAdmin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 13, 11, 25, 58, 705, DateTimeKind.Utc).AddTicks(1429),
+                            CreatedAt = new DateTime(2025, 12, 13, 10, 52, 46, 350, DateTimeKind.Utc).AddTicks(2591),
                             IsDeleted = false,
                             RoleName = "CompanyAdmin"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 13, 11, 25, 58, 705, DateTimeKind.Utc).AddTicks(1431),
+                            CreatedAt = new DateTime(2025, 12, 13, 10, 52, 46, 350, DateTimeKind.Utc).AddTicks(2592),
                             IsDeleted = false,
                             RoleName = "Employee"
                         });
@@ -389,12 +392,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 12, 13, 11, 25, 59, 23, DateTimeKind.Utc).AddTicks(7157),
+                            CreatedAt = new DateTime(2025, 12, 13, 10, 52, 46, 484, DateTimeKind.Utc).AddTicks(2559),
                             Email = "suhailpalakkal1@gmail.com",
                             IsActive = true,
                             IsBlocked = false,
                             IsDeleted = false,
-                            PassWord = "$2a$11$owGyGucHfcpo.jXXU0RpP.PYpW/Jdkj1nns1aSXLirUvXxQOQ9goG",
+                            PassWord = "$2a$11$yIVIpFMsrxcKn5rRmcw4N.6bzxeJwC7D8QlGVHufyg5vQEAHGidLe",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1,
@@ -418,38 +421,6 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Modules", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "User"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "CompanyDetails"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "CompanyFloor"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Resource"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Employee"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Subscription"
-                        });
                 });
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.Authorization.RolePermission", b =>
@@ -480,38 +451,6 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.HasIndex("ModuleId");
 
                     b.ToTable("RolePermissions", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            RoleId = 1,
-                            CanAdd = true,
-                            CanDelete = true,
-                            CanEdit = true,
-                            CanView = true,
-                            Id = 1,
-                            ModuleId = 6
-                        },
-                        new
-                        {
-                            RoleId = 2,
-                            CanAdd = false,
-                            CanDelete = false,
-                            CanEdit = false,
-                            CanView = true,
-                            Id = 2,
-                            ModuleId = 6
-                        },
-                        new
-                        {
-                            RoleId = 3,
-                            CanAdd = false,
-                            CanDelete = false,
-                            CanEdit = false,
-                            CanView = false,
-                            Id = 3,
-                            ModuleId = 6
-                        });
                 });
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.CompanyModels.CompanyFloor", b =>

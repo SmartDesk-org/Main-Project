@@ -70,12 +70,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SubscriptionPlans",
+                name: "Subscriptions",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SubscriptionPlanName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SubscriptionName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EmployeeLimit = table.Column<int>(type: "int", nullable: false),
                     FloorLimit = table.Column<int>(type: "int", nullable: false),
                     DeskLimit = table.Column<int>(type: "int", nullable: false),
@@ -83,6 +83,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     PriceMonthly = table.Column<double>(type: "float", nullable: false),
                     PriceYearly = table.Column<double>(type: "float", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -93,7 +94,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SubscriptionPlans", x => x.Id);
+                    table.PrimaryKey("PK_Subscriptions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -213,21 +214,30 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Permissions",
+                name: "RolePermissions",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RoleId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     ModuleId = table.Column<int>(type: "int", nullable: false),
-                    Action = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    CanAdd = table.Column<bool>(type: "bit", nullable: false),
+                    CanEdit = table.Column<bool>(type: "bit", nullable: false),
+                    CanView = table.Column<bool>(type: "bit", nullable: false),
+                    CanDelete = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Permissions", x => x.Id);
+                    table.PrimaryKey("PK_RolePermissions", x => x.RoleId);
                     table.ForeignKey(
-                        name: "FK_Permissions_Modules_ModuleId",
+                        name: "FK_RolePermissions_Modules_ModuleId",
                         column: x => x.ModuleId,
                         principalTable: "Modules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RolePermissions_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -304,35 +314,11 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         principalColumn: "CompanyId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_CompanySubscription_SubscriptionPlans_SubscriptionPlanId",
+                        name: "FK_CompanySubscription_Subscriptions_SubscriptionPlanId",
                         column: x => x.SubscriptionPlanId,
-                        principalTable: "SubscriptionPlans",
+                        principalTable: "Subscriptions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RolePermissions",
-                columns: table => new
-                {
-                    RoleId = table.Column<int>(type: "int", nullable: false),
-                    PermissionId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RolePermissions", x => new { x.RoleId, x.PermissionId });
-                    table.ForeignKey(
-                        name: "FK_RolePermissions_Permissions_PermissionId",
-                        column: x => x.PermissionId,
-                        principalTable: "Permissions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_RolePermissions_Roles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Roles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -428,15 +414,15 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "RoleName" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 12, 13, 7, 0, 50, 776, DateTimeKind.Utc).AddTicks(7657), null, null, null, false, null, null, "SuperAdmin" },
-                    { 2, new DateTime(2025, 12, 13, 7, 0, 50, 776, DateTimeKind.Utc).AddTicks(7666), null, null, null, false, null, null, "CompanyAdmin" },
-                    { 3, new DateTime(2025, 12, 13, 7, 0, 50, 776, DateTimeKind.Utc).AddTicks(7667), null, null, null, false, null, null, "Employee" }
+                    { 1, new DateTime(2025, 12, 13, 10, 52, 46, 350, DateTimeKind.Utc).AddTicks(2588), null, null, null, false, null, null, "SuperAdmin" },
+                    { 2, new DateTime(2025, 12, 13, 10, 52, 46, 350, DateTimeKind.Utc).AddTicks(2591), null, null, null, false, null, null, "CompanyAdmin" },
+                    { 3, new DateTime(2025, 12, 13, 10, 52, 46, 350, DateTimeKind.Utc).AddTicks(2592), null, null, null, false, null, null, "Employee" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "UserId", "CompanyId", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "Email", "IsActive", "IsBlocked", "IsDeleted", "ModifiedAt", "ModifiedBy", "PassWord", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiry", "RoleId", "UserName" },
-                values: new object[] { 1, null, new DateTime(2025, 12, 13, 7, 0, 51, 224, DateTimeKind.Utc).AddTicks(7912), null, null, null, "suhailpalakkal1@gmail.com", true, false, false, null, null, "$2a$11$XLgpy.RHdEWNFoTO8Krb.e1QUKE5sVyFbMwlJhQmibghNr0Ng1biy", null, null, "", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Suhail" });
+                values: new object[] { 1, null, new DateTime(2025, 12, 13, 10, 52, 46, 484, DateTimeKind.Utc).AddTicks(2559), null, null, null, "suhailpalakkal1@gmail.com", true, false, false, null, null, "$2a$11$yIVIpFMsrxcKn5rRmcw4N.6bzxeJwC7D8QlGVHufyg5vQEAHGidLe", null, null, "", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Suhail" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Billing_CompanyId",
@@ -491,19 +477,14 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Permissions_ModuleId",
-                table: "Permissions",
-                column: "ModuleId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Resources_CompanyId",
                 table: "Resources",
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RolePermissions_PermissionId",
+                name: "IX_RolePermissions_ModuleId",
                 table: "RolePermissions",
-                column: "PermissionId");
+                column: "ModuleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_CompanyId",
@@ -544,22 +525,19 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 name: "RolePermissions");
 
             migrationBuilder.DropTable(
-                name: "SubscriptionPlans");
+                name: "Subscriptions");
 
             migrationBuilder.DropTable(
                 name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Permissions");
+                name: "Modules");
 
             migrationBuilder.DropTable(
                 name: "CompanyDetails");
 
             migrationBuilder.DropTable(
                 name: "Roles");
-
-            migrationBuilder.DropTable(
-                name: "Modules");
         }
     }
 }

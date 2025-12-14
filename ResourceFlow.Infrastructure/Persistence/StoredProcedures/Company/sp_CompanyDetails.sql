@@ -10,7 +10,7 @@
     @MODIFIEDBY        INT              = NULL,
     @DELETEDAT         DATETIME2        = NULL,
     @DELETEDBY         INT              = NULL,
-    @ISDELETE          BIT              = NULL
+    @ISDELETED          BIT              = NULL
 AS
 BEGIN
     BEGIN TRY
@@ -21,7 +21,7 @@ BEGIN
             SELECT 
                 CompanyId, Name, Address, IsActive
             FROM CompanyDetails
-            WHERE IsDelete = 0;
+            WHERE IsDeleted = 0;
             RETURN;
         END
 
@@ -33,7 +33,7 @@ BEGIN
                 RAISERROR('COMPANYID is required for GETBYID', 16, 1);
                 RETURN;
             END
-               IF NOT EXISTS (SELECT 1 FROM CompanyDetails WHERE CompanyId = @COMPANYID AND IsDelete = 0)
+               IF NOT EXISTS (SELECT 1 FROM CompanyDetails WHERE CompanyId = @COMPANYID AND IsDeleted = 0)
             BEGIN
                 RAISERROR('Company with this id not found', 16, 1);
                 RETURN;
@@ -42,7 +42,7 @@ BEGIN
             SELECT 
                 CompanyId, Name, Address, IsActive
             FROM CompanyDetails
-            WHERE CompanyId = @COMPANYID AND IsDelete = 0;
+            WHERE CompanyId = @COMPANYID AND IsDeleted = 0;
             RETURN;
         END
      
@@ -57,7 +57,7 @@ BEGIN
             SELECT 
                 CompanyId, Name, Address, IsActive
             FROM CompanyDetails
-            WHERE IsActive = @ISACTIVE AND IsDelete = 0;
+            WHERE IsActive = @ISACTIVE AND IsDeleted = 0;
             RETURN;
         END
 
@@ -72,7 +72,7 @@ BEGIN
             SELECT 
                 CompanyId, Name, Address, IsActive
             FROM CompanyDetails
-            WHERE Name = @NAME AND IsDelete = 0;
+            WHERE Name = @NAME AND IsDeleted = 0;
             RETURN;
         END
 

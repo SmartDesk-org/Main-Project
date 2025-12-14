@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 
@@ -11,9 +12,11 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251213111303_SeedRolesModulesPermissions")]
+    partial class SeedRolesModulesPermissions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -288,21 +291,21 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 13, 11, 25, 58, 705, DateTimeKind.Utc).AddTicks(1420),
+                            CreatedAt = new DateTime(2025, 12, 13, 11, 13, 2, 79, DateTimeKind.Utc).AddTicks(3303),
                             IsDeleted = false,
                             RoleName = "SuperAdmin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 13, 11, 25, 58, 705, DateTimeKind.Utc).AddTicks(1429),
+                            CreatedAt = new DateTime(2025, 12, 13, 11, 13, 2, 79, DateTimeKind.Utc).AddTicks(3308),
                             IsDeleted = false,
                             RoleName = "CompanyAdmin"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 13, 11, 25, 58, 705, DateTimeKind.Utc).AddTicks(1431),
+                            CreatedAt = new DateTime(2025, 12, 13, 11, 13, 2, 79, DateTimeKind.Utc).AddTicks(3308),
                             IsDeleted = false,
                             RoleName = "Employee"
                         });
@@ -389,12 +392,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 12, 13, 11, 25, 59, 23, DateTimeKind.Utc).AddTicks(7157),
+                            CreatedAt = new DateTime(2025, 12, 13, 11, 13, 2, 411, DateTimeKind.Utc).AddTicks(6402),
                             Email = "suhailpalakkal1@gmail.com",
                             IsActive = true,
                             IsBlocked = false,
                             IsDeleted = false,
-                            PassWord = "$2a$11$owGyGucHfcpo.jXXU0RpP.PYpW/Jdkj1nns1aSXLirUvXxQOQ9goG",
+                            PassWord = "$2a$11$KQ4VSU3zKzpXB9jRgc5bl.21eAL4u9jTxMXLMwbiRGrDwEcGAxvqO",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1,
@@ -490,7 +493,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                             CanEdit = true,
                             CanView = true,
                             Id = 1,
-                            ModuleId = 6
+                            ModuleId = 1
                         },
                         new
                         {
@@ -500,7 +503,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                             CanEdit = false,
                             CanView = true,
                             Id = 2,
-                            ModuleId = 6
+                            ModuleId = 1
                         },
                         new
                         {
@@ -510,7 +513,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                             CanEdit = false,
                             CanView = false,
                             Id = 3,
-                            ModuleId = 6
+                            ModuleId = 1
                         });
                 });
 

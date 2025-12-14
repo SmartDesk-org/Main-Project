@@ -12,8 +12,8 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251213070052_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251213112559_FixRolePermissionSeed")]
+    partial class FixRolePermissionSeed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -291,21 +291,21 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 13, 7, 0, 50, 776, DateTimeKind.Utc).AddTicks(7657),
+                            CreatedAt = new DateTime(2025, 12, 13, 11, 25, 58, 705, DateTimeKind.Utc).AddTicks(1420),
                             IsDeleted = false,
                             RoleName = "SuperAdmin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 13, 7, 0, 50, 776, DateTimeKind.Utc).AddTicks(7666),
+                            CreatedAt = new DateTime(2025, 12, 13, 11, 25, 58, 705, DateTimeKind.Utc).AddTicks(1429),
                             IsDeleted = false,
                             RoleName = "CompanyAdmin"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 13, 7, 0, 50, 776, DateTimeKind.Utc).AddTicks(7667),
+                            CreatedAt = new DateTime(2025, 12, 13, 11, 25, 58, 705, DateTimeKind.Utc).AddTicks(1431),
                             IsDeleted = false,
                             RoleName = "Employee"
                         });
@@ -392,12 +392,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 12, 13, 7, 0, 51, 224, DateTimeKind.Utc).AddTicks(7912),
+                            CreatedAt = new DateTime(2025, 12, 13, 11, 25, 59, 23, DateTimeKind.Utc).AddTicks(7157),
                             Email = "suhailpalakkal1@gmail.com",
                             IsActive = true,
                             IsBlocked = false,
                             IsDeleted = false,
-                            PassWord = "$2a$11$XLgpy.RHdEWNFoTO8Krb.e1QUKE5sVyFbMwlJhQmibghNr0Ng1biy",
+                            PassWord = "$2a$11$owGyGucHfcpo.jXXU0RpP.PYpW/Jdkj1nns1aSXLirUvXxQOQ9goG",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1,
@@ -421,29 +421,38 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Modules", (string)null);
-                });
 
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authorization.Permission", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("ModuleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ModuleId");
-
-                    b.ToTable("Permissions", (string)null);
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "User"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "CompanyDetails"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "CompanyFloor"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Resource"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Employee"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Subscription"
+                        });
                 });
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.Authorization.RolePermission", b =>
@@ -451,14 +460,61 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PermissionId")
+                    b.Property<bool>("CanAdd")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanEdit")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanView")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Id")
                         .HasColumnType("int");
 
-                    b.HasKey("RoleId", "PermissionId");
+                    b.Property<int>("ModuleId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("PermissionId");
+                    b.HasKey("RoleId");
+
+                    b.HasIndex("ModuleId");
 
                     b.ToTable("RolePermissions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            CanAdd = true,
+                            CanDelete = true,
+                            CanEdit = true,
+                            CanView = true,
+                            Id = 1,
+                            ModuleId = 6
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            CanAdd = false,
+                            CanDelete = false,
+                            CanEdit = false,
+                            CanView = true,
+                            Id = 2,
+                            ModuleId = 6
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            CanAdd = false,
+                            CanDelete = false,
+                            CanEdit = false,
+                            CanView = false,
+                            Id = 3,
+                            ModuleId = 6
+                        });
                 });
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.CompanyModels.CompanyFloor", b =>
@@ -710,7 +766,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.ToTable("CompanySubscription", (string)null);
                 });
 
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.SubscriptionPlan", b =>
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.Subscription", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -743,6 +799,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<int>("FloorLimit")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -761,13 +820,13 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<double>("PriceYearly")
                         .HasColumnType("float");
 
-                    b.Property<string>("SubscriptionPlanName")
+                    b.Property<string>("SubscriptionName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("SubscriptionPlans", (string)null);
+                    b.ToTable("Subscriptions", (string)null);
                 });
 
             modelBuilder.Entity("Billing", b =>
@@ -824,23 +883,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authorization.Permission", b =>
-                {
-                    b.HasOne("ResourceFlow.Domain.Entities.Authorization.AppModule", "Module")
-                        .WithMany("Permission")
-                        .HasForeignKey("ModuleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Module");
-                });
-
             modelBuilder.Entity("ResourceFlow.Domain.Entities.Authorization.RolePermission", b =>
                 {
-                    b.HasOne("ResourceFlow.Domain.Entities.Authorization.Permission", "Permission")
-                        .WithMany("RolePermissions")
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("ResourceFlow.Domain.Entities.Authorization.AppModule", "Module")
+                        .WithMany()
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ResourceFlow.Domain.Entities.Authentication.Roles", "Role")
@@ -849,7 +897,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Permission");
+                    b.Navigation("Module");
 
                     b.Navigation("Role");
                 });
@@ -912,7 +960,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ResourceFlow.Domain.Entities.SubscriptionModels.SubscriptionPlan", "SubscriptionPlan")
+                    b.HasOne("ResourceFlow.Domain.Entities.SubscriptionModels.Subscription", "Subscription")
                         .WithMany("CompanySubscriptions")
                         .HasForeignKey("SubscriptionPlanId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -920,7 +968,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 
                     b.Navigation("Company");
 
-                    b.Navigation("SubscriptionPlan");
+                    b.Navigation("Subscription");
                 });
 
             modelBuilder.Entity("CompanyDetails", b =>
@@ -949,17 +997,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authorization.AppModule", b =>
-                {
-                    b.Navigation("Permission");
-                });
-
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authorization.Permission", b =>
-                {
-                    b.Navigation("RolePermissions");
-                });
-
-            modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.SubscriptionPlan", b =>
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.Subscription", b =>
                 {
                     b.Navigation("CompanySubscriptions");
                 });

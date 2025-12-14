@@ -13,7 +13,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Validations
     {
         public SubscriptionPlanValidator()
         {
-            RuleFor(s => s.SubscriptionPlanName)
+            RuleFor(s => s.SubscriptionName)
                 .NotEmpty().WithMessage("Subscription name is required.")
                 .MaximumLength(100).WithMessage("Subscription name cannot exceed 100 characters.");
 

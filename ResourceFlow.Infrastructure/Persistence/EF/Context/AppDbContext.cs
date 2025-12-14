@@ -96,11 +96,11 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
         public DbSet<Billing> Billing { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Resource> Resources { get; set; }
-        public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
+        public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<CompanySubscription> CompanySubscriptions { get; set; }
         public DbSet<CompanyFloor> CompanyFloors { get; set; }
         public DbSet<AppModule> Modules { get; set; }
-        public DbSet<Permission> Permissions { get; set; }
+   
         public DbSet<RolePermission> RolePermissions { get; set; }
     }
 }
