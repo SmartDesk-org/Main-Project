@@ -26,19 +26,17 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-            // Validators
             services.AddScoped<IEmployeeImportValidator, EmployeeImportValidator>();
 
             // Helper services
             services.AddScoped<IExcelReader, ExcelReader>();
+            services.AddHostedService<EmailBackgroundWorker>();
+            services.AddSingleton<IBackgroundEmailQueue, BackgroundEmailQueue>();
 
-            // Core Services
+            // Services
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IEmailService, EmailService>();
-
-            // Employee services
             services.AddScoped<IEmployeeEmailService, EmployeeEmailService>();
             services.AddScoped<IEmployeeService, EmployeeService>();
 

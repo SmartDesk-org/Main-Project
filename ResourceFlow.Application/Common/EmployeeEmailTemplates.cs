@@ -1,183 +1,259 @@
 public static class EmployeeEmailTemplates
 {
-    public static string BuildWelcomeEmail(string email, string password)
-    {
-        string companyName = "SmartDesk";
-        string loginUrl = "https://your-login-url.com";
-        string supportEmail = "support@smartdesk.com";
+  public static string BuildWelcomeEmail(string email, string password)
+  {
+    string companyName = "SmartDesk";
+    string loginUrl = "https://your-login-url.com";
+    string supportEmail = "smartdesk.companyy@gmail.com";
 
-        return $@"<!doctype html>
+    return $@"<!doctype html>
 <html lang='en'>
 <head>
   <meta charset='utf-8' />
   <meta name='viewport' content='width=device-width,initial-scale=1' />
   <title>Welcome to {companyName}</title>
   <style>
-    body{{
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    @import url('https://fonts.googleapis.com/css2?family=Circular+Sp:wght@300;400;500;700;900&display=swap');
+    
+    @keyframes fadeIn {{
+      from {{ opacity: 0; transform: translateY(20px); }}
+      to {{ opacity: 1; transform: translateY(0); }}
+    }}
+    
+    @keyframes glow {{
+      0%, 100% {{ box-shadow: 0 0 20px rgba(30, 215, 96, 0.3); }}
+      50% {{ box-shadow: 0 0 40px rgba(30, 215, 96, 0.5); }}
+    }}
+
+    * {{
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }}
+    
+    body {{
+      background: #000000;
+      font-family: 'Circular Sp', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
       margin: 0;
       padding: 40px 20px;
+      min-height: 100vh;
     }}
-    .container{{
-      max-width: 650px;
+    
+    .container {{
+      max-width: 600px;
       margin: 0 auto;
+      animation: fadeIn 0.6s ease-out;
     }}
-    .card{{
-      background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    
+    .card {{
+      background: #121212;
+      border-radius: 8px;
       overflow: hidden;
     }}
-    .header{{
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 50px 40px;
+    
+    .header {{
+      padding: 60px 40px 40px;
       text-align: center;
-      position: relative;
+      background: linear-gradient(180deg, #1ed760 0%, #1db954 100%);
     }}
-    .header::before{{
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('data:image/svg+xml,<svg width=""100"" height=""100"" xmlns=""http://www.w3.org/2000/svg""><defs><pattern id=""grid"" width=""20"" height=""20"" patternUnits=""userSpaceOnUse""><circle cx=""10"" cy=""10"" r=""1"" fill=""white"" opacity=""0.1""/></pattern></defs><rect width=""100"" height=""100"" fill=""url(%23grid)""/></svg>');
-      opacity: 0.3;
-    }}
-    .logo{{
-      font-size: 36px;
-      font-weight: 800;
-      color: white;
+    
+    .logo {{
+      font-size: 42px;
+      font-weight: 900;
+      color: #000000;
       letter-spacing: -1px;
-      margin: 0;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      position: relative;
-      z-index: 1;
+      margin: 0 0 8px 0;
     }}
-    .subtitle{{
-      color: rgba(255,255,255,0.9);
-      font-size: 16px;
-      margin-top: 10px;
-      position: relative;
-      z-index: 1;
+    
+    .subtitle {{
+      color: #000000;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      opacity: 0.8;
     }}
-    .content{{
-      padding: 50px 40px;
+    
+    .content {{
+      padding: 48px 40px;
     }}
-    h2{{
-      color: #1a202c;
-      font-size: 28px;
-      font-weight: 700;
-      margin: 0 0 20px 0;
-      text-align: center;
+    
+    h2 {{
+      color: #ffffff;
+      font-size: 32px;
+      font-weight: 900;
+      margin: 0 0 12px 0;
+      letter-spacing: -0.5px;
     }}
-    .welcome-text{{
-      color: #4a5568;
+    
+    .welcome-text {{
+      color: #b3b3b3;
       font-size: 16px;
       line-height: 1.6;
-      text-align: center;
-      margin-bottom: 35px;
+      margin-bottom: 40px;
     }}
-    .credentials-box{{
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 16px;
-      padding: 35px;
-      margin: 30px 0;
-      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-      position: relative;
-      overflow: hidden;
+    
+    .credentials-box {{
+      background: #181818;
+      border-radius: 8px;
+      padding: 32px;
+      margin: 32px 0;
     }}
-    .credentials-box::before{{
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    
+    .credential-item {{
+      margin-bottom: 24px;
     }}
-    .credential-item{{
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 15px;
-      position: relative;
-      z-index: 1;
-      backdrop-filter: blur(10px);
-    }}
-    .credential-item:last-child{{
+    
+    .credential-item:last-child {{
       margin-bottom: 0;
     }}
-    .credential-label{{
-      color: #667eea;
+    
+    .credential-label {{
+      color: #b3b3b3;
       font-size: 12px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
       margin-bottom: 8px;
     }}
-    .credential-value{{
-      color: #1a202c;
+    
+    .credential-value {{
+      color: #1ed760;
       font-size: 18px;
-      font-weight: 600;
+      font-weight: 700;
       word-break: break-all;
+      font-family: 'Courier New', monospace;
     }}
-    .btn-container{{
+    
+    .btn-container {{
       text-align: center;
       margin: 40px 0;
     }}
-    .btn{{
+    
+    .btn {{
       display: inline-block;
-      padding: 18px 50px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border-radius: 50px;
+      padding: 16px 48px;
+      background: #1ed760;
+      color: #000000;
+      border-radius: 500px;
       text-decoration: none;
       font-weight: 700;
       font-size: 16px;
-      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-      transition: all 0.3s ease;
       letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      animation: glow 2s ease-in-out infinite;
     }}
-    .divider{{
+    
+    .btn:hover {{
+      background: #1fdf64;
+      transform: scale(1.04);
+    }}
+    
+    .divider {{
       height: 1px;
-      background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+      background: #282828;
       margin: 40px 0;
     }}
-    .support-section{{
-      text-align: center;
-      padding: 30px;
-      background: #f8f9fa;
-      border-radius: 12px;
-      margin-top: 30px;
-    }}
-    .support-text{{
-      color: #4a5568;
+    
+    .info-text {{
+      color: #b3b3b3;
       font-size: 14px;
-      margin-bottom: 10px;
-    }}
-    .support-link{{
-      color: #667eea;
-      text-decoration: none;
-      font-weight: 600;
-    }}
-    .footer{{
+      line-height: 1.8;
       text-align: center;
-      padding: 30px 40px;
-      color: #a0aec0;
-      font-size: 13px;
-      background: #f8f9fa;
+      margin: 24px 0;
     }}
-    .security-badge{{
-      display: inline-block;
-      background: rgba(102, 126, 234, 0.1);
-      color: #667eea;
-      padding: 8px 16px;
-      border-radius: 20px;
+    
+    .support-section {{
+      text-align: center;
+      padding: 32px;
+      background: #181818;
+      border-radius: 8px;
+      margin-top: 32px;
+    }}
+    
+    .support-title {{
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }}
+    
+    .support-text {{
+      color: #b3b3b3;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }}
+    
+    .support-link {{
+      color: #1ed760;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+    }}
+    
+    .support-link:hover {{
+      text-decoration: underline;
+    }}
+    
+    .footer {{
+      text-align: center;
+      padding: 32px;
+      color: #6a6a6a;
       font-size: 12px;
-      font-weight: 600;
-      margin-top: 20px;
+      background: #000000;
+    }}
+    
+    .footer-logo {{
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 16px;
+      margin-bottom: 16px;
+    }}
+    
+    .footer-links {{
+      margin: 16px 0;
+    }}
+    
+    .footer-link {{
+      color: #b3b3b3;
+      text-decoration: none;
+      margin: 0 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }}
+    
+    .footer-link:hover {{
+      color: #1ed760;
+    }}
+    
+    .security-badge {{
+      display: inline-block;
+      color: #1ed760;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 16px;
+      opacity: 0.8;
+    }}
+    
+    @media (max-width: 600px) {{
+      .content {{
+        padding: 32px 24px;
+      }}
+      
+      .header {{
+        padding: 48px 24px 32px;
+      }}
+      
+      .logo {{
+        font-size: 32px;
+      }}
+      
+      h2 {{
+        font-size: 24px;
+      }}
+      
+      .credentials-box {{
+        padding: 24px;
+      }}
     }}
   </style>
 </head>
@@ -186,54 +262,58 @@ public static class EmployeeEmailTemplates
     <div class='card'>
       <div class='header'>
         <h1 class='logo'>{companyName}</h1>
-        <p class='subtitle'>Premium Workspace Solutions</p>
+        <p class='subtitle'>PREMIUM WORKSPACE</p>
       </div>
       
       <div class='content'>
-        <h2>🎉 Welcome Aboard!</h2>
+        <h2>Welcome aboard</h2>
         <p class='welcome-text'>
-          We're thrilled to have you join our elite team. Your exclusive account has been 
-          created with premium access to all features. Get started with your personalized credentials below.
+          Your account is ready. We've set up everything you need to get started with full access to your workspace.
         </p>
 
         <div class='credentials-box'>
           <div class='credential-item'>
-            <div class='credential-label'>Your Email Address</div>
+            <div class='credential-label'>Email</div>
             <div class='credential-value'>{email}</div>
           </div>
           <div class='credential-item'>
             <div class='credential-label'>Temporary Password</div>
             <div class='credential-value'>{password}</div>
           </div>
-        </div>
-
-        <div class='security-badge'>
-          🔒 Secure & Encrypted Access
+          <div class='security-badge'>🔒 Secure & Encrypted</div>
         </div>
 
         <div class='btn-container'>
-          <a href='{loginUrl}' class='btn'>Access Your Dashboard</a>
+          <a href='{loginUrl}' class='btn'>Get Started</a>
         </div>
 
         <div class='divider'></div>
 
+        <p class='info-text'>
+          You'll be prompted to change your password on first login.<br/>
+          Keep your credentials secure and don't share them with anyone.
+        </p>
+
         <div class='support-section'>
-          <p class='support-text'>
-            <strong>Need assistance?</strong> Our dedicated support team is here 24/7
-          </p>
+          <div class='support-title'>Need help?</div>
+          <p class='support-text'>Our team is here for you 24/7</p>
           <a href='mailto:{supportEmail}' class='support-link'>{supportEmail}</a>
         </div>
       </div>
 
       <div class='footer'>
+        <div class='footer-logo'>{companyName}</div>
         <p>© {DateTime.UtcNow.Year} {companyName}. All rights reserved.</p>
-        <p style='margin-top: 10px; font-size: 12px;'>
-          This is a confidential communication. Please do not share your credentials.
-        </p>
+        
+        <div class='footer-links'>
+          <a href='#' class='footer-link'>Privacy</a>
+          <a href='#' class='footer-link'>Terms</a>
+          <a href='#' class='footer-link'>Support</a>
+        </div>
       </div>
     </div>
   </div>
 </body>
 </html>";
-    }
+  }
 }

@@ -9,6 +9,7 @@ using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.CompanyModels;
 using ResourceFlow.Domain.Entities.FloorModels;
 using ResourceFlow.Domain.Enums;
+using System.Collections.Concurrent; // Required for thread-safe collections if needed
 
 public class EmployeeService : IEmployeeService
 {
@@ -43,6 +44,7 @@ public class EmployeeService : IEmployeeService
     {
         var response = new BulkUploadResponse();
 
+        // --- VALIDATION & READING START ---
         if (file == null || file.Length == 0)
         {
             return new ApiResponse<BulkUploadResponse>(400, "Invalid file length");
@@ -52,7 +54,7 @@ public class EmployeeService : IEmployeeService
         var rows = _excelReader.ReadEmployeeExcel(stream);
 
         response.TotalRecords = rows.Count;
-        int companyId = 4; // TODO: dynamic later
+        int companyId = 5; // TODO: make dynamic later
         var (validRows, errors) = await _validator.ValidateAsync(rows, companyId);
 
         response.Errors = errors;
@@ -75,7 +77,7 @@ public class EmployeeService : IEmployeeService
             );
         }
 
-        int chunkSize = 150;
+        int chunkSize = 200;
         var chunks = validRows
             .Select((row, index) => new { row, index })
             .GroupBy(x => x.index / chunkSize)
@@ -88,12 +90,13 @@ public class EmployeeService : IEmployeeService
         foreach (var chunk in chunks)
         {
             await _uow.BeginTransactionAsync();
+            bool transactionCommitted = false;
+
+            var newUsers = new List<User>();
+            var passwordMap = new Dictionary<string, string>();
 
             try
             {
-                var newUsers = new List<User>();
-                var passwordMap = new Dictionary<string, string>(); // email → raw password
-
                 foreach (var r in chunk)
                 {
                     var rawPassword = "Emp@" + Guid.NewGuid().ToString("N")[..6];
@@ -120,7 +123,7 @@ public class EmployeeService : IEmployeeService
                 {
                     newEmployees.Add(new Employees
                     {
-                        UserId = newUsers[i].UserId, // now has real ID
+                        UserId = newUsers[i].UserId,
                         CompanyId = companyId,
                         Department = chunk[i].Department,
                         DefaultFloorId = chunk[i].DefaultFloorId,
@@ -129,35 +132,56 @@ public class EmployeeService : IEmployeeService
                 }
 
                 await _employeeRepo.AddRangeAsync(newEmployees);
-
-                // Save & commit transaction
                 await _uow.SaveChangesAsync();
-                foreach (var user in newUsers)
-                {
-                    var rawPassword = passwordMap[user.Email];
-                    var html = EmployeeEmailTemplates.BuildWelcomeEmail(user.Email, rawPassword);
 
-                    await _emailService.SendAsync(
-                        to: user.Email,
-                        subject: "Welcome to SmartDesk – Your Login Credentials",
-                        html: html
-                    );
-                }
-
+                
                 await _uow.CommitAsync();
+                transactionCommitted = true;
             }
             catch (Exception ex)
             {
-                await _uow.RollbackAsync();
+           
+                if (!transactionCommitted)
+                {
+                    await _uow.RollbackAsync();
+                }
+
                 return new ApiResponse<BulkUploadResponse>(
                     500,
-                    $"Import failed: {ex.InnerException?.Message ?? ex.Message}"
+                    $"Database Import failed: {ex.InnerException?.Message ?? ex.Message}"
                 );
             }
 
+            // --- STEP 2: SEND EMAILS (PARALLEL PROCESSING) ---
+            if (transactionCommitted)
+            {
+                // We limit to 8 parallel emails to avoid getting blocked by Gmail for spamming
+                var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 8 };
+
+                await Parallel.ForEachAsync(newUsers, parallelOptions, async (user, token) =>
+                {
+                    try
+                    {
+                        var rawPassword = passwordMap[user.Email];
+                        var html = EmployeeEmailTemplates.BuildWelcomeEmail(user.Email, rawPassword);
+
+                        await _emailService.SendAsync(
+                            to: user.Email,
+                            subject: "Welcome to SmartDesk - Your Login Credentials",
+                            html: html // Changed parameter name to match interface
+                        );
+                    }
+                    catch (Exception emailEx)
+                    {
+                        // LOGGING ONLY: Do not throw.
+                        // We do not want to fail the request because one email bounced.
+                        Console.WriteLine($"Failed to send email to {user.Email}: {emailEx.Message}");
+                    }
+                });
+            }
         }
 
         response.SuccessfulRecords = validRows.Count;
-        return new ApiResponse<BulkUploadResponse>(200, "file uploaded successfully", response);
+        return new ApiResponse<BulkUploadResponse>(200, "File uploaded successfully. Emails sent.", response);
     }
 }
