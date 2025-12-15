@@ -1,11 +1,11 @@
 ﻿using ResourceFlow.Application.DTOs.Auth;
-using ResourceFlow.Application.Interfaces.Auth;
 using ResourceFlow.Application.Interfaces.Repositories;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
 using AutoMapper;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Application.Common;
+
 using Microsoft.Extensions.Logging;
 
 using System.Security.Claims;
@@ -16,6 +16,9 @@ using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 
 
 using Microsoft.EntityFrameworkCore;
+
+
+using ResourceFlow.Application.Interfaces.Services;
 
 
 namespace ResourceFlow.Application.Services
@@ -53,6 +56,7 @@ namespace ResourceFlow.Application.Services
 
         public async Task<Response<object>> RegisterAsync(RegisterRequestDto dto)
         {
+
             try
             {
                 _logger.LogInformation("Register attempt for email {Email}", dto.Email);
@@ -174,13 +178,7 @@ namespace ResourceFlow.Application.Services
                 if (user.RefreshTokenExpiry < DateTime.UtcNow ||
                       user.RefreshTokenExpiry < DateTime.UtcNow)
                     return new Response<object>(401, "Session expired. Please login again.");
-
-
-
-               
-                 
-
-
+          
                 trackedUser.RefreshToken = newRefreshToken;
                 trackedUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 

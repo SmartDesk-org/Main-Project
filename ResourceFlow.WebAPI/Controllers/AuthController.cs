@@ -6,9 +6,12 @@ using Microsoft.Extensions.Logging;
 
 using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Auth;
-using ResourceFlow.Application.Interfaces.Auth;
+
 using ResourceFlow.Application.Services;
 using ResourceFlow.Infrastructure.Extensions;
+
+using ResourceFlow.Application.Interfaces.Services;
+
 using System.Security.Claims;
 
 namespace ResourceFlow.WebAPI.Controllers

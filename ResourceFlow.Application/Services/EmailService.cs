@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using ResourceFlow.Application.Interfaces.Auth;
+using ResourceFlow.Application.Interfaces.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +22,7 @@ namespace ResourceFlow.Application.Services
 
         public async Task<bool> SendPasswordResetEmailAsync(string toEmail, string resetLink)
         {
-            var smtp = _config.GetSection("SmtpSettings");
+            var smtp = _config.GetSection("Smtp");
 
             try
             {

@@ -4,9 +4,13 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ResourceFlow.Infrastructure.Services;
 using ResourceFlow.WebAPI.DI;
+
 using ResourceFlow.WebAPI.Middleware;
 using System.Text;
 using System.Threading.RateLimiting;
+
+using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +23,7 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddEndpointsApiExplorer();
+
 
 // Swagger configuration (single registration)
 builder.Services.AddSwaggerGen(c =>
@@ -49,9 +54,13 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddSwaggerGen();
+
+
+
 builder.Services.AddProjectServices(builder.Configuration);
 
-// JWT Authentication
+
 var jwt = builder.Configuration.GetSection("JwtSettings");
 var secret = jwt["Secret"] ?? throw new Exception("Jwt Secret missing");
 var issuer = jwt["Issuer"];
@@ -87,12 +96,9 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuer = true,
         ValidIssuer = issuer,
-
         ValidateAudience = true,
         ValidAudience = audience,
-
         ValidateLifetime = true,
-
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
         ValidateIssuerSigningKey = true
     };
@@ -122,6 +128,7 @@ using (var scope = app.Services.CreateScope())
     var spInstaller = scope.ServiceProvider.GetRequiredService<StoredProcedureInstaller>();
     await spInstaller.RunStoredProceduresAsync();
 }
+
 
 if (app.Environment.IsDevelopment())
 {

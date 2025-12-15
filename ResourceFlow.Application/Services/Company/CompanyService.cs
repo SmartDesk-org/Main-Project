@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Company;
-using ResourceFlow.Application.Interfaces.Auth;
 using ResourceFlow.Application.Interfaces.Company;
 using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.CompanyModels;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
