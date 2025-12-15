@@ -14,11 +14,22 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             _employeeService = employeeService;
         }
-        [HttpPost("bulk-upload")] 
+        [HttpPost("bulk-upload")]
         public async Task<IActionResult> BulkUpload([FromForm] EmployeeUploadRequest request)
         {
             var result = await _employeeService.BulkUploadAsync(request.File);
-            return StatusCode(result.StatusCode,result);
+            return Ok(result);
+        }
+        [HttpGet("upload-template")]
+        public IActionResult DownloadTemplate()
+        {
+            var fileBytes = _employeeService.GenerateEmployeeUploadTemplate();
+
+            return File(
+                fileBytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "EmployeeUploadTemplate.xlsx"
+            );
         }
 
     }

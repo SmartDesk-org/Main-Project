@@ -7,9 +7,11 @@ using ResourceFlow.WebAPI.DI;
 
 using ResourceFlow.WebAPI.Middleware;
 using System.Text;
+
 using System.Threading.RateLimiting;
 
-using System.Text;
+using OfficeOpenXml;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,6 +61,7 @@ builder.Services.AddSwaggerGen();
 
 
 builder.Services.AddProjectServices(builder.Configuration);
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 
 var jwt = builder.Configuration.GetSection("JwtSettings");
@@ -122,6 +125,7 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
+
 // Run stored procedure installer
 using (var scope = app.Services.CreateScope())
 {
@@ -130,14 +134,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-
-
 
 app.UseCors("AllowFrontEnd");
 

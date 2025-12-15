@@ -56,24 +56,19 @@ namespace ResourceFlow.Application.Services
 
         public async Task<Response<object>> RegisterAsync(RegisterRequestDto dto)
         {
-
             try
             {
                 _logger.LogInformation("Register attempt for email {Email}", dto.Email);
 
+                // Normalize input (this is still OK here)
                 dto.Email = dto.Email.Trim().ToLower();
                 dto.UserName = dto.UserName.Trim();
                 dto.Password = dto.Password.Trim();
 
-                if (string.IsNullOrWhiteSpace(dto.Email) || !dto.Email.Contains("@"))
-                    throw new Exception("Invalid email");
-
-                if (string.IsNullOrWhiteSpace(dto.Password) || dto.Password.Length < 6)
-                    throw new Exception("Invalid password");
-
+                // ONLY business-level validation remains
                 var existing = await _userDapperRepository.GetByEmailAsync(dto.Email);
                 if (existing != null)
-                    throw new Exception("Email already registered");
+                    return new Response<object>(409, "Email already registered");
 
                 var user = _mapper.Map<User>(dto);
                 user.PassWord = BCrypt.Net.BCrypt.HashPassword(dto.Password);
@@ -81,12 +76,13 @@ namespace ResourceFlow.Application.Services
                 await _userRepo.AddAsync(user);
 
                 _logger.LogInformation("User registered successfully. Email: {Email}", dto.Email);
+
                 return new Response<object>(201, "User registered successfully");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Registration failed for email {Email}", dto.Email);
-                return new Response<object>(500, ex.Message);
+                return new Response<object>(500, "Registration failed");
             }
         }
 
@@ -130,7 +126,7 @@ namespace ResourceFlow.Application.Services
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
                     AccessTokenExpiry = exp,
-                    RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
+                    //RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
                     Role = user.RoleId
                 };
 
