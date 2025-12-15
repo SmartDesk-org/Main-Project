@@ -98,5 +98,6 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<CompanySubscription> CompanySubscriptions { get; set; }
         public DbSet<CompanyFloor> CompanyFloors { get; set; }
+        public DbSet<ClientMessage> ClientMessages { get; set; }
     }
 }
