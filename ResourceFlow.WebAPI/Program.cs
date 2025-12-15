@@ -2,6 +2,8 @@
 using Microsoft.IdentityModel.Tokens;
 using ResourceFlow.WebAPI.DI;
 using System.Text;
+using OfficeOpenXml;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,7 @@ builder.Services.AddSwaggerGen();
 
 
 builder.Services.AddProjectServices(builder.Configuration);
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 // JWT Config
 var jwt = builder.Configuration.GetSection("JwtSettings");
@@ -41,6 +44,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
 
 if (app.Environment.IsDevelopment())
 {

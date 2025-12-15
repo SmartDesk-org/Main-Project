@@ -9,7 +9,9 @@ using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.CompanyModels;
 using ResourceFlow.Domain.Entities.FloorModels;
 using ResourceFlow.Domain.Enums;
-using System.Collections.Concurrent; // Required for thread-safe collections if needed
+using OfficeOpenXml;
+
+using System.Collections.Concurrent;
 
 public class EmployeeService : IEmployeeService
 {
@@ -134,13 +136,13 @@ public class EmployeeService : IEmployeeService
                 await _employeeRepo.AddRangeAsync(newEmployees);
                 await _uow.SaveChangesAsync();
 
-                
+
                 await _uow.CommitAsync();
                 transactionCommitted = true;
             }
             catch (Exception ex)
             {
-           
+
                 if (!transactionCommitted)
                 {
                     await _uow.RollbackAsync();
@@ -168,13 +170,11 @@ public class EmployeeService : IEmployeeService
                         await _emailService.SendAsync(
                             to: user.Email,
                             subject: "Welcome to SmartDesk - Your Login Credentials",
-                            html: html // Changed parameter name to match interface
+                            html: html 
                         );
                     }
                     catch (Exception emailEx)
                     {
-                        // LOGGING ONLY: Do not throw.
-                        // We do not want to fail the request because one email bounced.
                         Console.WriteLine($"Failed to send email to {user.Email}: {emailEx.Message}");
                     }
                 });
@@ -183,5 +183,29 @@ public class EmployeeService : IEmployeeService
 
         response.SuccessfulRecords = validRows.Count;
         return new ApiResponse<BulkUploadResponse>(200, "File uploaded successfully. Emails sent.", response);
+    }
+    public byte[] GenerateEmployeeUploadTemplate()
+    {
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+        using var package = new ExcelPackage();
+        var sheet = package.Workbook.Worksheets.Add("Employees");
+
+        // STRICT headers
+        sheet.Cells[1, 1].Value = "EmployeeName";
+        sheet.Cells[1, 2].Value = "Email";
+        sheet.Cells[1, 3].Value = "Department";
+        sheet.Cells[1, 4].Value = "DefaultFloorId";
+
+        // Sample row
+        sheet.Cells[2, 1].Value = "John Doe";
+        sheet.Cells[2, 2].Value = "john@company.com";
+        sheet.Cells[2, 3].Value = "IT";
+        sheet.Cells[2, 4].Value = 1;
+
+        sheet.Cells[1, 1, 1, 4].Style.Font.Bold = true;
+        sheet.Cells.AutoFitColumns();
+
+        return package.GetAsByteArray();
     }
 }
