@@ -288,21 +288,21 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 13, 13, 46, 24, 597, DateTimeKind.Utc).AddTicks(2592),
+                            CreatedAt = new DateTime(2025, 12, 14, 17, 17, 29, 709, DateTimeKind.Utc).AddTicks(6457),
                             IsDeleted = false,
                             RoleName = "SuperAdmin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 13, 13, 46, 24, 597, DateTimeKind.Utc).AddTicks(2602),
+                            CreatedAt = new DateTime(2025, 12, 14, 17, 17, 29, 709, DateTimeKind.Utc).AddTicks(6465),
                             IsDeleted = false,
                             RoleName = "CompanyAdmin"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 13, 13, 46, 24, 597, DateTimeKind.Utc).AddTicks(2605),
+                            CreatedAt = new DateTime(2025, 12, 14, 17, 17, 29, 709, DateTimeKind.Utc).AddTicks(6468),
                             IsDeleted = false,
                             RoleName = "Employee"
                         });
@@ -389,16 +389,128 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 12, 13, 13, 46, 24, 835, DateTimeKind.Utc).AddTicks(6678),
+                            CreatedAt = new DateTime(2025, 12, 14, 17, 17, 30, 75, DateTimeKind.Utc).AddTicks(5793),
                             Email = "suhailpalakkal1@gmail.com",
                             IsActive = true,
                             IsBlocked = false,
                             IsDeleted = false,
-                            PassWord = "$2a$11$P2J6Alc0TMDhULvSef0wROG5Lxr4hL4IpxvH/Ac4RDVUbF9AaYJ2u",
+                            PassWord = "$2a$11$2sjwRv77J6Gd0fLeivNDXe42DWc6CSmlLGebm1UtBxN3OTpLaCAOC",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1,
                             UserName = "Suhail"
+                        });
+                });
+
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authorization.AppModule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Modules", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "User"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "CompanyDetails"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "CompanyFloor"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Resource"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Employee"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Subscription"
+                        });
+                });
+
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authorization.RolePermission", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("CanAdd")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanEdit")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanView")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ModuleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoleId");
+
+                    b.HasIndex("ModuleId");
+
+                    b.ToTable("RolePermissions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            CanAdd = true,
+                            CanDelete = true,
+                            CanEdit = true,
+                            CanView = true,
+                            Id = 1,
+                            ModuleId = 6
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            CanAdd = false,
+                            CanDelete = false,
+                            CanEdit = false,
+                            CanView = true,
+                            Id = 2,
+                            ModuleId = 6
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            CanAdd = false,
+                            CanDelete = false,
+                            CanEdit = false,
+                            CanView = false,
+                            Id = 3,
+                            ModuleId = 6
                         });
                 });
 
@@ -771,6 +883,25 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.Authorization.RolePermission", b =>
+                {
+                    b.HasOne("ResourceFlow.Domain.Entities.Authorization.AppModule", "Module")
+                        .WithMany()
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ResourceFlow.Domain.Entities.Authentication.Roles", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Module");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("ResourceFlow.Domain.Entities.CompanyModels.CompanyFloor", b =>
                 {
                     b.HasOne("CompanyDetails", "Company")
@@ -856,6 +987,8 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.Authentication.Roles", b =>
                 {
+                    b.Navigation("RolePermissions");
+
                     b.Navigation("Users");
                 });
 

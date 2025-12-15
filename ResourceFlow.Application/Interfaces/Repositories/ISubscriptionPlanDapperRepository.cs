@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Application.Interfaces.Repositories
 {
-    public interface ISubscriptionDapperRepository
+    public interface ISubscriptionPlanDapperRepository
     {
         Task<IEnumerable<Subscription>> GetAllAsync();
     }

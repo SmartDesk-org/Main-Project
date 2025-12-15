@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Domain.Enums
 {
-    public enum Roles
+    public enum RoleEnum
     {
-        SuperAdmin=1,
-        CompanyAdmin=2,
-        Employee=3
+        SuperAdmin = 1,
+        CompanyAdmin = 2,
+        Employee = 3
     }
 }

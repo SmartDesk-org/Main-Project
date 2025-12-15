@@ -12,11 +12,11 @@ namespace ResourceFlow.Application.Services.Subscriptions
     public class SubscriptionService : ISubscriptionService
     {
         private readonly IGenericRepository<Subscription> _repo;
-        private readonly ISubscriptionDapperRepository _dapperRepo;
+        private readonly ISubscriptionPlanDapperRepository _dapperRepo;
         private readonly IMapper _mapper;
 
         public SubscriptionService(IGenericRepository<Subscription> repo,
-            ISubscriptionDapperRepository dapperRepo,
+            ISubscriptionPlanDapperRepository dapperRepo,
             IMapper mapper)
         {
             _repo = repo;
@@ -37,10 +37,19 @@ namespace ResourceFlow.Application.Services.Subscriptions
 
         public async Task<ApiResponse<IEnumerable<Subscription>>> GetAllPlansAsync()
         {
-            var res= await _dapperRepo.GetAllAsync();
-            if (res == null || !res.Any())
-                return new ApiResponse<IEnumerable<Subscription>>(400, "No plans found");
-            return new ApiResponse<IEnumerable<Subscription>>(200, "Plans fetched succesfully", res);
+            try
+            {
+                var res = await _dapperRepo.GetAllAsync();
+                if (res == null || !res.Any())
+                    return new ApiResponse<IEnumerable<Subscription>>(404, "Subscription plans not configured");
+                return new ApiResponse<IEnumerable<Subscription>>(200, "Plans fetched succesfully", res);
+
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<IEnumerable<Subscription>>(500, ex.Message);
+            }
+          
         }
 
         public async Task<ApiResponse<Subscription>?> GetPlanByIdAsync(int id)

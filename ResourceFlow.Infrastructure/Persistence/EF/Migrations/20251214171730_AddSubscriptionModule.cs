@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     /// <inheritdoc />
-    public partial class aftertest : Migration
+    public partial class AddSubscriptionModule : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,6 +34,19 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CompanyDetails", x => x.CompanyId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Modules",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Modules", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -197,6 +210,35 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         column: x => x.CompanyId,
                         principalTable: "CompanyDetails",
                         principalColumn: "CompanyId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RolePermissions",
+                columns: table => new
+                {
+                    RoleId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
+                    ModuleId = table.Column<int>(type: "int", nullable: false),
+                    CanAdd = table.Column<bool>(type: "bit", nullable: false),
+                    CanEdit = table.Column<bool>(type: "bit", nullable: false),
+                    CanView = table.Column<bool>(type: "bit", nullable: false),
+                    CanDelete = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RolePermissions", x => x.RoleId);
+                    table.ForeignKey(
+                        name: "FK_RolePermissions_Modules_ModuleId",
+                        column: x => x.ModuleId,
+                        principalTable: "Modules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RolePermissions_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -369,19 +411,42 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Modules",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "User" },
+                    { 2, "CompanyDetails" },
+                    { 3, "CompanyFloor" },
+                    { 4, "Resource" },
+                    { 5, "Employee" },
+                    { 6, "Subscription" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "RoleName" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 12, 13, 13, 46, 24, 597, DateTimeKind.Utc).AddTicks(2592), null, null, null, false, null, null, "SuperAdmin" },
-                    { 2, new DateTime(2025, 12, 13, 13, 46, 24, 597, DateTimeKind.Utc).AddTicks(2602), null, null, null, false, null, null, "CompanyAdmin" },
-                    { 3, new DateTime(2025, 12, 13, 13, 46, 24, 597, DateTimeKind.Utc).AddTicks(2605), null, null, null, false, null, null, "Employee" }
+                    { 1, new DateTime(2025, 12, 14, 17, 17, 29, 709, DateTimeKind.Utc).AddTicks(6457), null, null, null, false, null, null, "SuperAdmin" },
+                    { 2, new DateTime(2025, 12, 14, 17, 17, 29, 709, DateTimeKind.Utc).AddTicks(6465), null, null, null, false, null, null, "CompanyAdmin" },
+                    { 3, new DateTime(2025, 12, 14, 17, 17, 29, 709, DateTimeKind.Utc).AddTicks(6468), null, null, null, false, null, null, "Employee" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "RolePermissions",
+                columns: new[] { "RoleId", "CanAdd", "CanDelete", "CanEdit", "CanView", "Id", "ModuleId" },
+                values: new object[,]
+                {
+                    { 1, true, true, true, true, 1, 6 },
+                    { 2, false, false, false, true, 2, 6 },
+                    { 3, false, false, false, false, 3, 6 }
                 });
 
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "UserId", "CompanyId", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "Email", "IsActive", "IsBlocked", "IsDeleted", "ModifiedAt", "ModifiedBy", "PassWord", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiry", "RoleId", "UserName" },
-                values: new object[] { 1, null, new DateTime(2025, 12, 13, 13, 46, 24, 835, DateTimeKind.Utc).AddTicks(6678), null, null, null, "suhailpalakkal1@gmail.com", true, false, false, null, null, "$2a$11$P2J6Alc0TMDhULvSef0wROG5Lxr4hL4IpxvH/Ac4RDVUbF9AaYJ2u", null, null, "", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Suhail" });
+                values: new object[] { 1, null, new DateTime(2025, 12, 14, 17, 17, 30, 75, DateTimeKind.Utc).AddTicks(5793), null, null, null, "suhailpalakkal1@gmail.com", true, false, false, null, null, "$2a$11$2sjwRv77J6Gd0fLeivNDXe42DWc6CSmlLGebm1UtBxN3OTpLaCAOC", null, null, "", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Suhail" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Billing_CompanyId",
@@ -441,6 +506,11 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RolePermissions_ModuleId",
+                table: "RolePermissions",
+                column: "ModuleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_CompanyId",
                 table: "Users",
                 column: "CompanyId");
@@ -476,10 +546,16 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 name: "Resources");
 
             migrationBuilder.DropTable(
+                name: "RolePermissions");
+
+            migrationBuilder.DropTable(
                 name: "Subscriptions");
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Modules");
 
             migrationBuilder.DropTable(
                 name: "CompanyDetails");

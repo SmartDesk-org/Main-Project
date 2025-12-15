@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Domain.Entities.Authentication;
 using System;
 using System.Collections.Generic;

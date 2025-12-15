@@ -18,6 +18,11 @@ namespace ResourceFlow.Domain.Entities
         public DateTime? DeletedAt { get; set; } = null;
         public int? DeletedBy { get; set; }
 
+//<<<<<<< HEAD
+//        public bool IsDelete { get; set; } = false;
+
+//=======
         public bool IsDeleted { get; set; } = false;
+
     }
 }

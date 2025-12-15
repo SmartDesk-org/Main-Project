@@ -5,11 +5,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using ResourceFlow.Application.Interfaces.Auth;
+using ResourceFlow.Application.Interfaces.Authorization;
 using ResourceFlow.Application.Interfaces.Company;
 using ResourceFlow.Application.Interfaces.Payments;
 using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Interfaces.Subscriptions;
 using ResourceFlow.Application.Services;
+using ResourceFlow.Application.Services.Authorization;
 using ResourceFlow.Application.Services.Company;
 using ResourceFlow.Application.Services.Payments;
 using ResourceFlow.Application.Services.Subscriptions;
@@ -49,7 +52,15 @@ namespace ResourceFlow.WebAPI.DI
             services.AddSingleton<DapperContext>();
             services.AddTransient<StoredProcedureInstaller>();
             services.AddScoped<IUserDapperRepository, UserDapperRepository>();
-            services.AddScoped<ISubscriptionDapperRepository, SubscriptionDapperRepository>();
+            services.AddScoped<ISubscriptionPlanDapperRepository, SubscriptionDapperRepository>();
+
+            services.AddScoped<ICompanyDapperRepository, CompanyDapperRepository>();
+            services.AddScoped<IEmployeeDapperRepository, EmployeeDapperRepository>();
+            services.AddScoped<IPermissionService, PermissionService>();
+
+
+           
+
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -79,6 +90,7 @@ namespace ResourceFlow.WebAPI.DI
                 });
             });
 
+
             // Swagger
             services.AddSwaggerGen(options =>
             {
@@ -90,7 +102,10 @@ namespace ResourceFlow.WebAPI.DI
                 });
             });
 
+
             return services;
+
         }
+
     }
 }

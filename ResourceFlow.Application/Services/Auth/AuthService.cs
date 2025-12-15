@@ -8,6 +8,16 @@ using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Application.Common;
 using Microsoft.Extensions.Logging;
 
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
+
+
+
+
+using Microsoft.EntityFrameworkCore;
+
+
 namespace ResourceFlow.Application.Services
 {
     public class AuthService : IAuthService
@@ -76,7 +86,7 @@ namespace ResourceFlow.Application.Services
             }
         }
 
-        public async Task<AuthTokensDto> LoginAsync(LoginRequestDto dto)
+        public async Task<Response<object>> LoginAsync(LoginRequestDto dto)
         {
             try
             {
@@ -107,9 +117,11 @@ namespace ResourceFlow.Application.Services
 
                 await _authRepo.SaveAsync();
 
+
                 _logger.LogInformation("Login successful for UserId {UserId}", user.UserId);
 
-                return new AuthTokensDto
+                var res = new 
+
                 {
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
@@ -117,6 +129,10 @@ namespace ResourceFlow.Application.Services
                     RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
                     Role = user.RoleId
                 };
+
+
+                return new Response<object>(200, "User logged in successfully", res);
+
             }
             catch (Exception ex)
             {
@@ -129,7 +145,12 @@ namespace ResourceFlow.Application.Services
         {
             try
             {
+
                 _logger.LogInformation("Refresh token request received");
+
+               
+                
+
 
                 var user = await _userDapperRepository.GetByRefreshToken(refreshToken);
                 if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
@@ -138,25 +159,53 @@ namespace ResourceFlow.Application.Services
                     return new Response<object>(401, "Invalid refresh token");
                 }
 
+
                 var (accessToken, exp) = _jwtService.GenerateAccessToken(user);
                 var newRefreshToken = _jwtService.GenerateRefreshToken();
 
                 var trackedUser = await _authRepo.GetByIdAsync(user.UserId);
+
+               
+                var dbUser = await _userDapperRepository.GetByUserIdAsync(user.UserId);
+
+                if (dbUser == null)
+                    return new Response<object>(404, "User not found");
+
+                if (user.RefreshTokenExpiry < DateTime.UtcNow ||
+                      user.RefreshTokenExpiry < DateTime.UtcNow)
+                    return new Response<object>(401, "Session expired. Please login again.");
+
+
+
+               
+                 
+
+
                 trackedUser.RefreshToken = newRefreshToken;
                 trackedUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
                 await _authRepo.SaveAsync();
 
+
                 _logger.LogInformation("Token refreshed for UserId {UserId}", user.UserId);
 
-                return new Response<object>(200, "Token refreshed", new AuthTokensDto
+               
+
+                var res = new AuthTokensDto
+
                 {
                     AccessToken = accessToken,
                     RefreshToken = newRefreshToken,
                     AccessTokenExpiry = exp,
                     RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
                     Role = user.RoleId
-                });
+
+                };
+               
+                // STEP 5: RETURN RESPONSE
+                return new Response<object>(200, "Token refreshed",res );
+
+
             }
             catch (Exception ex)
             {
@@ -180,12 +229,17 @@ namespace ResourceFlow.Application.Services
 
                 await _authRepo.SaveAsync();
 
+                return new Response<object>(200, "Logout successfull.");
+
+
                 _logger.LogInformation("Logout successful for UserId {UserId}", userId);
                 return new Response<object>(200, "Logout successful");
             }
             catch (Exception ex)
             {
+
                 _logger.LogError(ex, "Logout failed");
+
                 return new Response<object>(500, ex.Message);
             }
         }
@@ -240,6 +294,12 @@ namespace ResourceFlow.Application.Services
         {
             try
             {
+
+                dto.Token = dto.Token?.Trim();
+                dto.CurrentPassword=dto.CurrentPassword.Trim();
+                dto.NewPassword=dto.NewPassword.Trim();
+
+                
                 if (!string.IsNullOrWhiteSpace(dto.Token))
                 {
                     _logger.LogInformation("Password reset using token");
@@ -258,7 +318,17 @@ namespace ResourceFlow.Application.Services
                     return new Response<string>(200, "Password reset successful");
                 }
 
+
                 _logger.LogInformation("Password change for UserId {UserId}", userId);
+
+                if (!userId.HasValue)
+                    return new Response<string>(401, "Unauthorized");
+
+                if (string.IsNullOrWhiteSpace(dto.CurrentPassword))
+                    return new Response<string>(400, "Current password is required.");
+                if (string.IsNullOrWhiteSpace(dto.NewPassword))
+                    return new Response<string>(400, "New password cannot be empty.");
+
 
                 var existingUser = await _userDapperRepository.GetByUserIdAsync(userId.Value);
                 if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, existingUser.PassWord))

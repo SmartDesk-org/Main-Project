@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResourceFlow.Application.DTOs.Subscription;
+using ResourceFlow.Application.Interfaces.Authorization;
 using ResourceFlow.Application.Interfaces.Subscriptions;
 using ResourceFlow.Infrastructure.Extensions;
 
@@ -11,19 +12,34 @@ namespace ResourceFlow.WebAPI.Controllers
     public class SubscriptionController : ControllerBase
     {
         private readonly ISubscriptionService _service;
+        private readonly IPermissionService _permissionService;
 
-        public SubscriptionController(ISubscriptionService service)
+        public SubscriptionController(ISubscriptionService service,IPermissionService permissionService)
         {
             _service = service;
+            _permissionService = permissionService;
         }
+
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreatePlan(CreateSubscriptionPlanDto dto)
         {
             var userId = User.GetUserId();
-            var res = await _service.CreatePlanAsync(dto,userId);
+
+            var hasPermission = await _permissionService
+                .HasPermission(userId, "Subscription", "Add");
+
+            if (!hasPermission)
+                return StatusCode(StatusCodes.Status403Forbidden, new
+                {
+                    message = "You are not allowed to create a subscription plan"
+                });
+
+            var res = await _service.CreatePlanAsync(dto, userId);
             return StatusCode(res.StatusCode, res);
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> GetAll()

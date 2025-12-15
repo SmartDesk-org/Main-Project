@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
+
 using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Auth;
 using ResourceFlow.Application.Interfaces.Auth;
@@ -24,9 +26,7 @@ namespace ResourceFlow.WebAPI.Controllers
             _logger = logger;
         }
 
-        // ----------------------------------------------------
-        // REGISTER
-        // ----------------------------------------------------
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto dto)
         {
@@ -35,7 +35,9 @@ namespace ResourceFlow.WebAPI.Controllers
             try
             {
                 var res = await _auth.RegisterAsync(dto);
+
                 _logger.LogInformation("Register completed. StatusCode: {StatusCode}", res.StatusCode);
+
                 return StatusCode(res.StatusCode, res);
             }
             catch (Exception ex)
@@ -45,33 +47,82 @@ namespace ResourceFlow.WebAPI.Controllers
             }
         }
 
+
         // ----------------------------------------------------
         // LOGIN
         // ----------------------------------------------------
+        //[HttpPost("login")]
+        //public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
+        //{
+        //    _logger.LogInformation("Login API called. Email: {Email}", dto?.Email);
+
+        //    try
+        //    {
+        //        var res = await _auth.LoginAsync(dto);
+
+
+
+        //[HttpPost("login")]
+        //public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
+        //{
+        //    try
+        //    {
+        //        var res = await _auth.LoginAsync(dto);
+
+        //        if (res.Data is AuthTokensDTO data && !string.IsNullOrEmpty(data.RefreshToken))
+        //        {
+        //            Response.Cookies.Append("refreshToken", data.RefreshToken, new CookieOptions
+        //            {
+        //                HttpOnly = true,
+        //                Secure = true,
+        //                SameSite = SameSiteMode.Strict,
+        //                Expires = DateTime.UtcNow.AddDays(7)
+        //            });
+        //        }
+
+        //        return StatusCode(res.StatusCode, res);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = ex.Message });
+        //    }
+        //}
+
+
+        //[HttpPost("refresh-token")]
+        //public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+        //{
+        //    try
+        //    {
+        //        var res = await _auth.RefreshTokenAsync(refreshToken);
+
+
+
+
+
+
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
-            _logger.LogInformation("Login API called. Email: {Email}", dto?.Email);
-
             try
             {
                 var res = await _auth.LoginAsync(dto);
 
-                if (!string.IsNullOrEmpty(res.RefreshToken))
+                if (res.Data is AuthTokensDto tokens && !string.IsNullOrEmpty(tokens.RefreshToken))
                 {
-                    Response.Cookies.Append("refreshToken", res.RefreshToken, new CookieOptions
+                    Response.Cookies.Append("refreshToken", tokens.RefreshToken, new CookieOptions
                     {
                         HttpOnly = true,
-                        Secure = false,
-                        SameSite = SameSiteMode.Lax,
+                        Secure = false, // set to true in production
+                        SameSite = SameSiteMode.None,
                         Expires = DateTime.UtcNow.AddDays(7)
                     });
                 }
 
                 _logger.LogInformation("Login successful. Email: {Email}", dto?.Email);
 
-                var response = new Response<object>(200, "Logined successfully", res);
-                return StatusCode(200, response);
+                return StatusCode(res.StatusCode, res);
             }
             catch (Exception ex)
             {
@@ -80,15 +131,18 @@ namespace ResourceFlow.WebAPI.Controllers
             }
         }
 
-        // ----------------------------------------------------
-        // REFRESH TOKEN
-        // ----------------------------------------------------
+
+
+        [Authorize]
+
+
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh()
+        public async Task<IActionResult> Refresh([FromBody] string refreshToken)
         {
+
             _logger.LogInformation("Refresh token API called");
 
-            var refreshToken = Request.Cookies["refreshToken"];
+            //var refreshToken = Request.Cookies["refreshToken"];
 
             _logger.LogDebug("Refresh token received from cookie");
 
@@ -105,6 +159,8 @@ namespace ResourceFlow.WebAPI.Controllers
                 return Unauthorized();
             }
 
+                         
+
             var data = res.Data as AuthTokensDto;
 
             Response.Cookies.Append("refreshToken", data.RefreshToken, new CookieOptions
@@ -120,15 +176,17 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        // ----------------------------------------------------
-        // LOGOUT
-        // ----------------------------------------------------
+   
         [Authorize]
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
+        [HttpPost("logout/{userId}")]
+        public async Task<IActionResult> Logout(int userId)
         {
-            var userId = User.GetUserId();
+
+            //int userId = User.GetUserId();
             _logger.LogInformation("Logout API called. UserId: {UserId}", userId);
+
+            var result = await _auth.LogoutAsync(userId);
+
 
             await _auth.LogoutAsync(userId);
             await _auth.LogoutAsync(userId);
@@ -136,15 +194,18 @@ namespace ResourceFlow.WebAPI.Controllers
             Response.Cookies.Delete("accessToken");
             Response.Cookies.Delete("refreshToken");
 
+
             _logger.LogInformation("Logout completed. UserId: {UserId}", userId);
 
             return Ok(new { message = "Logged out" });
         }
 
-        // ----------------------------------------------------
-        // FORGOT PASSWORD
-        // ----------------------------------------------------
-        [EnableRateLimiting("Fixed")]
+       
+
+
+
+
+
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
@@ -157,9 +218,7 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        // ----------------------------------------------------
-        // RESET PASSWORD
-        // ----------------------------------------------------
+
         [EnableRateLimiting("Fixed")]
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
