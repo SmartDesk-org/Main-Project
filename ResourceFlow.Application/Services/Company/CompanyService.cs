@@ -78,9 +78,9 @@ namespace ResourceFlow.Application.Services.Company
                 IsActive = false,
                 IsBlocked = false
             };
-            var existingUser = _userRepo.SingleOrDefaultAsync(x => x.Email == user.Email && x.IsDeleted == false && x.IsActive == true);
-            if (existingUser != null)
-                throw new Exception("A user already exist with this mail");
+            //var existingUser = _userRepo.SingleOrDefaultAsync(x => x.Email == user.Email && x.IsDeleted == false && x.IsActive == true);
+            //if (existingUser != null)
+            //    throw new Exception("A user already exist with this mail");
             var newUser = await _userRepo.AddAsync(user);
 
             var companySubscription = new CompanySubscription
