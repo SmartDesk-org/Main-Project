@@ -12,24 +12,52 @@ public class EmployeeEmailService : IEmployeeEmailService
         _config = config;
     }
 
-    public async Task SendAsync(string to, string subject, string html)
+    public async Task SendAsync(string to, string subject, string htmlBody)
     {
         var host = _config["Smtp:Host"];
         var port = int.Parse(_config["Smtp:Port"]);
-        var user = _config["Smtp:Username"];
-        var pass = _config["Smtp:Password"];
+        var username = _config["Smtp:Username"];
+        var password = _config["Smtp:Password"];
+        // Ensure this pulls the email address correctly
+        var sender = _config["Smtp:SenderEmail"] ?? username;
 
         using var client = new SmtpClient(host, port)
         {
             EnableSsl = true,
-            Credentials = new NetworkCredential(user, pass)
+            DeliveryMethod = SmtpDeliveryMethod.Network,
+            UseDefaultCredentials = false,
+            Credentials = new NetworkCredential(username, password),
+            Timeout = 15000
         };
 
-        var mail = new MailMessage(user, to, subject, html)
+        var mail = new MailMessage
         {
+            // CHANGE HERE: The second parameter is the "Display Name"
+            From = new MailAddress(sender, "SmartDesk"),
+            Subject = subject,
+            Body = htmlBody,
             IsBodyHtml = true
         };
 
-        await client.SendMailAsync(mail);
+        mail.To.Add(to);
+
+        try
+        {
+            Console.WriteLine($"📧 Sending email to {to}...");
+            await client.SendMailAsync(mail);
+            Console.WriteLine($"✅ Email sent to {to}");
+        }
+        catch (SmtpException ex)
+        {
+            Console.WriteLine("❌ SMTP EXCEPTION");
+            Console.WriteLine("Message: " + ex.Message);
+            Console.WriteLine("StatusCode: " + ex.StatusCode);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("❌ GENERAL EMAIL ERROR: " + ex.Message);
+            throw;
+        }
     }
 }
