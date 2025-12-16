@@ -128,6 +128,7 @@ namespace ResourceFlow.Application.Services.Company
 
             company.IsActive = true;
             subscription.IsActive = true;
+            subscription.Status = SubscriptionStatus.Active;
             user.IsActive = true;
 
             var floor = new CompanyFloor
@@ -143,8 +144,6 @@ namespace ResourceFlow.Application.Services.Company
             await _companyRepo.UpdateAsync(company);
             await _compSubRepo.UpdateAsync(subscription);
             await _userRepo.UpdateAsync(user);
-
-
 
         }
     }
