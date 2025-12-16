@@ -115,7 +115,7 @@ builder.Services.AddRateLimiter(options =>
     options.AddFixedWindowLimiter("Fixed", opt =>
     {
         opt.Window = TimeSpan.FromMinutes(1);
-        opt.PermitLimit = 10;
+        opt.PermitLimit = 5;
         opt.QueueLimit = 0;
         opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
     });
@@ -145,7 +145,7 @@ app.UseCors("AllowFrontEnd");
 
 app.UseHttpsRedirection();
 
-//app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseRateLimiter();
 
 app.UseAuthentication();

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using ResourceFlow.Application.DTOs.Auth;
+using ResourceFlow.Application.DTOs.ClientMessages;
 using ResourceFlow.Application.DTOs.Subscription;
+using ResourceFlow.Domain.Entities;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
 using System;
@@ -20,6 +22,7 @@ namespace ResourceFlow.Application.Mappings
             CreateMap<CreateSubscriptionPlanDto, Subscription>().ReverseMap();
 
             CreateMap<UpdateSubscriptionPlanDto, Subscription>().ReverseMap();
+            CreateMap<NewClientMessageDto, ClientMessage>().ReverseMap();
         }
     }
 }
