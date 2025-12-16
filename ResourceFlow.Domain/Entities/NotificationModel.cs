@@ -29,7 +29,7 @@ public class Notification : BaseEntity
 
     public int RetryCount { get; set; } = 0;
 
-    // NAVIGATION (enable later)
+    
     public CompanyDetails Company { get; set; }
     public User User { get; set; }
     public ResourceFlow.Domain.Entities.Authentication.Roles Role { get; set; }

@@ -1,22 +1,40 @@
+
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using ResourceFlow.Application.Interfaces.Auth;
+using ResourceFlow.Infrastructure.Persistence.EF.Context;
+
+using ResourceFlow.Application.Interfaces.Authorization;
 using ResourceFlow.Application.Interfaces.Company;
 using ResourceFlow.Application.Interfaces.Payments;
 using ResourceFlow.Application.Interfaces.Repositories;
-using ResourceFlow.Application.Interfaces.Subscription;
+using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
+using ResourceFlow.Application.Interfaces.Subscriptions;
 using ResourceFlow.Application.Services;
+using ResourceFlow.Application.Services.Authorization;
 using ResourceFlow.Application.Services.Company;
 using ResourceFlow.Application.Services.Payments;
-using ResourceFlow.Application.Services.Subscription;
+using ResourceFlow.Application.Services.Subscriptions;
+
+using Microsoft.EntityFrameworkCore;
+using ResourceFlow.Application.Common;
+using ResourceFlow.Application.Interfaces;
+using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Application.Interfaces.Services;
+using ResourceFlow.Application.Services;
+using ResourceFlow.Application.Validators.Employee;
+
 using ResourceFlow.Infrastructure.Ef.Repositories;
+using ResourceFlow.Infrastructure.Persistence.Dapper;
+using ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories;
+using ResourceFlow.Infrastructure.Persistence.Dapper.Repositories;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 using ResourceFlow.Infrastructure.Services;
 using System.Text.Json.Serialization;
+
 
 namespace ResourceFlow.WebAPI.DI
 {
@@ -26,18 +44,26 @@ namespace ResourceFlow.WebAPI.DI
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            // Register Database Context
+            // DbContext
             services.AddDbContext<AppDbContext>(options =>
-                    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
+
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
             );
+
 
             // Repositories
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IEmployeeImportValidator, EmployeeImportValidator>();
 
 
-            // Services
+            services.AddScoped<IExcelReader, ExcelReader>();
+            services.AddHostedService<EmailBackgroundWorker>();
+            services.AddSingleton<IBackgroundEmailQueue, BackgroundEmailQueue>();
+
             services.AddScoped<IAuthService, AuthService>();
+
             services.AddScoped<ISubscriptionService, SubscriptionService>();
             services.AddScoped<IPaymentGateway, StripeService>();
             services.AddScoped<PaymentService>();
@@ -45,73 +71,72 @@ namespace ResourceFlow.WebAPI.DI
 
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddSingleton<DapperContext>();
+            services.AddTransient<StoredProcedureInstaller>();
+            services.AddScoped<IUserDapperRepository, UserDapperRepository>();
+            services.AddScoped<ISubscriptionPlanDapperRepository, SubscriptionDapperRepository>();
 
-            //Automapper
+            services.AddScoped<ICompanyDapperRepository, CompanyDapperRepository>();
+            services.AddScoped<IEmployeeDapperRepository, EmployeeDapperRepository>();
+            services.AddScoped<IPermissionService, PermissionService>();
+
+
+           
+
+
+            // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-
-            //Fluent validation
+            // FluentValidation
             services.AddFluentValidationAutoValidation();
             services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 
-
-            //HttpContextAccessor
+            // HttpContext
             services.AddHttpContextAccessor();
 
+            // Controllers JSON cycle handling
             services.AddControllers().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
             });
 
-
-            //CORS
+            // CORS
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowFrontEnd", policy =>
                 {
                     policy.WithOrigins(configuration["FrontEndUrl:BaseUrl"])
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+            });
+
+
+            // Swagger
+            services.AddSwaggerGen(options =>
+            {
+               
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                   
                 });
             });
 
 
 
-            //Swaggerconfiguration
-           services.AddSwaggerGen(options =>
-            {
-              options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                 {
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
-                    In = ParameterLocation.Header,
-                    Description = "Enter token: Bearer {your token}"
-                 });
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IEmployeeEmailService, EmployeeEmailService>();
+            services.AddScoped<IEmployeeService, EmployeeService>();
 
-              options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                   {
-
-                       new OpenApiSecurityScheme
-                        {
-                          Reference = new OpenApiReference
-                          {
-                               Type = ReferenceType.SecurityScheme,
-                               Id = "Bearer"
-                          }
-                       },
-                        Array.Empty<string>()
-                   }
-              });
-            });
+            // AutoMapper
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
             return services;
 
-            
         }
+
     }
 }

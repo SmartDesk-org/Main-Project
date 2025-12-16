@@ -1,7 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
+
+using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Auth;
-using ResourceFlow.Application.Interfaces.Auth;
+
+using ResourceFlow.Application.Services;
+using ResourceFlow.Infrastructure.Extensions;
+
+using ResourceFlow.Application.Interfaces.Services;
+
+using System.Security.Claims;
 
 namespace ResourceFlow.WebAPI.Controllers
 {
@@ -10,123 +21,169 @@ namespace ResourceFlow.WebAPI.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _auth;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IAuthService auth)
+        public AuthController(IAuthService auth, ILogger<AuthController> logger)
         {
             _auth = auth;
+            _logger = logger;
         }
 
-        // ----------------------------------------------------
-        // REGISTER
-        // ----------------------------------------------------
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto dto)
         {
-            var res = await _auth.RegisterAsync(dto);
-            return StatusCode(res.StatusCode, res);
+            _logger.LogInformation("Register API called. Email: {Email}", dto?.Email);
+
+            try
+            {
+                var res = await _auth.RegisterAsync(dto);
+
+                _logger.LogInformation("Register completed. StatusCode: {StatusCode}", res.StatusCode);
+
+                return StatusCode(res.StatusCode, res);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Register failed. Email: {Email}", dto?.Email);
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
-        // ----------------------------------------------------
-        // LOGIN
-        // ----------------------------------------------------
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
-            var res = await _auth.LoginAsync(dto);
-            var data = res.Data as AuthTokensDto;
-
-            // ACCESS TOKEN COOKIE
-            Response.Cookies.Append("accessToken", data.AccessToken, new CookieOptions
+            try
             {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = data.AccessTokenExpiry
-            });
+                var res = await _auth.LoginAsync(dto);
 
-            // REFRESH TOKEN COOKIE
-            Response.Cookies.Append("refreshToken", data.RefreshToken, new CookieOptions
+                if (res.Data is AuthTokensDto tokens && !string.IsNullOrEmpty(tokens.RefreshToken))
+                {
+                    Response.Cookies.Append("refreshToken", tokens.RefreshToken, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = false, // set to true in production
+                        SameSite = SameSiteMode.None,
+                        Expires = DateTime.UtcNow.AddDays(7)
+                    });
+                }
+
+                _logger.LogInformation("Login successful. Email: {Email}", dto?.Email);
+
+                return StatusCode(res.StatusCode, res);
+            }
+            catch (Exception ex)
             {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = data.RefreshTokenExpiry
-            });
-
-            return StatusCode(res.StatusCode, res);
+                _logger.LogError(ex, "Login failed. Email: {Email}", dto?.Email);
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
-        // ----------------------------------------------------
-        // REFRESH TOKEN
-        // ----------------------------------------------------
+
+
+        [Authorize]
+
+
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh()
+        public async Task<IActionResult> Refresh([FromBody] string refreshToken)
         {
-            var refreshToken = Request.Cookies["refreshToken"];
-            if (string.IsNullOrEmpty(refreshToken)) return Unauthorized();
+
+            _logger.LogInformation("Refresh token API called");
+
+            //var refreshToken = Request.Cookies["refreshToken"];
+
+            _logger.LogDebug("Refresh token received from cookie");
+
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                _logger.LogWarning("Refresh token missing");
+                return Unauthorized();
+            }
 
             var res = await _auth.RefreshTokenAsync(refreshToken);
-            if (res == null) return Unauthorized();
+            if (res == null)
+            {
+                _logger.LogWarning("Refresh token invalid");
+                return Unauthorized();
+            }
+
+                         
 
             var data = res.Data as AuthTokensDto;
-
-            Response.Cookies.Append("accessToken", data.AccessToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = data.AccessTokenExpiry
-            });
 
             Response.Cookies.Append("refreshToken", data.RefreshToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
+                Secure = false,
+                SameSite = SameSiteMode.Lax,
                 Expires = data.RefreshTokenExpiry
             });
+
+            _logger.LogInformation("Refresh token successful");
 
             return StatusCode(res.StatusCode, res);
         }
 
-        // ----------------------------------------------------
-        // LOGOUT
-        // ----------------------------------------------------
+   
         [Authorize]
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
+        [HttpPost("logout/{userId}")]
+        public async Task<IActionResult> Logout(int userId)
         {
-            var userId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+
+            //int userId = User.GetUserId();
+            _logger.LogInformation("Logout API called. UserId: {UserId}", userId);
+
+            var result = await _auth.LogoutAsync(userId);
+
 
             await _auth.LogoutAsync(userId);
+            await _auth.LogoutAsync(userId);
+
             Response.Cookies.Delete("accessToken");
             Response.Cookies.Delete("refreshToken");
 
-            return Ok(new { message = "Logged out" });
+
+            _logger.LogInformation("Logout completed. UserId: {UserId}", userId);
+
+            return Ok(result);
         }
 
-        // ----------------------------------------------------
-        // FORGOT PASSWORD
-        // ----------------------------------------------------
+       
+
+
+
+
+
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
-            var ok = await _auth.GenerateForgotPasswordTokenAsync(dto.Email);
-            if (!ok) return NotFound(new { message = "Email not found" });
+            _logger.LogInformation("Forgot password API called. Email: {Email}", dto?.Email);
 
-            return Ok(new { message = "Reset link sent if email exists." });
+            var result = await _auth.ForgotPasswordAsync(dto);
+
+            _logger.LogInformation("Forgot password completed. StatusCode: {StatusCode}", result.StatusCode);
+
+            return StatusCode(result.StatusCode, result);
         }
 
-        // ----------------------------------------------------
-        // RESET PASSWORD
-        // ----------------------------------------------------
+
+        [EnableRateLimiting("Fixed")]
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
         {
-            var ok = await _auth.ResetPasswordAsync(dto);
-            if (!ok) return BadRequest(new { message = "Invalid token or expired" });
+            if (!string.IsNullOrWhiteSpace(dto.Token))
+            {
+                _logger.LogInformation("Reset password via token");
+                var result = await _auth.ResetPasswordAsync(dto, null);
+                return StatusCode(result.StatusCode, result);
+            }
 
-            return Ok(new { message = "Password reset successful" });
+            int userId = User.GetUserId();
+            _logger.LogInformation("Reset password for logged-in user. UserId: {UserId}", userId);
+
+            var result2 = await _auth.ResetPasswordAsync(dto, userId);
+            return StatusCode(result2.StatusCode, result2);
         }
     }
 }

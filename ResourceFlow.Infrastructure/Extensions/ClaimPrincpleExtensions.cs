@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ResourceFlow.Infrastructure.Extensions
 {
@@ -11,33 +7,59 @@ namespace ResourceFlow.Infrastructure.Extensions
     {
         public static int GetUserId(this ClaimsPrincipal User)
         {
+            var claimsDump = string.Join(", ", User.Claims.Select(c => $"{c.Type}={c.Value}"));
+            Debug.WriteLine($"[CLAIMS DEBUG] All Claims: {claimsDump}");
+
             var userIdClaim = User.FindFirst("userId");
-            if (string.IsNullOrEmpty(userIdClaim?.Value) || !int.TryParse(userIdClaim?.Value, out int userId))
+
+            Debug.WriteLine($"[CLAIMS DEBUG] userId found? {userIdClaim?.Value}");
+
+            if (string.IsNullOrEmpty(userIdClaim?.Value) || !int.TryParse(userIdClaim.Value, out int userId))
             {
+                Debug.WriteLine("[CLAIMS ERROR] Missing or invalid userId claim");
                 throw new UnauthorizedAccessException("Invalid or missing claim");
             }
+
+            Debug.WriteLine($"[CLAIMS DEBUG] UserId = {userId}");
             return userId;
         }
+
         public static string GetUserRole(this ClaimsPrincipal User)
         {
-            var UserRole = User.FindFirst("userRole");
-            if (string.IsNullOrEmpty(UserRole?.Value))
+            var claimsDump = string.Join(", ", User.Claims.Select(c => $"{c.Type}={c.Value}"));
+            Debug.WriteLine($"[CLAIMS DEBUG] All Claims: {claimsDump}");
+
+            var roleClaim = User.FindFirst("userRole");
+
+            Debug.WriteLine($"[CLAIMS DEBUG] userRole found? {roleClaim?.Value}");
+
+            if (string.IsNullOrEmpty(roleClaim?.Value))
             {
-
+                Debug.WriteLine("[CLAIMS ERROR] Missing or invalid userRole claim");
                 throw new UnauthorizedAccessException("Invalid or missing claim.");
-
             }
-            return UserRole.Value;
 
+            Debug.WriteLine($"[CLAIMS DEBUG] UserRole = {roleClaim.Value}");
+            return roleClaim.Value;
         }
+
         public static string GetUserEmail(this ClaimsPrincipal User)
         {
-            var UserEmail = User.FindFirst("UserEmail");
-            if (string.IsNullOrEmpty(UserEmail?.Value))
+            var claimsDump = string.Join(", ", User.Claims.Select(c => $"{c.Type}={c.Value}"));
+            Debug.WriteLine($"[CLAIMS DEBUG] All Claims: {claimsDump}");
+
+            var emailClaim = User.FindFirst("UserEmail");
+
+            Debug.WriteLine($"[CLAIMS DEBUG] UserEmail found? {emailClaim?.Value}");
+
+            if (string.IsNullOrEmpty(emailClaim?.Value))
             {
-                throw new UnauthorizedAccessException(" Invalid or missing claim.");
+                Debug.WriteLine("[CLAIMS ERROR] Missing or invalid UserEmail claim");
+                throw new UnauthorizedAccessException("Invalid or missing claim.");
             }
-            return UserEmail.Value;
+
+            Debug.WriteLine($"[CLAIMS DEBUG] UserEmail = {emailClaim.Value}");
+            return emailClaim.Value;
         }
     }
 }

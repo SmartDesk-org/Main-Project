@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Domain.Enums
 {
-    internal enum Roles
+    public enum Roles
     {
         SuperAdmin=1,
         CompanyAdmin=2,

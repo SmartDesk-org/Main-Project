@@ -19,5 +19,7 @@ namespace ResourceFlow.Domain.Entities
         public int? DeletedBy { get; set; }
 
         public bool IsDeleted { get; set; } = false;
+
+
     }
 }
