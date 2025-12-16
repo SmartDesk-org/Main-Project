@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Domain.Entities.Authorization
 {
-    public class AppModule
+    public class AppModule:BaseEntity
     {
         public int Id { get; set; }
 
