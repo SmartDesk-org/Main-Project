@@ -48,10 +48,15 @@ namespace ResourceFlow.WebAPI.Controllers
             {
                 _logger.LogInformation("Creating notification with title: {Title}", createDto.Title);
 
-                var notification = await _notificationService.CreateNotificationAsync(createDto);
+                var response = await _notificationService.CreateNotificationAsync(createDto);
+
+                if (response.StatusCode >= 400)
+                {
+                    return StatusCode(response.StatusCode, response);
+                }
 
                 // Send real-time notification if requested
-                if (createDto.SendImmediately && createDto.UserId.HasValue)
+                if (createDto.SendImmediately && createDto.UserId.HasValue && response.Data != null)
                 {
                     await _hubClientService.SendToUserAsync(
                         createDto.UserId.Value,
@@ -59,17 +64,7 @@ namespace ResourceFlow.WebAPI.Controllers
                         createDto.Message);
                 }
 
-                return Ok(ApiResponse<NotificationDto>.Created(notification, "Notification created successfully"));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogWarning(ex, "Unauthorized access attempt to create notification");
-                return Unauthorized(ApiResponse<NotificationDto>.Error(ex.Message, 403));
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.LogWarning(ex, "Invalid operation when creating notification");
-                return BadRequest(ApiResponse<NotificationDto>.Error(ex.Message, 400));
+                return StatusCode(response.StatusCode, response);
             }
             catch (Exception ex)
             {
@@ -99,17 +94,17 @@ namespace ResourceFlow.WebAPI.Controllers
 
                 // Create and save notification
                 createDto.UserId = userId;
-                var notification = await _notificationService.CreateNotificationAsync(createDto);
+                var notificationResponse = await _notificationService.CreateNotificationAsync(createDto);
+
+                if (notificationResponse.StatusCode >= 400)
+                {
+                    return StatusCode(notificationResponse.StatusCode, notificationResponse);
+                }
 
                 // Send via SignalR
                 await _hubClientService.SendToUserAsync(userId, createDto.Title, createDto.Message);
 
                 return Ok(ApiResponse<bool>.Success(true, "Real-time notification sent successfully"));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogWarning(ex, "Unauthorized access attempt to send real-time notification");
-                return Unauthorized(ApiResponse<bool>.Error(ex.Message, 403));
             }
             catch (Exception ex)
             {
@@ -126,19 +121,19 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             try
             {
-                var notification = await _notificationService.GetNotificationByIdAsync(id);
+                var response = await _notificationService.GetNotificationByIdAsync(id);
 
-                if (notification == null)
+                if (response.StatusCode == 404)
                 {
-                    return NotFound(ApiResponse<NotificationDto>.Error("Notification not found"));
+                    return NotFound(response);
                 }
 
-                return Ok(ApiResponse<NotificationDto>.Success(notification));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogWarning(ex, "Unauthorized access attempt to get notification {NotificationId}", id);
-                return Unauthorized(ApiResponse<NotificationDto>.Error(ex.Message, 403));
+                if (response.StatusCode >= 400)
+                {
+                    return StatusCode(response.StatusCode, response);
+                }
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -157,13 +152,14 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             try
             {
-                var notifications = await _notificationService.GetUserNotificationsAsync(userId, unreadOnly);
-                return Ok(ApiResponse<IEnumerable<NotificationDto>>.Success(notifications));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogWarning(ex, "Unauthorized access attempt to get notifications for user {UserId}", userId);
-                return Unauthorized(ApiResponse<IEnumerable<NotificationDto>>.Error(ex.Message, 403));
+                var response = await _notificationService.GetUserNotificationsAsync(userId, unreadOnly);
+
+                if (response.StatusCode >= 400)
+                {
+                    return StatusCode(response.StatusCode, response);
+                }
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -180,13 +176,14 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             try
             {
-                var count = await _notificationService.GetUnreadCountAsync(userId);
-                return Ok(ApiResponse<int>.Success(count));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogWarning(ex, "Unauthorized access attempt to get unread count for user {UserId}", userId);
-                return Unauthorized(ApiResponse<int>.Error(ex.Message, 403));
+                var response = await _notificationService.GetUnreadCountAsync(userId);
+
+                if (response.StatusCode >= 400)
+                {
+                    return StatusCode(response.StatusCode, response);
+                }
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -203,19 +200,19 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             try
             {
-                var result = await _notificationService.MarkAsReadAsync(notificationId);
+                var response = await _notificationService.MarkAsReadAsync(notificationId);
 
-                if (!result)
+                if (response.StatusCode == 404)
                 {
-                    return NotFound(ApiResponse<bool>.Error("Notification not found"));
+                    return NotFound(response);
                 }
 
-                return Ok(ApiResponse<bool>.Success(true, "Notification marked as read"));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogWarning(ex, "Unauthorized access attempt to mark notification {NotificationId} as read", notificationId);
-                return Unauthorized(ApiResponse<bool>.Error(ex.Message, 403));
+                if (response.StatusCode >= 400)
+                {
+                    return StatusCode(response.StatusCode, response);
+                }
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -238,13 +235,14 @@ namespace ResourceFlow.WebAPI.Controllers
                     return BadRequest(ApiResponse<int>.Error("At least one notification ID is required", 400));
                 }
 
-                var count = await _notificationService.MarkMultipleAsReadAsync(markDto.NotificationIds);
-                return Ok(ApiResponse<int>.Success(count, $"{count} notifications marked as read"));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogWarning(ex, "Unauthorized access attempt to mark multiple notifications as read");
-                return Unauthorized(ApiResponse<int>.Error(ex.Message, 403));
+                var response = await _notificationService.MarkMultipleAsReadAsync(markDto.NotificationIds);
+
+                if (response.StatusCode >= 400)
+                {
+                    return StatusCode(response.StatusCode, response);
+                }
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -261,13 +259,14 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             try
             {
-                var result = await _notificationService.MarkAllAsReadAsync(userId);
-                return Ok(ApiResponse<bool>.Success(result, "All notifications marked as read"));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogWarning(ex, "Unauthorized access attempt to mark all notifications as read for user {UserId}", userId);
-                return Unauthorized(ApiResponse<bool>.Error(ex.Message, 403));
+                var response = await _notificationService.MarkAllAsReadAsync(userId);
+
+                if (response.StatusCode >= 400)
+                {
+                    return StatusCode(response.StatusCode, response);
+                }
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -284,19 +283,19 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             try
             {
-                var result = await _notificationService.DeleteNotificationAsync(notificationId);
+                var response = await _notificationService.DeleteNotificationAsync(notificationId);
 
-                if (!result)
+                if (response.StatusCode == 404)
                 {
-                    return NotFound(ApiResponse<bool>.Error("Notification not found"));
+                    return NotFound(response);
                 }
 
-                return Ok(ApiResponse<bool>.Success(true, "Notification deleted successfully"));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogWarning(ex, "Unauthorized access attempt to delete notification {NotificationId}", notificationId);
-                return Unauthorized(ApiResponse<bool>.Error(ex.Message, 403));
+                if (response.StatusCode >= 400)
+                {
+                    return StatusCode(response.StatusCode, response);
+                }
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -315,13 +314,14 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             try
             {
-                var notifications = await _notificationService.GetCompanyNotificationsAsync(companyId, unreadOnly);
-                return Ok(ApiResponse<IEnumerable<NotificationDto>>.Success(notifications));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogWarning(ex, "Unauthorized access attempt to get company {CompanyId} notifications", companyId);
-                return Unauthorized(ApiResponse<IEnumerable<NotificationDto>>.Error(ex.Message, 403));
+                var response = await _notificationService.GetCompanyNotificationsAsync(companyId, unreadOnly);
+
+                if (response.StatusCode >= 400)
+                {
+                    return StatusCode(response.StatusCode, response);
+                }
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -340,13 +340,14 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             try
             {
-                var notifications = await _notificationService.GetRoleNotificationsAsync(roleId, unreadOnly);
-                return Ok(ApiResponse<IEnumerable<NotificationDto>>.Success(notifications));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogWarning(ex, "Unauthorized access attempt to get role {RoleId} notifications", roleId);
-                return Unauthorized(ApiResponse<IEnumerable<NotificationDto>>.Error(ex.Message, 403));
+                var response = await _notificationService.GetRoleNotificationsAsync(roleId, unreadOnly);
+
+                if (response.StatusCode >= 400)
+                {
+                    return StatusCode(response.StatusCode, response);
+                }
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
