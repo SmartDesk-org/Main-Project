@@ -74,7 +74,7 @@ namespace ResourceFlow.Application.Services.Company
                 UserName = newCompany.Name,
                 Email = dto.Email.Trim(),
                 PassWord = BCrypt.Net.BCrypt.HashPassword(dto.PassWord),
-                RoleId = 2,
+                RoleEnum = RoleEnum.CompanyAdmin,
                 IsActive = false,
                 IsBlocked = false
             };

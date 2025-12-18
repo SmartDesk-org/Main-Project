@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 
@@ -11,9 +12,11 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251218082705_Type table ")]
+    partial class Typetable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -288,21 +291,21 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 18, 10, 12, 34, 83, DateTimeKind.Utc).AddTicks(3574),
+                            CreatedAt = new DateTime(2025, 12, 18, 8, 27, 3, 444, DateTimeKind.Utc).AddTicks(7784),
                             IsDeleted = false,
                             RoleName = "SuperAdmin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 18, 10, 12, 34, 83, DateTimeKind.Utc).AddTicks(3577),
+                            CreatedAt = new DateTime(2025, 12, 18, 8, 27, 3, 444, DateTimeKind.Utc).AddTicks(7790),
                             IsDeleted = false,
                             RoleName = "CompanyAdmin"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 18, 10, 12, 34, 83, DateTimeKind.Utc).AddTicks(3578),
+                            CreatedAt = new DateTime(2025, 12, 18, 8, 27, 3, 444, DateTimeKind.Utc).AddTicks(7791),
                             IsDeleted = false,
                             RoleName = "Employee"
                         });
@@ -389,12 +392,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 12, 18, 10, 12, 34, 433, DateTimeKind.Utc).AddTicks(9070),
+                            CreatedAt = new DateTime(2025, 12, 18, 8, 27, 3, 837, DateTimeKind.Utc).AddTicks(3669),
                             Email = "suhailpalakkal1@gmail.com",
                             IsActive = true,
                             IsBlocked = false,
                             IsDeleted = false,
-                            PassWord = "$2a$11$QjfoEW3moUqtq7zDQ.hC4uPRdmiOLzQVFQzTdpwW7w1mUN4ycipLq",
+                            PassWord = "$2a$11$Xyul7JxY8muyAvpDZfo4Ae/m8jgFaqgTtmSAnW5oqqCswbjJ01/Gm",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1,
@@ -922,28 +925,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("DeletedBy")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ModifiedBy")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TypeName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -955,23 +937,17 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 18, 10, 12, 34, 83, DateTimeKind.Utc).AddTicks(5017),
-                            IsDeleted = false,
-                            TypeName = "Basic"
+                            Name = "Basic"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 18, 10, 12, 34, 83, DateTimeKind.Utc).AddTicks(5021),
-                            IsDeleted = false,
-                            TypeName = "Upgrade"
+                            Name = "Upgrade"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 18, 10, 12, 34, 83, DateTimeKind.Utc).AddTicks(5022),
-                            IsDeleted = false,
-                            TypeName = "Renewal"
+                            Name = "Renewal"
                         });
                 });
 

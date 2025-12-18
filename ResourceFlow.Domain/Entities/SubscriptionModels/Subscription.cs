@@ -1,6 +1,8 @@
 ﻿using ResourceFlow.Domain.Entities.CompanyModels;
+using ResourceFlow.Domain.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +21,15 @@ namespace ResourceFlow.Domain.Entities.SubscriptionModels
         public double PriceMonthly { get; set; }
         public double PriceYearly { get; set; }
         public string Description { get; set; } = string.Empty;
+        public int TypeId { get; set; }
+
+        [NotMapped]
+        public SubscriptionTypeEnum TypeEnum
+        {
+            get=> (SubscriptionTypeEnum)TypeId;
+            set => TypeId = (int)value;
+        }
+        public SubscriptionType? Type { get; set; }
 
         public bool IsActive { get; set; } = true;
 

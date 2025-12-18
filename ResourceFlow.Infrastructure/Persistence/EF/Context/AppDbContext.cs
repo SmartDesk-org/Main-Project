@@ -47,6 +47,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
         public DbSet<CompanySubscription> companySubscriptions { get; set; }
         public DbSet<Floors> Floors { get; set; }
         public DbSet<ClientMessage> ClientMessages { get; set; }
+        public DbSet<SubscriptionType> SubscriptionTypes { get; set; }
 
 
 

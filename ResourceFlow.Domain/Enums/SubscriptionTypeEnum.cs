@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Domain.Enums
 {
-    internal class SubscriptionTypeEnum
+    public enum SubscriptionTypeEnum
     {
+        Basic=1,
+        Upgrade=2,
+        Renewal=3
     }
 }

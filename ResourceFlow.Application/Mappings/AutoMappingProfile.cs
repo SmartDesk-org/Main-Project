@@ -23,6 +23,7 @@ namespace ResourceFlow.Application.Mappings
 
             CreateMap<UpdateSubscriptionPlanDto, Subscription>().ReverseMap();
             CreateMap<NewClientMessageDto, ClientMessage>().ReverseMap();
+            CreateMap<SubscrptionResponseDto, Subscription>().ReverseMap().ForMember(dest => dest.TypeName, opt => opt.MapFrom(src => src.Type != null ? src.Type.TypeName : string.Empty));
         }
     }
 }

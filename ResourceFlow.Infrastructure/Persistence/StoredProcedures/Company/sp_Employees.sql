@@ -1,4 +1,9 @@
-﻿CREATE OR ALTER PROCEDURE [dbo].[EMPLOYEE_SP]
+﻿ /*{
+   Updated by Suhail on 18-12-25
+    Modified GETALL , for getting TypeName by joining Subscription table and SubscriptionType table
+ }*/
+
+CREATE OR ALTER PROCEDURE [dbo].[EMPLOYEE_SP]
     @FLAG              VARCHAR(40),
     @ID                INT              = NULL,
     @USERID            INT              = NULL,

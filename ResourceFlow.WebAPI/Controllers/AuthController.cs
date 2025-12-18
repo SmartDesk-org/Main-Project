@@ -84,12 +84,12 @@ namespace ResourceFlow.WebAPI.Controllers
 
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh([FromBody] string refreshToken)
+        public async Task<IActionResult> Refresh()
         {
 
             _logger.LogInformation("Refresh token API called");
 
-            //var refreshToken = Request.Cookies["refreshToken"];
+            var refreshToken = Request.Cookies["refreshToken"];
 
             _logger.LogDebug("Refresh token received from cookie");
 
@@ -106,26 +106,24 @@ namespace ResourceFlow.WebAPI.Controllers
                 return Unauthorized();
             }
 
-                         
+            //var data = res.Data as AuthTokensDto;
 
-            var data = res.Data as AuthTokensDto;
-
-            Response.Cookies.Append("refreshToken", data.RefreshToken, new CookieOptions
+            Response.Cookies.Append("refreshToken", res.RefreshToken, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = false,
                 SameSite = SameSiteMode.Lax,
-                Expires = data.RefreshTokenExpiry
+                Expires = res.RefreshTokenExpiry
             });
 
-            _logger.LogInformation("Refresh token successful");
+            _logger.LogInformation("Refresh token successful {token}",res.RefreshToken);
 
-            return StatusCode(res.StatusCode, res);
+            return StatusCode(200, res.AccessToken);
         }
 
    
         [Authorize]
-        [HttpPost("logout/{userId}")]
+        [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
 

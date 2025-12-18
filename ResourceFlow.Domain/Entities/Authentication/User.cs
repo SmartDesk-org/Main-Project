@@ -27,6 +27,7 @@ namespace ResourceFlow.Domain.Entities.Authentication
         public string? PasswordResetToken { get; set; }
         public DateTime? PasswordResetExpiry { get; set; }
         public Roles? Role { get; set; }
+
         [NotMapped]
         public RoleEnum RoleEnum
         {

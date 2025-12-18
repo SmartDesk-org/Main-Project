@@ -1,4 +1,8 @@
-﻿CREATE OR ALTER PROCEDURE [dbo].[SUBSCRIPTION_SP] 
+﻿
+
+
+
+CREATE OR ALTER PROCEDURE [dbo].[SUBSCRIPTION_SP] 
     @FLAG           VARCHAR(40),
     @SUBSCRIPTIONID INT              = NULL,
     @SUBSCRIPTIONNAME NVARCHAR(200)  = NULL,
@@ -17,18 +21,20 @@ BEGIN
         IF @FLAG = 'GETALL'
         BEGIN
             SELECT 
-                Id,
-        SubscriptionName,
-        EmployeeLimit,
-        FloorLimit,
-        DeskLimit,
-        MeetingRoomLimit,
-        PriceMonthly,
-        PriceYearly,
-        Description,
-        IsActive
-            FROM Subscriptions
-            WHERE IsDeleted = 0;
+                s.Id,
+        s.SubscriptionName,
+        s.EmployeeLimit,
+        s.FloorLimit,
+        s.DeskLimit,
+        s.MeetingRoomLimit,
+        s.PriceMonthly,
+        s.PriceYearly,
+        s.Description,
+        s.IsActive,
+        t.TypeName
+            FROM Subscriptions s
+            JOIN SubscriptionTypes t on t.id=s.TypeId 
+            WHERE s.IsDeleted = 0 AND t.IsDeleted=0;
             RETURN;
         END
        

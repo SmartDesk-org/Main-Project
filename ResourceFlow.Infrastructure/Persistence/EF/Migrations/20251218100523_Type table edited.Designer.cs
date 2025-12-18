@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 
@@ -11,9 +12,11 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251218100523_Type table edited")]
+    partial class Typetableedited
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -288,21 +291,21 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 18, 10, 12, 34, 83, DateTimeKind.Utc).AddTicks(3574),
+                            CreatedAt = new DateTime(2025, 12, 18, 10, 5, 21, 952, DateTimeKind.Utc).AddTicks(6809),
                             IsDeleted = false,
                             RoleName = "SuperAdmin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 18, 10, 12, 34, 83, DateTimeKind.Utc).AddTicks(3577),
+                            CreatedAt = new DateTime(2025, 12, 18, 10, 5, 21, 952, DateTimeKind.Utc).AddTicks(6815),
                             IsDeleted = false,
                             RoleName = "CompanyAdmin"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 18, 10, 12, 34, 83, DateTimeKind.Utc).AddTicks(3578),
+                            CreatedAt = new DateTime(2025, 12, 18, 10, 5, 21, 952, DateTimeKind.Utc).AddTicks(6815),
                             IsDeleted = false,
                             RoleName = "Employee"
                         });
@@ -389,12 +392,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 12, 18, 10, 12, 34, 433, DateTimeKind.Utc).AddTicks(9070),
+                            CreatedAt = new DateTime(2025, 12, 18, 10, 5, 22, 288, DateTimeKind.Utc).AddTicks(5442),
                             Email = "suhailpalakkal1@gmail.com",
                             IsActive = true,
                             IsBlocked = false,
                             IsDeleted = false,
-                            PassWord = "$2a$11$QjfoEW3moUqtq7zDQ.hC4uPRdmiOLzQVFQzTdpwW7w1mUN4ycipLq",
+                            PassWord = "$2a$11$SP1OEDwPFs0SwvY8lbUZn.YjLzh7G.rLUCLonJaQdgrtgXs2o1r52",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1,
@@ -943,7 +946,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("int");
 
-                    b.Property<string>("TypeName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -955,23 +958,23 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 18, 10, 12, 34, 83, DateTimeKind.Utc).AddTicks(5017),
+                            CreatedAt = new DateTime(2025, 12, 18, 10, 5, 21, 952, DateTimeKind.Utc).AddTicks(8038),
                             IsDeleted = false,
-                            TypeName = "Basic"
+                            Name = "Basic"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 18, 10, 12, 34, 83, DateTimeKind.Utc).AddTicks(5021),
+                            CreatedAt = new DateTime(2025, 12, 18, 10, 5, 21, 952, DateTimeKind.Utc).AddTicks(8041),
                             IsDeleted = false,
-                            TypeName = "Upgrade"
+                            Name = "Upgrade"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 18, 10, 12, 34, 83, DateTimeKind.Utc).AddTicks(5022),
+                            CreatedAt = new DateTime(2025, 12, 18, 10, 5, 21, 952, DateTimeKind.Utc).AddTicks(8042),
                             IsDeleted = false,
-                            TypeName = "Renewal"
+                            Name = "Renewal"
                         });
                 });
 

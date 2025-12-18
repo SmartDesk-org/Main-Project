@@ -6,21 +6,28 @@ using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Subscription;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
 using ResourceFlow.Application.Interfaces.Subscriptions;
+using Microsoft.Extensions.Logging;
 
 namespace ResourceFlow.Application.Services.Subscriptions
 {
     public class SubscriptionService : ISubscriptionService
     {
         private readonly IGenericRepository<Subscription> _repo;
+        private readonly IGenericRepository<SubscriptionType> _typeRepo;
         private readonly ISubscriptionPlanDapperRepository _dapperRepo;
+        private readonly ILogger<SubscriptionService> _logger;
         private readonly IMapper _mapper;
 
         public SubscriptionService(IGenericRepository<Subscription> repo,
             ISubscriptionPlanDapperRepository dapperRepo,
+            IGenericRepository<SubscriptionType> typeRepo,
+            ILogger<SubscriptionService> logger,
             IMapper mapper)
         {
             _repo = repo;
+            _typeRepo = typeRepo;
             _dapperRepo = dapperRepo;
+            _logger = logger;
             _mapper = mapper;
         }
 
@@ -31,23 +38,29 @@ namespace ResourceFlow.Application.Services.Subscriptions
                 return new ApiResponse<Subscription>(400, "Plan already exists");
 
             var plan = _mapper.Map<Subscription>(dto);
+            var existType = _typeRepo.SingleOrDefaultAsync(u => u.Id == plan.TypeId);
+            if (existType == null)
+                throw new Exception("Invalid plan type");
             await _repo.AddAsync(plan);
             return new ApiResponse<Subscription>(200, "Plan created succesfully", plan);
         }
 
-        public async Task<ApiResponse<IEnumerable<Subscription>>> GetAllPlansAsync()
+        public async Task<ApiResponse<IEnumerable<SubscrptionResponseDto>>> GetAllPlansAsync()
         {
             try
             {
-                var res = await _dapperRepo.GetAllAsync();
-                if (res == null || !res.Any())
-                    return new ApiResponse<IEnumerable<Subscription>>(404, "Subscription plans not configured");
-                return new ApiResponse<IEnumerable<Subscription>>(200, "Plans fetched succesfully", res);
+                var sub = await _dapperRepo.GetAllAsync();
+                _logger.LogInformation("sub {data}", sub.First().Description);
+                if (sub == null || !sub.Any())
+                    return new ApiResponse<IEnumerable<SubscrptionResponseDto>>(404, "Subscription plans not configured");
+                //var res = _mapper.Map<IEnumerable<SubscrptionResponseDto>>(sub);
+
+                return new ApiResponse<IEnumerable<SubscrptionResponseDto>>(200, "Plans fetched succesfully", sub);
 
             }
             catch (Exception ex)
             {
-                return new ApiResponse<IEnumerable<Subscription>>(500, ex.Message);
+                return new ApiResponse<IEnumerable<SubscrptionResponseDto>>(500, ex.Message);
             }
           
         }
@@ -104,7 +117,13 @@ namespace ResourceFlow.Application.Services.Subscriptions
             return new Response<object>(200, "Status changed successfully");
         }
 
-       
+       public async Task<Response<IEnumerable<SubscriptionType>>> GetAllSubscriptionTypes()
+        {
+            var res = await _typeRepo.GetAllAsync();
+            if (res == null || !res.Any())
+                return new Response<IEnumerable<SubscriptionType>>(404, "No Type Found ");
+            return new Response<IEnumerable<SubscriptionType>>(200, "Types fetched successfully", res);
+        }
 
     }
 }

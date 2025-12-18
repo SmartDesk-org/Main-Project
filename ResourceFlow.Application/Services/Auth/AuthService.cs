@@ -141,22 +141,18 @@ namespace ResourceFlow.Application.Services
             }
         }
 
-        public async Task<Response<object>> RefreshTokenAsync(string refreshToken)
+        public async Task<AuthTokensDto> RefreshTokenAsync(string refreshToken)
         {
             try
             {
 
                 _logger.LogInformation("Refresh token request received");
 
-               
-                
-
-
                 var user = await _userDapperRepository.GetByRefreshToken(refreshToken);
                 if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
                 {
                     _logger.LogWarning("Invalid or expired refresh token");
-                    return new Response<object>(401, "Invalid refresh token");
+                    throw new Exception("Invalid or expired refresh token");
                 }
 
 
@@ -169,11 +165,11 @@ namespace ResourceFlow.Application.Services
                 var dbUser = await _userDapperRepository.GetByUserIdAsync(user.UserId);
 
                 if (dbUser == null)
-                    return new Response<object>(404, "User not found");
+                    throw new Exception("User not found");
 
                 if (user.RefreshTokenExpiry < DateTime.UtcNow ||
                       user.RefreshTokenExpiry < DateTime.UtcNow)
-                    return new Response<object>(401, "Session expired. Please login again.");
+                    throw new Exception("Session expired. Please login again.");
           
                 trackedUser.RefreshToken = newRefreshToken;
                 trackedUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
@@ -193,18 +189,17 @@ namespace ResourceFlow.Application.Services
                     AccessTokenExpiry = exp,
                     RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
                     Role = user.RoleId
-
                 };
-               
-                // STEP 5: RETURN RESPONSE
-                return new Response<object>(200, "Token refreshed",res );
 
+                _logger.LogInformation("token {token}", res.RefreshToken);
+                // STEP 5: RETURN RESPONSE
+                return res;
 
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Refresh token failed");
-                return new Response<object>(500, ex.Message);
+                throw new Exception("refresh failed");
             }
         }
 
