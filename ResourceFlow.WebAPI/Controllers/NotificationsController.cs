@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Notifications;
 using ResourceFlow.Application.Interfaces.Services;
+using ResourceFlow.Domain.Enums;
 using ResourceFlow.WebAPI.SignalR;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ResourceFlow.WebAPI.Controllers
 {
@@ -34,9 +35,9 @@ namespace ResourceFlow.WebAPI.Controllers
         /// </summary>
         [HttpPost]
         public async Task<IActionResult> CreateNotification(
-            [FromBody] CreateNotificationDto createDto)
+          [FromBody] CreateNotificationDto createDto)
         {
-            // ✅ ADDED: Model validation
+            // ✅ Model validation
             if (!ModelState.IsValid)
             {
                 return BadRequest(ApiResponse<NotificationDto>.Error(
@@ -53,15 +54,6 @@ namespace ResourceFlow.WebAPI.Controllers
                 if (response.StatusCode >= 400)
                 {
                     return StatusCode(response.StatusCode, response);
-                }
-
-                // Send real-time notification if requested
-                if (createDto.SendImmediately && createDto.UserId.HasValue && response.Data != null)
-                {
-                    await _hubClientService.SendToUserAsync(
-                        createDto.UserId.Value,
-                        createDto.Title,
-                        createDto.Message);
                 }
 
                 return StatusCode(response.StatusCode, response);
@@ -355,5 +347,7 @@ namespace ResourceFlow.WebAPI.Controllers
                 return StatusCode(500, ApiResponse<IEnumerable<NotificationDto>>.Error("Internal server error"));
             }
         }
+
+      
     }
 }

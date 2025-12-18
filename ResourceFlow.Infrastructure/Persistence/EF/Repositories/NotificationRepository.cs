@@ -83,7 +83,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Repositories
             try
             {
                 var query = _context.Notifications
-                    .Where(n => n.UserId == userId)
+                    .Where(n => n.IsForAllUsers || n.UserId == userId)
                     .AsNoTracking();
 
                 if (unreadOnly)
@@ -98,7 +98,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting user notifications for user {UserId}", userId);
-                return new List<Notification>(); // ✅ Safe default
+                return new List<Notification>();
             }
         }
 
@@ -107,7 +107,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Repositories
             try
             {
                 var query = _context.Notifications
-                    .Where(n => n.CompanyId == companyId)
+                    .Where(n => n.IsForAllUsers || n.CompanyId == companyId)
                     .AsNoTracking();
 
                 if (unreadOnly)
@@ -122,16 +122,15 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting company notifications for company {CompanyId}", companyId);
-                return new List<Notification>(); // ✅ Safe default
+                return new List<Notification>();
             }
         }
-
         public async Task<List<Notification>> GetRoleNotificationsAsync(int roleId, bool unreadOnly = false, CancellationToken cancellationToken = default)
         {
             try
             {
                 var query = _context.Notifications
-                    .Where(n => n.RoleId == roleId)
+                    .Where(n => n.IsForAllUsers || n.RoleId == roleId)
                     .AsNoTracking();
 
                 if (unreadOnly)
@@ -146,7 +145,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting role notifications for role {RoleId}", roleId);
-                return new List<Notification>(); // ✅ Safe default
+                return new List<Notification>();
             }
         }
 
@@ -172,12 +171,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Repositories
             try
             {
                 return await _context.Notifications
-                    .CountAsync(n => n.UserId == userId && !n.IsRead, cancellationToken);
+                    .CountAsync(n => (n.IsForAllUsers || n.UserId == userId) && !n.IsRead, cancellationToken);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting unread count for user {UserId}", userId);
-                return 0; // ✅ Safe default
+                return 0;
             }
         }
 

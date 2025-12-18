@@ -11,13 +11,13 @@ public class Notification : BaseEntity
 
     public int? CompanyId { get; set; }
     public int? UserId { get; set; }
-    public int RoleId { get; set; }
+    public int ? RoleId { get; set; }
 
     public string Title { get; set; }
     public string Message { get; set; }
 
     // ENUMS (FINAL)
-    public NotificationType NotificationType { get; set; }
+    public NotificationType ? NotificationType { get; set; }
     public TargetChannel TargetChannel { get; set; }
     public NotificationStatus Status { get; set; }
     public ReferenceType? ReferenceType { get; set; }
@@ -37,9 +37,10 @@ public class Notification : BaseEntity
     public User User { get; set; }
     public Roles Role { get; set; }
 
+   public bool IsForAllUsers { get; set; } = false;
 
 
-   
-   
-}
+
+
+    }
 }

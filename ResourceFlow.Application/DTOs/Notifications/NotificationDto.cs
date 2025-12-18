@@ -34,5 +34,7 @@ namespace ResourceFlow.Application.DTOs.Notifications
         // Additional info for UI
         public string UserName { get; set; }
         public string CompanyName { get; set; }
+
+        public bool IsForAllUsers { get; set; }
     }
 }

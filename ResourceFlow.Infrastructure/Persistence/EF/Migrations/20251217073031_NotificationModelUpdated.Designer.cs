@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 
@@ -11,9 +12,11 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251217073031_NotificationModelUpdated")]
+    partial class NotificationModelUpdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -193,7 +196,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 17, 8, 34, 7, 513, DateTimeKind.Utc).AddTicks(624),
+                            CreatedAt = new DateTime(2025, 12, 17, 7, 30, 29, 473, DateTimeKind.Utc).AddTicks(4066),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             IsDelete = false,
@@ -203,7 +206,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 17, 8, 34, 7, 513, DateTimeKind.Utc).AddTicks(628),
+                            CreatedAt = new DateTime(2025, 12, 17, 7, 30, 29, 473, DateTimeKind.Utc).AddTicks(4070),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             IsDelete = false,
@@ -213,7 +216,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 17, 8, 34, 7, 513, DateTimeKind.Utc).AddTicks(629),
+                            CreatedAt = new DateTime(2025, 12, 17, 7, 30, 29, 473, DateTimeKind.Utc).AddTicks(4072),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             IsDelete = false,
@@ -306,7 +309,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 12, 17, 8, 34, 7, 671, DateTimeKind.Utc).AddTicks(9875),
+                            CreatedAt = new DateTime(2025, 12, 17, 7, 30, 29, 890, DateTimeKind.Utc).AddTicks(1421),
                             CreatedBy = 0,
                             DeletedBy = 0,
                             Email = "suhailpalakkal1@gmail.com",
@@ -314,7 +317,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                             IsBlocked = false,
                             IsDelete = false,
                             ModifiedBy = 0,
-                            PassWord = "$2a$11$Fo76pi2/hyMcYJeQvQ.PwOdOL7T3gMYl2tcES9trS9i3y/HtEoF3O",
+                            PassWord = "$2a$11$/ykk9g/omLnmh/Ker8rPoe274AU6LdADqcegiN06uLWl8Wkv3lAI6",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1,
@@ -467,9 +470,6 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsForAllUsers")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsRead")

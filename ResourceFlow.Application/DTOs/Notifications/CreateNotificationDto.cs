@@ -14,7 +14,7 @@ namespace ResourceFlow.Application.DTOs.Notifications
         public int? UserId { get; set; }
 
         [Required(ErrorMessage = "RoleId is required")]
-        public int RoleId { get; set; }
+        public int ? RoleId { get; set; }
 
         [Required(ErrorMessage = "Title is required")]
         [StringLength(200, MinimumLength = 3, ErrorMessage = "Title must be between 3 and 200 characters")]

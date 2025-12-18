@@ -21,93 +21,201 @@ namespace ResourceFlow.Application.Services
         private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
         private readonly ILogger<NotificationService> _logger;
+        private readonly INotificationHubClientService _hubClientService; // ADD THIS
 
         public NotificationService(
             IGenericRepository<Notification> notificationGenericRepository,
             INotificationRepository notificationRepository,
             ICurrentUserService currentUserService,
             IMapper mapper,
-            ILogger<NotificationService> logger)
+            ILogger<NotificationService> logger,
+            INotificationHubClientService hubClientService) 
         {
             _notificationGenericRepository = notificationGenericRepository;
             _notificationRepository = notificationRepository;
             _currentUserService = currentUserService;
             _mapper = mapper;
             _logger = logger;
+            _hubClientService = hubClientService;
         }
-
         public async Task<ApiResponse<NotificationDto>> CreateNotificationAsync(CreateNotificationDto createDto)
         {
             try
             {
-                // ✅ FIXED: Remove IsAuthenticated check here - let the controller handle authorization
-                // The authorization should be handled at controller level with [Authorize] attribute
+                _logger.LogInformation(
+                    "User {UserId} creating notification. Title: {Title}",
+                    _currentUserService.UserId,
+                    createDto.Title);
 
-                // ✅ Security: If creating for specific user, check permissions
-                //if (createDto.UserId.HasValue && createDto.UserId.Value != _currentUserService.UserId)
-                //{
-                //    if (!_currentUserService.IsInRole("Admin") && !_currentUserService.IsInRole("SuperAdmin"))
-                //    {
-                //        _logger.LogWarning("User {CurrentUserId} attempted to create notification for user {TargetUserId} without permission",
-                //            _currentUserService.UserId, createDto.UserId.Value);
-                //        return ApiResponse<NotificationDto>.Error("You don't have permission to create notifications for other users", 403);
-                //    }
-                //}
+                // 🔹 Determine NotificationType
+                NotificationType tempType = createDto.NotificationType;
 
-                _logger.LogInformation("User {UserId} creating notification for UserId: {TargetUserId}, Type: {Type}",
-                    _currentUserService.UserId, createDto.UserId, createDto.NotificationType);
-
-                // Validate notification context
-                if (createDto.UserId.HasValue)
+                // Auto-set based on ReferenceType only if default value (e.g., System) or None
+                if (tempType == 0) // Assuming 0 is default/None
                 {
-                    var canSend = await _notificationRepository.CanSendNotificationAsync(
-                        createDto.UserId.Value, createDto.NotificationType);
-
-                    if (!canSend)
+                    if (createDto.ReferenceType == ReferenceType.DeskBooking ||
+                        createDto.ReferenceType == ReferenceType.MeetingBooking)
                     {
-                        _logger.LogWarning("User {UserId} cannot receive notifications of type {Type}",
-                            createDto.UserId, createDto.NotificationType);
-                        return ApiResponse<NotificationDto>.Error($"User cannot receive notifications of type {createDto.NotificationType}", 400);
+                        tempType = NotificationType.Booking;
+                    }
+                    else if (createDto.ReferenceType == ReferenceType.Billing ||
+                             createDto.ReferenceType == ReferenceType.Subscription)
+                    {
+                        tempType = NotificationType.Payment;
+                    }
+                    else
+                    {
+                        tempType = NotificationType.System;
+                    }
+
+                    createDto.NotificationType = tempType;
+                }
+
+                // 🔹 CHECK FOR ALL USERS LOGIC
+                bool isForAllUsers = false;
+
+                // If all target IDs are 0/null, it's for all users
+                if ((createDto.CompanyId == 0 || createDto.CompanyId == null) &&
+                    (createDto.UserId == 0 || createDto.UserId == null) &&
+                    (createDto.RoleId == 0 || createDto.RoleId == null))
+                {
+                    isForAllUsers = true;
+
+                    _logger.LogInformation(
+                        "Sending notification to all users: {Title}",
+                        createDto.Title);
+                }
+                else
+                {
+                    // Check if user can receive this type of notification (for user-specific notifications)
+                    if (createDto.UserId.HasValue && createDto.UserId.Value > 0)
+                    {
+                        var canSend = await _notificationRepository.CanSendNotificationAsync(
+                            createDto.UserId.Value,
+                            tempType);
+
+                        if (!canSend)
+                        {
+                            return ApiResponse<NotificationDto>.Error(
+                                $"User cannot receive notifications of type {tempType}", 400);
+                        }
                     }
                 }
 
-                // ✅ Security: Sanitize inputs to prevent XSS
+
+                // 🛡️ XSS protection
                 createDto.Title = WebUtility.HtmlEncode(createDto.Title ?? string.Empty);
                 createDto.Message = WebUtility.HtmlEncode(createDto.Message ?? string.Empty);
 
                 var notification = _mapper.Map<Notification>(createDto);
 
-                // Set additional properties
-                notification.Status = NotificationStatus.Pending;
-                notification.IsSent = false;
+                // 🔹 Handle 0 as null for optional IDs
+                notification.CompanyId = createDto.CompanyId > 0 ? createDto.CompanyId : null;
+                notification.UserId = createDto.UserId > 0 ? createDto.UserId : null;
+                notification.RoleId = createDto.RoleId > 0 ? createDto.RoleId : null;
+
+                // 🔹 SET IsForAllUsers FLAG
+                notification.IsForAllUsers = isForAllUsers;
+
+                // 🔹 Reference validation
+                if (createDto.ReferenceType == null)
+                {
+                    notification.ReferenceType = null;
+                    notification.ReferenceId = null;
+                }
+                else
+                {
+                    if (!createDto.ReferenceId.HasValue || createDto.ReferenceId <= 0)
+                    {
+                        return ApiResponse<NotificationDto>.Error(
+                            "ReferenceId is required when ReferenceType is provided", 400);
+                    }
+
+                    notification.ReferenceType = createDto.ReferenceType;
+                    notification.ReferenceId = createDto.ReferenceId;
+                }
+
+                // 🔹 Defaults
                 notification.IsRead = false;
+                notification.ReadAt = null;
                 notification.RetryCount = 0;
                 notification.CreatedAt = DateTime.UtcNow;
-                notification.CreatedBy = _currentUserService.UserId; // ✅ Track who created
+                notification.CreatedBy = _currentUserService.UserId;
+                notification.NotificationType = tempType;
 
-                // Save to database
+                // 🚀 AUTO SEND LOGIC
+                if (createDto.SendImmediately)
+                {
+                    notification.Status = NotificationStatus.Sent;
+                    notification.IsSent = true;
+                    notification.SentAt = DateTime.UtcNow;
+
+                    // 🔹 SEND SIGNALR NOTIFICATION BASED ON TARGET
+                    if (notification.IsForAllUsers)
+                    {
+                        // Send to all users via SignalR
+                        await _hubClientService.SendToAllAsync(notification.Title, notification.Message);
+                        _logger.LogInformation("Notification sent to all users via SignalR: {Title}", notification.Title);
+                    }
+                    else if (notification.UserId.HasValue)
+                    {
+                        // Send to specific user
+                        await _hubClientService.SendToUserAsync(
+                            notification.UserId.Value,
+                            notification.Title,
+                            notification.Message);
+                    }
+                    else if (notification.RoleId.HasValue)
+                    {
+                        // Send to specific role
+                        await _hubClientService.SendToRoleAsync(
+                            notification.RoleId.Value,
+                            notification.Title,
+                            notification.Message);
+                    }
+                    else if (notification.CompanyId.HasValue)
+                    {
+                        // Send to specific company
+                        await _hubClientService.SendToCompanyAsync(
+                            notification.CompanyId.Value,
+                            notification.Title,
+                            notification.Message);
+                    }
+                }
+                else
+                {
+                    notification.Status = NotificationStatus.Pending;
+                    notification.IsSent = false;
+                    notification.SentAt = null;
+                }
+
+                // 💾 Save
                 await _notificationGenericRepository.AddAsync(notification);
                 await _notificationGenericRepository.SaveChangesAsync();
 
-                _logger.LogInformation("Notification {NotificationId} created successfully by user {UserId}",
-                    notification.Id, _currentUserService.UserId);
-
                 var notificationDto = _mapper.Map<NotificationDto>(notification);
 
-                // ✅ Null-safe enrichment
-                if (createDto.UserId.HasValue)
+                // 🔹 Enrich response
+                if (notification.UserId.HasValue)
                 {
-                    notificationDto.UserName = await _notificationRepository.GetUserNameAsync(createDto.UserId.Value)
-                                               ?? "Unknown User";
+                    notificationDto.UserName =
+                        await _notificationRepository.GetUserNameAsync(notification.UserId.Value)
+                        ?? "Unknown User";
                 }
 
-                if (createDto.CompanyId.HasValue)
+                if (notification.CompanyId.HasValue)
                 {
-                    notificationDto.CompanyName = await _notificationRepository.GetCompanyNameAsync(createDto.CompanyId.Value)
-                                                  ?? "Unknown Company";
+                    notificationDto.CompanyName =
+                        await _notificationRepository.GetCompanyNameAsync(notification.CompanyId.Value)
+                        ?? "Unknown Company";
                 }
 
-                return ApiResponse<NotificationDto>.Success(notificationDto, "Notification created successfully");
+                // Set IsForAllUsers in DTO
+                notificationDto.IsForAllUsers = notification.IsForAllUsers;
+
+                return ApiResponse<NotificationDto>.Success(
+                    notificationDto,
+                    isForAllUsers ? "Notification sent to all users successfully" : "Notification created successfully");
             }
             catch (Exception ex)
             {
@@ -173,7 +281,7 @@ namespace ResourceFlow.Application.Services
                 if (userId <= 0)
                     return ApiResponse<IEnumerable<NotificationDto>>.Error("Invalid user ID", 400);
 
-                // ✅ Security: Users can only view their own notifications (or admins/managers)
+             
                 if (userId != _currentUserService.UserId &&
                     !_currentUserService.IsInRole("Admin") &&
                     !_currentUserService.IsInRole("Manager"))
