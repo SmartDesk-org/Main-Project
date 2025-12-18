@@ -86,7 +86,7 @@ namespace ResourceFlow.Application.Services
             }
         }
 
-        public async Task<Response<object>> LoginAsync(LoginRequestDto dto)
+        public async Task<AuthTokensDto> LoginAsync(LoginRequestDto dto)
         {
             try
             {
@@ -120,18 +120,18 @@ namespace ResourceFlow.Application.Services
 
                 _logger.LogInformation("Login successful for UserId {UserId}", user.UserId);
 
-                var res = new 
+                var res = new AuthTokensDto
 
                 {
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
                     AccessTokenExpiry = exp,
-                    //RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
+                    RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
                     Role = user.RoleId
                 };
 
 
-                return new Response<object>(200, "User logged in successfully", res);
+                return res;
 
             }
             catch (Exception ex)

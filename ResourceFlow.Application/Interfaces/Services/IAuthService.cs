@@ -9,7 +9,7 @@ namespace ResourceFlow.Application.Interfaces.Services
     {
         Task<Response<object>> RegisterAsync(RegisterRequestDto dto);
 
-        Task<Response<object>> LoginAsync(LoginRequestDto dto);
+        Task<AuthTokensDto> LoginAsync(LoginRequestDto dto);
 
         Task<Response<object>> RefreshTokenAsync(string RefreshToken);
 

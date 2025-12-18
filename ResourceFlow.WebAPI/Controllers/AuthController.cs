@@ -58,20 +58,19 @@ namespace ResourceFlow.WebAPI.Controllers
             {
                 var res = await _auth.LoginAsync(dto);
 
-                if (res.Data is AuthTokensDto tokens && !string.IsNullOrEmpty(tokens.RefreshToken))
-                {
-                    Response.Cookies.Append("refreshToken", tokens.RefreshToken, new CookieOptions
+                
+                    Response.Cookies.Append("refreshToken", res.RefreshToken, new CookieOptions
                     {
                         HttpOnly = true,
                         Secure = false, // set to true in production
-                        SameSite = SameSiteMode.None,
+                        SameSite = SameSiteMode.Lax,
                         Expires = DateTime.UtcNow.AddDays(7)
                     });
-                }
+                
 
                 _logger.LogInformation("Login successful. Email: {Email}", dto?.Email);
 
-                return StatusCode(res.StatusCode, res);
+                return StatusCode(200, res);
             }
             catch (Exception ex)
             {
@@ -82,7 +81,6 @@ namespace ResourceFlow.WebAPI.Controllers
 
 
 
-        [Authorize]
 
 
         [HttpPost("refresh")]
@@ -128,19 +126,17 @@ namespace ResourceFlow.WebAPI.Controllers
    
         [Authorize]
         [HttpPost("logout/{userId}")]
-        public async Task<IActionResult> Logout(int userId)
+        public async Task<IActionResult> Logout()
         {
 
-            //int userId = User.GetUserId();
+            int userId = User.GetUserId();
             _logger.LogInformation("Logout API called. UserId: {UserId}", userId);
 
             var result = await _auth.LogoutAsync(userId);
 
 
             await _auth.LogoutAsync(userId);
-            await _auth.LogoutAsync(userId);
 
-            Response.Cookies.Delete("accessToken");
             Response.Cookies.Delete("refreshToken");
 
 
