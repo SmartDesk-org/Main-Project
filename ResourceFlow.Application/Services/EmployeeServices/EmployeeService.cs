@@ -8,95 +8,108 @@ using ResourceFlow.Application.Validators.Employee;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.CompanyModels;
 using ResourceFlow.Domain.Entities.FloorModels;
+using ResourceFlow.Domain.Entities.SubscriptionModels;
 using ResourceFlow.Domain.Enums;
-using System.Collections.Concurrent; // Required for thread-safe collections if needed
+using OfficeOpenXml;
+using System.Linq;
+using System.Collections.Concurrent;
+using Microsoft.Extensions.DependencyInjection; // Required for IServiceScopeFactory
+using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 
 public class EmployeeService : IEmployeeService
 {
+    private readonly IEmployeeDapperRepository _dapperRepo;
     private readonly IGenericRepository<User> _userRepo;
     private readonly IGenericRepository<Employees> _employeeRepo;
     private readonly IGenericRepository<Floors> _floorRepo;
+    private readonly IGenericRepository<CompanyDetails> _companyRepo;
+    private readonly IGenericRepository<Subscription> _subscriptionRepo;
+
     private readonly IExcelReader _excelReader;
     private readonly IEmployeeImportValidator _validator;
     private readonly IUnitOfWork _uow;
-    private readonly IEmployeeEmailService _emailService;
+
+    // CRITICAL CHANGE: Use ScopeFactory (Singleton) instead of ServiceProvider (Request-Scoped)
+    private readonly IServiceScopeFactory _scopeFactory;
 
     public EmployeeService(
+        IEmployeeDapperRepository dapperRepo,
         IGenericRepository<User> userRepo,
         IGenericRepository<Employees> employeeRepo,
         IGenericRepository<Floors> floorRepo,
+        IGenericRepository<CompanyDetails> companyRepo,
+        IGenericRepository<Subscription> subscriptionRepo,
         IExcelReader excelReader,
         IEmployeeImportValidator validator,
         IUnitOfWork uow,
-        IEmployeeEmailService employeeEmailService
+        IServiceScopeFactory scopeFactory // Inject this!
     )
     {
+        _dapperRepo = dapperRepo;
         _userRepo = userRepo;
         _employeeRepo = employeeRepo;
         _floorRepo = floorRepo;
+        _companyRepo = companyRepo;
+        _subscriptionRepo = subscriptionRepo;
         _excelReader = excelReader;
         _validator = validator;
         _uow = uow;
-        _emailService = employeeEmailService;
+        _scopeFactory = scopeFactory;
     }
 
     public async Task<ApiResponse<BulkUploadResponse>> BulkUploadAsync(IFormFile file)
     {
         var response = new BulkUploadResponse();
 
-        // --- VALIDATION & READING START ---
+        // 1. Basic Validation
         if (file == null || file.Length == 0)
-        {
             return new ApiResponse<BulkUploadResponse>(400, "Invalid file length");
-        }
 
         using var stream = file.OpenReadStream();
         var rows = _excelReader.ReadEmployeeExcel(stream);
 
-        response.TotalRecords = rows.Count;
-        int companyId = 5; // TODO: make dynamic later
-        var (validRows, errors) = await _validator.ValidateAsync(rows, companyId);
+        if (!rows.Any())
+            return new ApiResponse<BulkUploadResponse>(400, "File is empty.");
 
+        response.TotalRecords = rows.Count;
+        int companyId = 2; // TODO: Fetch from User Claims
+
+        // 2. Validate Rows
+        var (validRows, errors) = await _validator.ValidateAsync(rows, companyId);
         response.Errors = errors;
         response.FailedRecords = errors.Count;
 
         if (!validRows.Any())
-        {
-            return new ApiResponse<BulkUploadResponse>(
-                statusCode: 400,
-                message: "All rows failed validation. Please review the errors.",
-                data: new BulkUploadResponse
-                {
-                    TotalRecords = rows.Count,
-                    SuccessfulRecords = 0,
-                    FailedRecords = errors.Count,
-                    Errors = errors,
-                    ChunkSize = 0,
-                    TotalChunks = 0
-                }
-            );
-        }
+            return new ApiResponse<BulkUploadResponse>(400, "All rows failed validation.", response);
 
-        int chunkSize = 200;
-        var chunks = validRows
-            .Select((row, index) => new { row, index })
-            .GroupBy(x => x.index / chunkSize)
-            .Select(g => g.Select(x => x.row).ToList())
-            .ToList();
+        // 3. Subscription Check
+        var company = await _companyRepo.GetByIdAsync(companyId);
+        var subscription = await _subscriptionRepo.GetByIdAsync(company.CompanySubscriptionId);
+
+        var existingEmployees = await _dapperRepo.GetEmployeeByCompanyId(companyId);
+        int currentCount = existingEmployees.Count(e => e.Status != EmployeeStatus.Terminated);
+
+        if (currentCount + validRows.Count > subscription.EmployeeLimit)
+        {
+            return new ApiResponse<BulkUploadResponse>(400,
+                $"Limit Exceeded. Plan allows {subscription.EmployeeLimit}. You have {currentCount}.");
+        }
+        int chunkSize = 50;
+        var chunks = validRows.Chunk(chunkSize).ToList();
 
         response.ChunkSize = chunkSize;
         response.TotalChunks = chunks.Count;
 
-        foreach (var chunk in chunks)
+        var usersToSendEmailsTo = new List<User>();
+        var passwordMap = new Dictionary<string, string>();
+        await _uow.BeginTransactionAsync();
+        try
         {
-            await _uow.BeginTransactionAsync();
-            bool transactionCommitted = false;
-
-            var newUsers = new List<User>();
-            var passwordMap = new Dictionary<string, string>();
-
-            try
+            foreach (var chunk in chunks)
             {
+                var newUsers = new List<User>();
+                var newEmployees = new List<Employees>();
+
                 foreach (var r in chunk)
                 {
                     var rawPassword = "Emp@" + Guid.NewGuid().ToString("N")[..6];
@@ -110,14 +123,13 @@ public class EmployeeService : IEmployeeService
                         CompanyId = companyId,
                         RoleId = 2,
                         IsActive = true,
-                        IsBlocked = false
+                        IsBlocked = false,
+
                     });
                 }
 
                 await _userRepo.AddRangeAsync(newUsers);
-                await _uow.SaveChangesAsync();
-
-                var newEmployees = new List<Employees>();
+                await _uow.SaveChangesAsync(); // IDs generated here
 
                 for (int i = 0; i < newUsers.Count; i++)
                 {
@@ -134,54 +146,86 @@ public class EmployeeService : IEmployeeService
                 await _employeeRepo.AddRangeAsync(newEmployees);
                 await _uow.SaveChangesAsync();
 
-                
-                await _uow.CommitAsync();
-                transactionCommitted = true;
+                usersToSendEmailsTo.AddRange(newUsers);
+            }
+
+            await _uow.CommitAsync();
+        }
+        catch (Exception ex)
+        {
+            await _uow.RollbackAsync();
+            return new ApiResponse<BulkUploadResponse>(500, $"DB Error: {ex.Message}");
+        }
+        _ = ProcessEmailBackground(usersToSendEmailsTo, passwordMap);
+
+        response.SuccessfulRecords = validRows.Count;
+        return new ApiResponse<BulkUploadResponse>(200, "Upload successful. Emails are being sent.", response);
+    }
+
+
+    private async Task ProcessEmailBackground(List<User> users, Dictionary<string, string> passwordMap)
+    {
+
+        var successfulUserIds = new ConcurrentBag<int>();
+        var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 8 };
+        Console.WriteLine($" Starting email sending for {users.Count} users...");
+
+        await Parallel.ForEachAsync(users, parallelOptions, async (user, token) =>
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var emailService = scope.ServiceProvider.GetRequiredService<IEmployeeEmailService>();
+
+            try
+            {
+                var rawPassword = passwordMap[user.Email];
+                var html = EmployeeEmailTemplates.BuildWelcomeEmail(user.Email, rawPassword);
+                await emailService.SendAsync(user.Email, "Welcome to SmartDesk", html);
+
+                successfulUserIds.Add(user.UserId);
             }
             catch (Exception ex)
             {
-           
-                if (!transactionCommitted)
-                {
-                    await _uow.RollbackAsync();
-                }
-
-                return new ApiResponse<BulkUploadResponse>(
-                    500,
-                    $"Database Import failed: {ex.InnerException?.Message ?? ex.Message}"
-                );
+                Console.WriteLine($"❌ Failed {user.Email}: {ex.Message}");
             }
-
-            // --- STEP 2: SEND EMAILS (PARALLEL PROCESSING) ---
-            if (transactionCommitted)
+        });
+        if (!successfulUserIds.IsEmpty)
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var userRepo = scope.ServiceProvider.GetRequiredService<IGenericRepository<User>>();
+            foreach (var userId in successfulUserIds)
             {
-                // We limit to 8 parallel emails to avoid getting blocked by Gmail for spamming
-                var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 8 };
-
-                await Parallel.ForEachAsync(newUsers, parallelOptions, async (user, token) =>
+                var user = await userRepo.GetByIdAsync(userId);
+                if (user != null)
                 {
-                    try
-                    {
-                        var rawPassword = passwordMap[user.Email];
-                        var html = EmployeeEmailTemplates.BuildWelcomeEmail(user.Email, rawPassword);
-
-                        await _emailService.SendAsync(
-                            to: user.Email,
-                            subject: "Welcome to SmartDesk - Your Login Credentials",
-                            html: html // Changed parameter name to match interface
-                        );
-                    }
-                    catch (Exception emailEx)
-                    {
-                        // LOGGING ONLY: Do not throw.
-                        // We do not want to fail the request because one email bounced.
-                        Console.WriteLine($"Failed to send email to {user.Email}: {emailEx.Message}");
-                    }
-                });
+                    userRepo.Update(user);
+                }
             }
-        }
 
-        response.SuccessfulRecords = validRows.Count;
-        return new ApiResponse<BulkUploadResponse>(200, "File uploaded successfully. Emails sent.", response);
+            await uow.SaveChangesAsync();
+            Console.WriteLine($"✅ Bulk updated status for {successfulUserIds.Count} users.");
+        }
+    }
+
+    public byte[] GenerateEmployeeUploadTemplate()
+    {
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        using var package = new ExcelPackage();
+        var sheet = package.Workbook.Worksheets.Add("Employees");
+
+        sheet.Cells[1, 1].Value = "EmployeeName";
+        sheet.Cells[1, 2].Value = "Email";
+        sheet.Cells[1, 3].Value = "Department";
+        sheet.Cells[1, 4].Value = "DefaultFloorId";
+
+        sheet.Cells[2, 1].Value = "John Doe";
+        sheet.Cells[2, 2].Value = "john@company.com";
+        sheet.Cells[2, 3].Value = "IT";
+        sheet.Cells[2, 4].Value = 1;
+
+        sheet.Cells[1, 1, 1, 4].Style.Font.Bold = true;
+        sheet.Cells.AutoFitColumns();
+
+        return package.GetAsByteArray();
     }
 }

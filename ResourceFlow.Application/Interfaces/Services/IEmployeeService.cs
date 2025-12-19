@@ -12,6 +12,8 @@ namespace ResourceFlow.Application.Interfaces.Services
     public interface IEmployeeService
     {
         Task<ApiResponse<BulkUploadResponse>> BulkUploadAsync(IFormFile file);
+        byte[] GenerateEmployeeUploadTemplate();
+
     }
 
 }

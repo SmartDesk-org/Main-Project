@@ -19,10 +19,10 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
         {
             _connectionString = config.GetConnectionString("DefaultConnection");
         }
-         public async Task<Employees> GetEmployeeByCompanyId(int companyId)
+         public async Task<IEnumerable<Employees>> GetEmployeeByCompanyId(int companyId)
         {
             using var con = new SqlConnection(_connectionString);
-            var result = await con.QueryFirstOrDefaultAsync<Employees>(
+            var result = await con.QueryAsync<Employees>(
                 "[dbo].[EMPLOYEE_SP]",
                 new
                 {

@@ -51,60 +51,6 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
 
-        // ----------------------------------------------------
-        // LOGIN
-        // ----------------------------------------------------
-        //[HttpPost("login")]
-        //public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
-        //{
-        //    _logger.LogInformation("Login API called. Email: {Email}", dto?.Email);
-
-        //    try
-        //    {
-        //        var res = await _auth.LoginAsync(dto);
-
-
-
-        //[HttpPost("login")]
-        //public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
-        //{
-        //    try
-        //    {
-        //        var res = await _auth.LoginAsync(dto);
-
-        //        if (res.Data is AuthTokensDTO data && !string.IsNullOrEmpty(data.RefreshToken))
-        //        {
-        //            Response.Cookies.Append("refreshToken", data.RefreshToken, new CookieOptions
-        //            {
-        //                HttpOnly = true,
-        //                Secure = true,
-        //                SameSite = SameSiteMode.Strict,
-        //                Expires = DateTime.UtcNow.AddDays(7)
-        //            });
-        //        }
-
-        //        return StatusCode(res.StatusCode, res);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, new { message = ex.Message });
-        //    }
-        //}
-
-
-        //[HttpPost("refresh-token")]
-        //public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
-        //{
-        //    try
-        //    {
-        //        var res = await _auth.RefreshTokenAsync(refreshToken);
-
-
-
-
-
-
-
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
@@ -200,7 +146,7 @@ namespace ResourceFlow.WebAPI.Controllers
 
             _logger.LogInformation("Logout completed. UserId: {UserId}", userId);
 
-            return Ok(new { message = "Logged out" });
+            return Ok(result);
         }
 
        
