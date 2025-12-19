@@ -9,13 +9,10 @@ using ResourceFlow.WebAPI.Middleware;
 using System.Text;
 
 using System.Threading.RateLimiting;
-
+using Serilog;
 using OfficeOpenXml;
 
-
-
 var builder = WebApplication.CreateBuilder(args);
-
 // Controllers & JSON options
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -126,15 +123,6 @@ builder.Services.AddRateLimiter(options =>
 
 
 var app = builder.Build();
-
-
-// Run stored procedure installer
-using (var scope = app.Services.CreateScope())
-{
-    var spInstaller = scope.ServiceProvider.GetRequiredService<StoredProcedureInstaller>();
-    await spInstaller.RunStoredProceduresAsync();
-}
-
 
 
 if (app.Environment.IsDevelopment())

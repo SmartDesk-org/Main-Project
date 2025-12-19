@@ -11,15 +11,15 @@ using Roles = ResourceFlow.Domain.Entities.Authentication.Roles;
 
 namespace ResourceFlow.Domain.Entities.Authorization
 {
-    public class RolePermission
+    public class RolePermission:BaseEntity
     {
         public int Id { get; set; }
 
         public int RoleId { get; set; }
-        public Roles Role { get; set; } = null!;
+        public Roles Role { get; set; } 
 
         public int ModuleId { get; set; }
-        public AppModule Module { get; set; } = null!;
+        public AppModule Module { get; set; } 
 
         public bool CanAdd { get; set; }
         public bool CanEdit { get; set; }
