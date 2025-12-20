@@ -352,7 +352,7 @@ public class EmployeeService : IEmployeeService
     public async Task<Response<IEnumerable<Employees>>> GetAllEmployees()
     {
         var result = await _employeeRepo.GetAllAsync();
-        if (result == null)
+        if (result == null || !result.Any())
         {
             return new Response<IEnumerable<Employees>>(404, "No Eployees Found");
         }
