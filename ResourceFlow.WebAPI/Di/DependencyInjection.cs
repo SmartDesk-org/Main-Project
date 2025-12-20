@@ -32,6 +32,8 @@ using ResourceFlow.Infrastructure.Persistence.Dapper.Repositories;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 using ResourceFlow.Infrastructure.Services;
 using System.Text.Json.Serialization;
+using DinkToPdf.Contracts;
+using DinkToPdf;
 
 
 namespace ResourceFlow.WebAPI.DI
@@ -67,6 +69,10 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<PaymentService>();
             services.AddScoped<ICompanyService, CompanyService>();
             services.AddScoped<IClientMessageService, ClientMessagesService>();
+            services.AddScoped<IBillingService, BillingService>();
+            services.AddScoped<IPdfService, PdfService>();
+
+           
 
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IEmailService, EmailService>();

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 
@@ -11,9 +12,11 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251219112132_Edited billing")]
+    partial class Editedbilling
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,12 +38,6 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 
                     b.Property<int>("CompanyId")
                         .HasColumnType("int");
-
-                    b.Property<string>("CompanyMail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CompanyName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("CompanySubscriptionId")
                         .HasColumnType("int");
@@ -93,9 +90,6 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 
                     b.Property<int>("SubscriptionId")
                         .HasColumnType("int");
-
-                    b.Property<string>("SubscriptionName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("SubscriptionStartDate")
                         .HasColumnType("datetime2");
@@ -307,21 +301,21 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 20, 6, 25, 30, 340, DateTimeKind.Utc).AddTicks(3841),
+                            CreatedAt = new DateTime(2025, 12, 19, 11, 21, 29, 873, DateTimeKind.Utc).AddTicks(6600),
                             IsDeleted = false,
                             RoleName = "SuperAdmin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 20, 6, 25, 30, 340, DateTimeKind.Utc).AddTicks(3846),
+                            CreatedAt = new DateTime(2025, 12, 19, 11, 21, 29, 873, DateTimeKind.Utc).AddTicks(6605),
                             IsDeleted = false,
                             RoleName = "CompanyAdmin"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 20, 6, 25, 30, 340, DateTimeKind.Utc).AddTicks(3848),
+                            CreatedAt = new DateTime(2025, 12, 19, 11, 21, 29, 873, DateTimeKind.Utc).AddTicks(6606),
                             IsDeleted = false,
                             RoleName = "Employee"
                         });
@@ -408,12 +402,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 12, 20, 6, 25, 30, 820, DateTimeKind.Utc).AddTicks(4835),
+                            CreatedAt = new DateTime(2025, 12, 19, 11, 21, 30, 476, DateTimeKind.Utc).AddTicks(8061),
                             Email = "suhailpalakkal1@gmail.com",
                             IsActive = true,
                             IsBlocked = false,
                             IsDeleted = false,
-                            PassWord = "$2a$11$kN4i6tbJRnMxzD5PXSVenukS0Pev.vRqX4jqGD7LU7cfVkRvCJYWq",
+                            PassWord = "$2a$11$Fmfikrtin3ELMiyjcFF0JOnBC1AoZwW27VYo5Gfdr7FctFBbPFPYa",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1,
@@ -974,21 +968,21 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 20, 6, 25, 30, 340, DateTimeKind.Utc).AddTicks(7728),
+                            CreatedAt = new DateTime(2025, 12, 19, 11, 21, 29, 873, DateTimeKind.Utc).AddTicks(8498),
                             IsDeleted = false,
                             TypeName = "Basic"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 20, 6, 25, 30, 340, DateTimeKind.Utc).AddTicks(7733),
+                            CreatedAt = new DateTime(2025, 12, 19, 11, 21, 29, 873, DateTimeKind.Utc).AddTicks(8501),
                             IsDeleted = false,
                             TypeName = "Upgrade"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 20, 6, 25, 30, 340, DateTimeKind.Utc).AddTicks(7734),
+                            CreatedAt = new DateTime(2025, 12, 19, 11, 21, 29, 873, DateTimeKind.Utc).AddTicks(8503),
                             IsDeleted = false,
                             TypeName = "Renewal"
                         });

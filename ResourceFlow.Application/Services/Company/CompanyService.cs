@@ -25,6 +25,7 @@ namespace ResourceFlow.Application.Services.Company
         private readonly IGenericRepository<Resource> _resourceRepo;
         private readonly IGenericRepository<CompanyFloor> _floorRepo;
         private readonly IJwtService _jwtservice;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public CompanyService(
@@ -34,6 +35,7 @@ namespace ResourceFlow.Application.Services.Company
             IGenericRepository<Subscription> subRepo,
             IGenericRepository<Resource> resourceRepo,
             IGenericRepository<CompanyFloor> floorRepo,
+            IUnitOfWork unitOfWork,
             IMapper mapper
             )
         {
@@ -44,6 +46,7 @@ namespace ResourceFlow.Application.Services.Company
             _resourceRepo = resourceRepo;
             _floorRepo = floorRepo;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
 
@@ -54,94 +57,102 @@ namespace ResourceFlow.Application.Services.Company
                 return new Response<IEnumerable<CompanyDetails>>(404, "no client companies", res);
             return new Response<IEnumerable<CompanyDetails>>(200, "companies found", res);
         }
-        public async Task<Response<Object>> NewCompany(NewCompanyDto dto)
+        public async Task<Response<object>> NewCompany(NewCompanyDto dto)
         {
-            var existing = await _companyRepo.SingleOrDefaultAsync(x => x.Name == dto.Name && x.IsDeleted == false);
-            if (existing != null)
-                return new Response<Object>( 404, "There is already a company with same name ");
+            CompanyDetails newCompany = null!;
+            CompanySubscription newCompanySubscription = null!;
+            Subscription subPlan ;
+            double totalAmount = 0;
 
-            var company = new CompanyDetails
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
             {
-                Name = dto.Name,
-                Address=dto.Address,
-                IsActive=false
-            };
-            var newCompany =await  _companyRepo.AddAsync(company);
+                var existing = await _companyRepo
+                    .SingleOrDefaultAsync(x => x.Name == dto.Name && !x.IsDeleted);
 
-            var user = new User
+                if (existing != null)
+                    return new Response<object>(409, "Company with same name already exists");
+
+                var existingUser = await _userRepo
+                    .SingleOrDefaultAsync(x => x.Email == dto.Email && !x.IsDeleted);
+
+                if (existingUser != null)
+                    return new Response<object>(409, "User already exists with this email");
+
+                newCompany = await _companyRepo.AddAsync(new CompanyDetails
+                {
+                    Name = dto.Name,
+                    Address = dto.Address,
+                    IsActive = false
+                });
+
+                await _userRepo.AddAsync(new User
+                {
+                    CompanyId = newCompany.CompanyId,
+                    UserName = newCompany.Name,
+                    Email = dto.Email.Trim(),
+                    PassWord = BCrypt.Net.BCrypt.HashPassword(dto.PassWord),
+                    RoleEnum = RoleEnum.CompanyAdmin,
+                    IsActive = false,
+                    IsBlocked = false
+                });
+
+                subPlan = await _subRepo.GetByIdAsync(dto.SelectedSubscriptionId);
+
+                var startDate = newCompany.CreatedAt;
+                DateTime endDate;
+
+                if (dto.ExpirationYear == 1)
+                {
+                    endDate = startDate.AddYears(1);
+                    totalAmount = subPlan.PriceYearly;
+                }
+                else
+                {
+                    endDate = startDate.AddMonths(dto.ExpirationMonth);
+                    totalAmount = subPlan.PriceMonthly * dto.ExpirationMonth;
+                }
+
+                newCompanySubscription = await _compSubRepo.AddAsync(
+                    new CompanySubscription
+                    {
+                        CompanyId = newCompany.CompanyId,
+                        SubscriptionId = dto.SelectedSubscriptionId,
+                        StartDate = startDate,
+                        EndDate = endDate,
+                        IsActive = false,
+                        Status = SubscriptionStatus.Pending,
+                        AmoutToBePaid = totalAmount
+                    }
+                );
+
+                newCompany.CompanySubscriptionId = newCompanySubscription.Id;
+                await _companyRepo.UpdateAsync(newCompany);
+
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception ex)
             {
-                CompanyId=newCompany.CompanyId,
-                UserName = newCompany.Name,
-                Email = dto.Email.Trim(),
-                PassWord = BCrypt.Net.BCrypt.HashPassword(dto.PassWord),
-                RoleEnum = RoleEnum.CompanyAdmin,
-                IsActive = false,
-                IsBlocked = false
-            };
-            //var existingUser = _userRepo.SingleOrDefaultAsync(x => x.Email == user.Email && x.IsDeleted == false && x.IsActive == true);
-            //if (existingUser != null)
-            //    throw new Exception("A user already exist with this mail");
-            var newUser = await _userRepo.AddAsync(user);
-
-            var companySubscription = new CompanySubscription
-            {
-                CompanyId = newCompany.CompanyId,
-                SubscriptionId = dto.SelectedSubscriptionId,
-                StartDate = newCompany.CreatedAt,
-                EndDate = newCompany.CreatedAt.AddYears(dto.ExpirationYear).AddMonths(dto.ExpirationMonth),
-                IsActive = false,
-                Status=SubscriptionStatus.Pending
-            };
-           
-
-            var subPlan =await  _subRepo.GetByIdAsync(dto.SelectedSubscriptionId);
-
-            var newCompanySubscription = await _compSubRepo.AddAsync(companySubscription);
-
-            var start = newCompanySubscription.StartDate;
-            var end = newCompanySubscription.EndDate;
-
-            int years = end.Year - start.Year;
-            if(end.Month<start.Month || (end.Month==start.Month && end.Day<start.Day))
-            {
-                years--;
+                await _unitOfWork.RollbackAsync();
+                return new Response<object>(500, ex.Message);
             }
 
-            start = start.AddYears(years);
-            int months = end.Month - start.Month;
-            if(end.Day<start.Day)
-            {
-                months--;
-            }
-
-            start = start.AddMonths(months);
-
-            int days = (end - start).Days;
-
-            double totalAmount = (years * subPlan.PriceYearly)
-                                + (months * subPlan.PriceMonthly)
-                                + (days * (subPlan.PriceMonthly / 30));
-
-            Console.WriteLine($"total amount{totalAmount}");
-
-            newCompanySubscription.AmoutToBePaid = totalAmount;
-
-            await _compSubRepo.UpdateAsync(newCompanySubscription);
-
-           
-
-            var res = new
-            {
-                CompanyId = newCompany.CompanyId,
-                SubscritionName = subPlan.SubscriptionName,
-                StartDate = newCompanySubscription.StartDate,
-                EndDate = newCompanySubscription.EndDate,
-                AmountToBEPaid = totalAmount,
-                Currency="INR"
-            };
-
-            return new Response<Object>(200, "Company added successfully ,Proceed to payment", res);
+            return new Response<object>(
+                200,
+                "Company added successfully, proceed to payment",
+                new
+                {
+                    CompanyId = newCompany.CompanyId,
+                    SubscriptionName = subPlan.SubscriptionName,
+                    StartDate = newCompanySubscription.StartDate,
+                    EndDate = newCompanySubscription.EndDate,
+                    AmountToBePaid = totalAmount,
+                    Currency = "INR"
+                }
+            );
         }
+
 
 
         public async Task ActivateCompanyAsync(int companyId)
@@ -167,10 +178,21 @@ namespace ResourceFlow.Application.Services.Company
                 Map="just test"
             };
 
-            await _floorRepo.AddAsync(floor);
-            await _companyRepo.UpdateAsync(company);
-            await _compSubRepo.UpdateAsync(subscription);
-            await _userRepo.UpdateAsync(user);
+           await  _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                await _floorRepo.AddAsync(floor);
+                await _companyRepo.UpdateAsync(company);
+                await _compSubRepo.UpdateAsync(subscription);
+                await _userRepo.UpdateAsync(user);
+
+                await _unitOfWork.CommitAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
 
         }
     }

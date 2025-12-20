@@ -18,5 +18,6 @@ namespace ResourceFlow.Application.DTOs.Subscription
         public double PriceYearly { get; set; }
         public string Description { get; set; } = string.Empty;
         public string TypeName { get; set; } = string.Empty;
+        public bool IsActive { get; set; }
     }
 }

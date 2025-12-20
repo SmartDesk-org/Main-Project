@@ -60,7 +60,7 @@ namespace ResourceFlow.WebAPI.Middleware
 
                 default:
                     statusCode = StatusCodes.Status500InternalServerError;
-                    message = "An unexpected error occurred";
+                    message =exception.Message ;
                     break;
             }
 

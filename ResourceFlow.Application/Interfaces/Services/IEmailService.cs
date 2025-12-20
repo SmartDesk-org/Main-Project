@@ -8,8 +8,9 @@ namespace ResourceFlow.Application.Interfaces.Services
 {
     public  interface IEmailService
     {
-        Task<bool> SendAsync(string to, string subject, string htmlBody);
+        //Task<bool> SendAsync(string to, string subject, string htmlBody, byte[] attachment, string attchmentName);
         Task<bool> SendPasswordResetEmailAsync(string toEmail, string resetLink);
         Task<bool> SendWelcomeEmailAsync(string to);
+        Task<bool> SendBillAsync(string toMail, byte[] pdf);
     }
 }

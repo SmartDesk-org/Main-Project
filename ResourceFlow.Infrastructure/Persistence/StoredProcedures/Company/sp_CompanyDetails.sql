@@ -40,7 +40,7 @@ BEGIN
             END
 
             SELECT 
-                CompanyId, Name, Address, IsActive
+                CompanyId, Name, Address, IsActive,CompanySubscriptionId
             FROM CompanyDetails
             WHERE CompanyId = @COMPANYID AND IsDeleted = 0;
             RETURN;
