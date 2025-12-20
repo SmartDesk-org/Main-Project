@@ -1,4 +1,6 @@
-﻿namespace ResourceFlow.Application.DTOs.Subscription
+﻿using ResourceFlow.Domain.Enums;
+
+namespace ResourceFlow.Application.DTOs.Subscription
 {
     public class CreateSubscriptionPlanDto
     {
@@ -11,5 +13,6 @@
         public double PriceMonthly { get; set; }
         public double PriceYearly { get; set; }
         public string Description { get; set; } = string.Empty;
+        public int  TypeId { get; set; }
     }
 }

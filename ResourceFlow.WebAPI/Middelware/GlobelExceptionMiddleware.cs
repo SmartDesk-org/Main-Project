@@ -28,7 +28,6 @@ namespace ResourceFlow.WebAPI.Middleware
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled exception occurred");
-
                 await HandleExceptionAsync(context, ex);
             }
         }
@@ -39,36 +38,38 @@ namespace ResourceFlow.WebAPI.Middleware
         {
             context.Response.ContentType = "application/json";
 
-            var response = new ApiErrorResponse
-            {
-                TraceId = context.TraceIdentifier
-            };
+            int statusCode;
+            string message;
 
             switch (exception)
             {
                 case UnauthorizedAccessException:
-                    response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                    response.Message = "Unauthorized access";
+                    statusCode = StatusCodes.Status401Unauthorized;
+                    message = "Unauthorized access";
                     break;
 
                 case KeyNotFoundException:
-                    response.StatusCode = (int)HttpStatusCode.NotFound;
-                    response.Message = "Resource not found";
+                    statusCode = StatusCodes.Status404NotFound;
+                    message = "Resource not found";
                     break;
 
                 case ArgumentException ex:
-                    response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    response.Message = ex.Message;
+                    statusCode = StatusCodes.Status400BadRequest;
+                    message = ex.Message;
                     break;
 
                 default:
-                    response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    response.Message = "An unexpected error occurred";
-                    response.Details = exception.Message; // remove in production if needed
+                    statusCode = StatusCodes.Status500InternalServerError;
+                    message =exception.Message ;
                     break;
             }
 
-            context.Response.StatusCode = response.StatusCode;
+            context.Response.StatusCode = statusCode;
+
+            var response = new Response<object>(
+                statusCode,
+                message
+            );
 
             var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
             {

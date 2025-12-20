@@ -3,6 +3,6 @@ namespace ResourceFlow.Domain.Enums
 {
     public  enum PaymentMethod
     {
-        RazorPay = 0
+        Strip = 0
     }
 }
