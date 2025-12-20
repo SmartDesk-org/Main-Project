@@ -8,7 +8,8 @@ public class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermissi
     {
         builder.ToTable("RolePermissions");
 
-        builder.HasKey(rp => new { rp.RoleId});
+        builder.HasKey(rp => new { rp.RoleId, rp.ModuleCode });
+
 
         builder.HasOne(rp => rp.Role)
                .WithMany(r => r.RolePermissions)

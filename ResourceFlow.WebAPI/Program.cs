@@ -2,28 +2,16 @@
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using ResourceFlow.Infrastructure.Services;
 using ResourceFlow.WebAPI.DI;
-
-using ResourceFlow.WebAPI.Middleware;
 using System.Text;
 
 using System.Threading.RateLimiting;
-using Serilog;
+
 using OfficeOpenXml;
 
-
-
-
-
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .WriteTo.Console()
-    .WriteTo.File("logs/resourceflow-.log", rollingInterval: RollingInterval.Day)
-    .CreateLogger();
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog();
+
 // Controllers & JSON options
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -132,16 +120,6 @@ builder.Services.AddRateLimiter(options =>
 
 
 var app = builder.Build();
-
-
-// Run stored procedure installer
-using (var scope = app.Services.CreateScope())
-{
-    var spInstaller = scope.ServiceProvider.GetRequiredService<StoredProcedureInstaller>();
-    await spInstaller.RunStoredProceduresAsync();
-}
-
-
 
 if (app.Environment.IsDevelopment())
 {

@@ -2,15 +2,15 @@
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Application.Validators.Employee;
 using ResourceFlow.Domain.Entities.Authentication;
-using ResourceFlow.Domain.Entities.FloorModels;
+using ResourceFlow.Domain.Entities.CompanyModels;
 
 public class EmployeeImportValidator : IEmployeeImportValidator
 {
-    private readonly IGenericRepository<Floors> _floorRepo;
+    private readonly IGenericRepository<CompanyFloor> _floorRepo;
     private readonly IGenericRepository<User> _userRepo;
 
     public EmployeeImportValidator(
-        IGenericRepository<Floors> floorRepo,
+        IGenericRepository<CompanyFloor> floorRepo,
         IGenericRepository<User> userRepo
     )
     {

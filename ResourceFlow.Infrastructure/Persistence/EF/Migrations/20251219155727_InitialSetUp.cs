@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialSetup : Migration
+    public partial class InitialSetUp : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -37,32 +37,30 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Floors",
-                columns: table => new
-                {
-                    FloorId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CompanyId = table.Column<int>(type: "int", nullable: false),
-                    FloorName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    FloorNumber = table.Column<int>(type: "int", nullable: false),
-                    LayoutJson = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Floors", x => x.FloorId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Modules",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Code = table.Column<int>(type: "int", nullable: false),
+                    ParentId = table.Column<int>(type: "int", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Modules", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Modules_Modules_ParentId",
+                        column: x => x.ParentId,
+                        principalTable: "Modules",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -92,14 +90,15 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SubscriptionName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    EmployeeLimit = table.Column<int>(type: "int", nullable: false),
-                    FloorLimit = table.Column<int>(type: "int", nullable: false),
-                    DeskLimit = table.Column<int>(type: "int", nullable: false),
-                    MeetingRoomLimit = table.Column<int>(type: "int", nullable: false),
+                    MaxEmployees = table.Column<int>(type: "int", nullable: false),
+                    MaxFloors = table.Column<int>(type: "int", nullable: false),
+                    MaxDesks = table.Column<int>(type: "int", nullable: false),
+                    MaxMeetingRooms = table.Column<int>(type: "int", nullable: false),
                     PriceMonthly = table.Column<double>(type: "float", nullable: false),
                     PriceYearly = table.Column<double>(type: "float", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    GracePeriodDays = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -150,24 +149,33 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CompanyFloors",
+                name: "company_floors",
                 columns: table => new
                 {
                     FloorId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FloorName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FloorName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     FloorNumber = table.Column<int>(type: "int", nullable: false),
                     CompanyId = table.Column<int>(type: "int", nullable: false),
-                    Map = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Map = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CompanyFloors", x => x.FloorId);
+                    table.PrimaryKey("PK_company_floors", x => x.FloorId);
                     table.ForeignKey(
-                        name: "FK_CompanyFloors_CompanyDetails_CompanyId",
+                        name: "FK_company_floors_CompanyDetails_CompanyId",
                         column: x => x.CompanyId,
                         principalTable: "CompanyDetails",
-                        principalColumn: "CompanyId");
+                        principalColumn: "CompanyId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -234,22 +242,22 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 columns: table => new
                 {
                     RoleId = table.Column<int>(type: "int", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    ModuleId = table.Column<int>(type: "int", nullable: false),
-                    CanAdd = table.Column<bool>(type: "bit", nullable: false),
-                    CanEdit = table.Column<bool>(type: "bit", nullable: false),
-                    CanView = table.Column<bool>(type: "bit", nullable: false),
-                    CanDelete = table.Column<bool>(type: "bit", nullable: false)
+                    ModuleCode = table.Column<int>(type: "int", nullable: false),
+                    View = table.Column<bool>(type: "bit", nullable: false),
+                    Add = table.Column<bool>(type: "bit", nullable: false),
+                    Edit = table.Column<bool>(type: "bit", nullable: false),
+                    Delete = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RolePermissions", x => x.RoleId);
-                    table.ForeignKey(
-                        name: "FK_RolePermissions_Modules_ModuleId",
-                        column: x => x.ModuleId,
-                        principalTable: "Modules",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_RolePermissions", x => new { x.RoleId, x.ModuleCode });
                     table.ForeignKey(
                         name: "FK_RolePermissions_Roles_RoleId",
                         column: x => x.RoleId,
@@ -265,7 +273,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CompanyId = table.Column<int>(type: "int", nullable: true),
-                    UserName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     PassWord = table.Column<string>(type: "nvarchar(260)", maxLength: 260, nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: false),
@@ -336,6 +344,83 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         principalTable: "Subscriptions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "company_desks",
+                columns: table => new
+                {
+                    DeskId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CompanyId = table.Column<int>(type: "int", nullable: false),
+                    FloorId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    XPosition = table.Column<float>(type: "real", nullable: false),
+                    YPosition = table.Column<float>(type: "real", nullable: false),
+                    SpecificationsJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_company_desks", x => x.DeskId);
+                    table.ForeignKey(
+                        name: "FK_company_desks_CompanyDetails_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "CompanyDetails",
+                        principalColumn: "CompanyId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_company_desks_company_floors_FloorId",
+                        column: x => x.FloorId,
+                        principalTable: "company_floors",
+                        principalColumn: "FloorId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "company_meeting_rooms",
+                columns: table => new
+                {
+                    RoomId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CompanyId = table.Column<int>(type: "int", nullable: false),
+                    FloorId = table.Column<int>(type: "int", nullable: false),
+                    RoomName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Capacity = table.Column<int>(type: "int", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    XPosition = table.Column<float>(type: "real", nullable: false),
+                    YPosition = table.Column<float>(type: "real", nullable: false),
+                    SpecificationsJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_company_meeting_rooms", x => x.RoomId);
+                    table.ForeignKey(
+                        name: "FK_company_meeting_rooms_CompanyDetails_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "CompanyDetails",
+                        principalColumn: "CompanyId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_company_meeting_rooms_company_floors_FloorId",
+                        column: x => x.FloorId,
+                        principalTable: "company_floors",
+                        principalColumn: "FloorId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -428,15 +513,14 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 
             migrationBuilder.InsertData(
                 table: "Modules",
-                columns: new[] { "Id", "Name" },
+                columns: new[] { "Id", "Code", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "Name", "ParentId" },
                 values: new object[,]
                 {
-                    { 1, "User" },
-                    { 2, "CompanyDetails" },
-                    { 3, "CompanyFloor" },
-                    { 4, "Resource" },
-                    { 5, "Employee" },
-                    { 6, "Subscription" }
+                    { 1, 1, new DateTime(2025, 12, 19, 15, 57, 25, 687, DateTimeKind.Utc).AddTicks(991), null, null, null, false, null, null, "User Management", null },
+                    { 2, 2, new DateTime(2025, 12, 19, 15, 57, 25, 687, DateTimeKind.Utc).AddTicks(999), null, null, null, false, null, null, "Company Details", null },
+                    { 4, 4, new DateTime(2025, 12, 19, 15, 57, 25, 687, DateTimeKind.Utc).AddTicks(1009), null, null, null, false, null, null, "Resource Management", null },
+                    { 5, 5, new DateTime(2025, 12, 19, 15, 57, 25, 687, DateTimeKind.Utc).AddTicks(1015), null, null, null, false, null, null, "Employee Management", null },
+                    { 6, 6, new DateTime(2025, 12, 19, 15, 57, 25, 687, DateTimeKind.Utc).AddTicks(1018), null, null, null, false, null, null, "Subscription Plan", null }
                 });
 
             migrationBuilder.InsertData(
@@ -444,25 +528,31 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "RoleName" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 12, 15, 6, 24, 17, 187, DateTimeKind.Utc).AddTicks(5664), null, null, null, false, null, null, "SuperAdmin" },
-                    { 2, new DateTime(2025, 12, 15, 6, 24, 17, 187, DateTimeKind.Utc).AddTicks(5667), null, null, null, false, null, null, "CompanyAdmin" },
-                    { 3, new DateTime(2025, 12, 15, 6, 24, 17, 187, DateTimeKind.Utc).AddTicks(5668), null, null, null, false, null, null, "Employee" }
+                    { 1, new DateTime(2025, 12, 19, 15, 57, 25, 687, DateTimeKind.Utc).AddTicks(1954), null, null, null, false, null, null, "SuperAdmin" },
+                    { 2, new DateTime(2025, 12, 19, 15, 57, 25, 687, DateTimeKind.Utc).AddTicks(1956), null, null, null, false, null, null, "CompanyAdmin" },
+                    { 3, new DateTime(2025, 12, 19, 15, 57, 25, 687, DateTimeKind.Utc).AddTicks(1982), null, null, null, false, null, null, "Employee" }
                 });
 
             migrationBuilder.InsertData(
+                table: "Modules",
+                columns: new[] { "Id", "Code", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "Name", "ParentId" },
+                values: new object[] { 3, 3, new DateTime(2025, 12, 19, 15, 57, 25, 687, DateTimeKind.Utc).AddTicks(1004), null, null, null, false, null, null, "Company Floor", 2 });
+
+            migrationBuilder.InsertData(
                 table: "RolePermissions",
-                columns: new[] { "RoleId", "CanAdd", "CanDelete", "CanEdit", "CanView", "Id", "ModuleId" },
+                columns: new[] { "ModuleCode", "RoleId", "Add", "CreatedAt", "CreatedBy", "Delete", "DeletedAt", "DeletedBy", "Edit", "IsDeleted", "ModifiedAt", "ModifiedBy", "View" },
                 values: new object[,]
                 {
-                    { 1, true, true, true, true, 1, 6 },
-                    { 2, false, false, false, true, 2, 6 },
-                    { 3, false, false, false, false, 3, 6 }
+                    { 1, 1, true, new DateTime(2025, 12, 19, 15, 57, 25, 687, DateTimeKind.Utc).AddTicks(1643), null, true, null, null, true, false, null, null, true },
+                    { 6, 1, true, new DateTime(2025, 12, 19, 15, 57, 25, 687, DateTimeKind.Utc).AddTicks(1645), null, true, null, null, true, false, null, null, true },
+                    { 1, 2, true, new DateTime(2025, 12, 19, 15, 57, 25, 687, DateTimeKind.Utc).AddTicks(1648), null, false, null, null, true, false, null, null, true },
+                    { 6, 2, false, new DateTime(2025, 12, 19, 15, 57, 25, 687, DateTimeKind.Utc).AddTicks(1652), null, false, null, null, false, false, null, null, true }
                 });
 
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "UserId", "CompanyId", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "Email", "IsActive", "IsBlocked", "IsDeleted", "ModifiedAt", "ModifiedBy", "PassWord", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiry", "RoleId", "UserName" },
-                values: new object[] { 1, null, new DateTime(2025, 12, 15, 6, 24, 17, 478, DateTimeKind.Utc).AddTicks(6636), null, null, null, "suhailpalakkal1@gmail.com", true, false, false, null, null, "$2a$11$O7X3V/L4EPr7B1wSmvRYg.7zKzUYCLCjQbN5WvM2Hx8DFK65Khr6G", null, null, "", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Suhail" });
+                values: new object[] { 1, null, new DateTime(2025, 12, 19, 15, 57, 26, 52, DateTimeKind.Utc).AddTicks(4694), null, null, null, "suhailpalakkal1@gmail.com", true, false, false, null, null, "$2a$11$Q9Q4ImXcqeh7NfsaOUZvFO3TfNBmvvk/kgQ1bQonoiC7lRLcgGFoi", null, null, "", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Suhail" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Billing_CompanyId",
@@ -470,9 +560,29 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CompanyFloors_CompanyId",
-                table: "CompanyFloors",
-                column: "CompanyId");
+                name: "IX_company_desks_CompanyId_Status",
+                table: "company_desks",
+                columns: new[] { "CompanyId", "Status" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_desks_FloorId",
+                table: "company_desks",
+                column: "FloorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_floors_CompanyId_IsActive",
+                table: "company_floors",
+                columns: new[] { "CompanyId", "IsActive" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_meeting_rooms_CompanyId_Status",
+                table: "company_meeting_rooms",
+                columns: new[] { "CompanyId", "Status" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_meeting_rooms_FloorId",
+                table: "company_meeting_rooms",
+                column: "FloorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CompanySubscription_CompanyId",
@@ -495,6 +605,11 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 table: "Employees",
                 column: "UserId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Modules_ParentId",
+                table: "Modules",
+                column: "ParentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_CompanyId",
@@ -522,11 +637,6 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RolePermissions_ModuleId",
-                table: "RolePermissions",
-                column: "ModuleId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Users_CompanyId",
                 table: "Users",
                 column: "CompanyId");
@@ -544,7 +654,10 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 name: "Billing");
 
             migrationBuilder.DropTable(
-                name: "CompanyFloors");
+                name: "company_desks");
+
+            migrationBuilder.DropTable(
+                name: "company_meeting_rooms");
 
             migrationBuilder.DropTable(
                 name: "CompanySubscription");
@@ -553,7 +666,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 name: "Employees");
 
             migrationBuilder.DropTable(
-                name: "Floors");
+                name: "Modules");
 
             migrationBuilder.DropTable(
                 name: "Notifications");
@@ -568,13 +681,13 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 name: "RolePermissions");
 
             migrationBuilder.DropTable(
+                name: "company_floors");
+
+            migrationBuilder.DropTable(
                 name: "Subscriptions");
 
             migrationBuilder.DropTable(
                 name: "Users");
-
-            migrationBuilder.DropTable(
-                name: "Modules");
 
             migrationBuilder.DropTable(
                 name: "CompanyDetails");

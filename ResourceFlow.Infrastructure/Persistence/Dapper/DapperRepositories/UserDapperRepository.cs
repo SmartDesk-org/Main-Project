@@ -27,7 +27,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
                 using var conn = new SqlConnection(_connectionString);
 
                 var result = await conn.QueryFirstOrDefaultAsync<User>(
-                    "[dbo].[USER_SP]",
+                    "[dbo].[SP_USER]",
                     new
                     {
                         FLAG = "GETBYEMAIL",
@@ -44,7 +44,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
                 using var conn = new SqlConnection(_connectionString);
 
                 var result = await conn.QueryFirstOrDefaultAsync<User>(
-                    "[dbo].[USER_SP]",
+                    "[dbo].[SP_USER]",
                     new
                     {
                         FLAG = "GETBYPASSWORDRESETTOKEN",
@@ -60,7 +60,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
         {
             using var con=new SqlConnection(_connectionString);
             var result = await con.QueryFirstOrDefaultAsync<User>(
-                "[dbo].[USER_SP]",
+                "[dbo].[SP_USER]",
                 new
                 {
                     FLAG = "GETBYREFRESHTOKEN",
@@ -74,7 +74,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
 
             using var con = new SqlConnection(_connectionString);
             var result = await con.QueryFirstOrDefaultAsync<User>(
-                "[dbo].[USER_SP]",
+                "[dbo].[SP_USER]",
                 new
                 {
                     FLAG = "GETBYID",

@@ -24,7 +24,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
         {
             using var con = new SqlConnection(_connectionString);
             var result = await con.QueryFirstOrDefaultAsync<CompanyDetails>(
-                "[dbo].[COMPANYDETAILS_SP]",
+                "[dbo].[SP_COMPANYDETAILS]",
                 new
                 {
                     FLAG = "GETALL"
@@ -38,7 +38,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
         {
             using var con = new SqlConnection(_connectionString);
             var result = await con.QueryFirstOrDefaultAsync<CompanyDetails>(
-                "[dbo].[COMPANYDETAILS_SP]",
+                "[dbo].[SP_COMPANYDETAILS]",
                 new
                 {
                     FLAG = "GETBYID",

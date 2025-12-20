@@ -1,24 +1,17 @@
-﻿using ResourceFlow.Application.DTOs.Auth;
-using ResourceFlow.Application.Interfaces.Repositories;
-using System.Security.Cryptography;
-using Microsoft.Extensions.Configuration;
-using AutoMapper;
-using ResourceFlow.Domain.Entities.Authentication;
-using ResourceFlow.Application.Common;
-
-using Microsoft.Extensions.Logging;
-
-using System.Security.Claims;
+﻿using AutoMapper;
+using DocumentFormat.OpenXml.InkML;
 using Microsoft.AspNetCore.Http;
-using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
-
-
-
-
 using Microsoft.EntityFrameworkCore;
-
-
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using ResourceFlow.Application.Common;
+using ResourceFlow.Application.DTOs.Auth;
+using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Interfaces.Services;
+using ResourceFlow.Domain.Entities.Authentication;
+using System.Security.Claims;
+using System.Security.Cryptography;
 
 
 namespace ResourceFlow.Application.Services
@@ -72,6 +65,9 @@ namespace ResourceFlow.Application.Services
 
                 var user = _mapper.Map<User>(dto);
                 user.PassWord = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
+               
+
 
                 await _userRepo.AddAsync(user);
 

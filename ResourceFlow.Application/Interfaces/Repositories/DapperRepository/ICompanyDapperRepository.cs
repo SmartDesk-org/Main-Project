@@ -10,5 +10,6 @@ namespace ResourceFlow.Application.Interfaces.Repositories.DapperRepository
     {
         Task<CompanyDetails> GetAllCompany();
         Task<CompanyDetails> GetCompanyByCompanyId(int id);
+       
     }
 }

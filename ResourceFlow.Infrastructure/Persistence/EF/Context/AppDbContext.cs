@@ -6,7 +6,7 @@ using ResourceFlow.Domain.Entities.Authorization;
 using ResourceFlow.Domain.Entities.CompanyModels;
 using ResourceFlow.Domain.Entities.Finance;
 
-using ResourceFlow.Domain.Entities.FloorModels;
+
 
 using ResourceFlow.Domain.Entities.SubscriptionModels;
 using System.Linq.Expressions;
@@ -45,7 +45,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
         public DbSet<RolePermission> RolePermissions { get; set; }
 
         public DbSet<CompanySubscription> companySubscriptions { get; set; }
-        public DbSet<Floors> Floors { get; set; }
+        
+        public DbSet<CompanyDesk>CompanyDesks { get; set; }
+        public DbSet<CompanyMeetingRoom> CompanyMeetingRooms { get; set; }
 
 
         // Extract UserId from JWT

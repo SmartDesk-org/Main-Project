@@ -7,7 +7,6 @@ using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Application.Validators.Employee;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.CompanyModels;
-using ResourceFlow.Domain.Entities.FloorModels;
 using ResourceFlow.Domain.Enums;
 using OfficeOpenXml;
 
@@ -17,7 +16,7 @@ public class EmployeeService : IEmployeeService
 {
     private readonly IGenericRepository<User> _userRepo;
     private readonly IGenericRepository<Employees> _employeeRepo;
-    private readonly IGenericRepository<Floors> _floorRepo;
+    
     private readonly IExcelReader _excelReader;
     private readonly IEmployeeImportValidator _validator;
     private readonly IUnitOfWork _uow;
@@ -26,7 +25,6 @@ public class EmployeeService : IEmployeeService
     public EmployeeService(
         IGenericRepository<User> userRepo,
         IGenericRepository<Employees> employeeRepo,
-        IGenericRepository<Floors> floorRepo,
         IExcelReader excelReader,
         IEmployeeImportValidator validator,
         IUnitOfWork uow,
@@ -35,7 +33,6 @@ public class EmployeeService : IEmployeeService
     {
         _userRepo = userRepo;
         _employeeRepo = employeeRepo;
-        _floorRepo = floorRepo;
         _excelReader = excelReader;
         _validator = validator;
         _uow = uow;

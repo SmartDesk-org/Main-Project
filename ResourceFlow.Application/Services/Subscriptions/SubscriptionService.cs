@@ -72,7 +72,7 @@ namespace ResourceFlow.Application.Services.Subscriptions
              _mapper.Map(dto,existing);
             Console.WriteLine("________________________________");
             Console.WriteLine("from update");
-            Console.WriteLine(existing.EmployeeLimit);
+            Console.WriteLine(existing.MaxEmployees);
 
             await _repo.UpdateAsync(existing);
             return new Response<Object>(200, "Plan updated successfully", existing);

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.CompanyModels;
+using ResourceFlow.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
 
             builder.Property(u => u.UserName)
                 .IsRequired()
-                .HasMaxLength(50);
+                .HasMaxLength(100);
             builder.Property(u => u.PassWord)
                 .IsRequired()
                 .HasMaxLength(260);

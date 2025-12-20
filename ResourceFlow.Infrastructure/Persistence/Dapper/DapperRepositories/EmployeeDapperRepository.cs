@@ -23,7 +23,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
         {
             using var con = new SqlConnection(_connectionString);
             var result = await con.QueryFirstOrDefaultAsync<Employees>(
-                "[dbo].[EMPLOYEE_SP]",
+                "[dbo].[SP_EMPLOYEE]",
                 new
                 {
                     FLAG = "GETBYCOMPANYID",

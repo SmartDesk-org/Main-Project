@@ -21,5 +21,21 @@ namespace ResourceFlow.Domain.Entities.SubscriptionModels
 
         public virtual CompanyDetails? Company { get; set; }
         public virtual Subscription? Subscription { get; set; }
+
+        public bool IsExpired(DateTime now)
+           => EndDate < now;
+
+        public bool IsInGracePeriod(DateTime now)
+        {
+            if (Subscription == null)
+                return false;
+
+            var graceEnd = EndDate.AddDays(Subscription.GracePeriodDays);
+            return now > EndDate && now <= graceEnd;
+        }
+
+        public bool IsValid(DateTime now)
+            => now >= StartDate && now <= EndDate;
     }
 }
+

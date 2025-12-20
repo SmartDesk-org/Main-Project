@@ -42,7 +42,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_USER]
     @MODIFIEDBY            INT              = NULL,
     @DELETEDAT             DATETIME2        = NULL,
     @DELETEDBY             INT              = NULL,
-    @ISDELETED              BIT              = NULL
+    @ISDELETED              BIT             = NULL
 AS
 BEGIN
     BEGIN TRY
@@ -501,6 +501,21 @@ BEGIN
             WHERE CompanyId = @COMPANYID AND IsDeleted = 0;
             RETURN;
         END
+
+        IF @FLAG = 'GETCOMPANY_ACTIVEBY_COMPANYID'
+        BEGIN
+            IF @COMPANYID IS NULL
+            BEGIN
+                RAISERROR('COMPANYID is required for GETBYID', 16, 1);
+                RETURN;
+            END
+              
+            SELECT 
+                CompanyId, Name, Address, IsActive
+            FROM CompanyDetails
+            WHERE CompanyId = @COMPANYID AND IsDeleted = 0 AND IsActive=true;
+            RETURN;
+        END
      
         IF @FLAG = 'GETBYACTIVE'
         BEGIN
@@ -901,6 +916,32 @@ BEGIN
             WHERE SubscriptionId = @SUBSCRIPTIONID AND IsDeleted = 0;
             RETURN;
         END
+
+             IF @FLAG = 'GETACTIVEBYCOMPANYID'
+            BEGIN
+                IF @COMPANYID IS NULL
+                BEGIN
+                    RAISERROR('COMPANYID is required for GETACTIVEBYCOMPANYID', 16, 1);
+                    RETURN;
+                END
+
+                SELECT TOP 1
+                    Id,
+                    CompanyId,
+                    SubscriptionId,
+                    StartDate,
+                    EndDate,
+                    IsActive,
+                    Status
+                FROM CompanySubscriptions
+                WHERE CompanyId = @COMPANYID
+                  AND IsActive = 1
+                  AND IsDeleted = 0
+                ORDER BY StartDate DESC;
+
+                RETURN;
+            END
+
 
         IF @FLAG = 'GETACTIVE'
         BEGIN
