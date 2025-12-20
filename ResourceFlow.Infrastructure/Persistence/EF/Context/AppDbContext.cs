@@ -49,6 +49,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
         public DbSet<ClientMessage> ClientMessages { get; set; }
         public DbSet<SubscriptionType> SubscriptionTypes { get; set; }
 
+        public DbSet<SubscriptionHistory> Histories { get; set; }
 
 
 

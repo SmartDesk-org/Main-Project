@@ -24,7 +24,9 @@ namespace ResourceFlow.Application.Services.Company
         private readonly IGenericRepository<Subscription> _subRepo;
         private readonly IGenericRepository<Resource> _resourceRepo;
         private readonly IGenericRepository<CompanyFloor> _floorRepo;
+        private readonly IGenericRepository<SubscriptionHistory> _historyRepo;
         private readonly IJwtService _jwtservice;
+
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
@@ -35,6 +37,7 @@ namespace ResourceFlow.Application.Services.Company
             IGenericRepository<Subscription> subRepo,
             IGenericRepository<Resource> resourceRepo,
             IGenericRepository<CompanyFloor> floorRepo,
+            IGenericRepository<SubscriptionHistory> historyRepo,
             IUnitOfWork unitOfWork,
             IMapper mapper
             )
@@ -45,6 +48,7 @@ namespace ResourceFlow.Application.Services.Company
             _subRepo = subRepo;
             _resourceRepo = resourceRepo;
             _floorRepo = floorRepo;
+            _historyRepo = historyRepo;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
@@ -61,7 +65,7 @@ namespace ResourceFlow.Application.Services.Company
         {
             CompanyDetails newCompany = null!;
             CompanySubscription newCompanySubscription = null!;
-            Subscription subPlan ;
+            Subscription? subPlan ;
             double totalAmount = 0;
 
             await _unitOfWork.BeginTransactionAsync();
@@ -106,7 +110,7 @@ namespace ResourceFlow.Application.Services.Company
                 if (dto.ExpirationYear == 1)
                 {
                     endDate = startDate.AddYears(1);
-                    totalAmount = subPlan.PriceYearly;
+                    totalAmount = subPlan.PriceYearly
                 }
                 else
                 {
@@ -132,6 +136,7 @@ namespace ResourceFlow.Application.Services.Company
 
                 await _unitOfWork.CommitAsync();
             }
+
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
@@ -158,15 +163,15 @@ namespace ResourceFlow.Application.Services.Company
         public async Task ActivateCompanyAsync(int companyId)
         {
             var company = await _companyRepo.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.IsDeleted == false);
-            var subscription = await _compSubRepo.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.IsDeleted == false);
+            var compSubscription = await _compSubRepo.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.IsDeleted == false);
             var user = await _userRepo.SingleOrDefaultAsync(x => x.UserName == company.Name && x.CompanyId == company.CompanyId && x.IsDeleted == false);
 
             if (user == null)
                 throw new Exception("User not found for company");
 
             company.IsActive = true;
-            subscription.IsActive = true;
-            subscription.Status = SubscriptionStatus.Active;
+            compSubscription.IsActive = true;
+            compSubscription.Status = SubscriptionStatus.Active;
             user.IsActive = true;
 
             var floor = new CompanyFloor
@@ -178,15 +183,35 @@ namespace ResourceFlow.Application.Services.Company
                 Map="just test"
             };
 
-           await  _unitOfWork.BeginTransactionAsync();
+            var history = new SubscriptionHistory
+            {
+                CompanyId = company.CompanyId,
+                SubscriptionId = compSubscription.SubscriptionId,
+                CompanySubscriptionId = compSubscription.Id,
+
+                StartDate = compSubscription.StartDate,
+                EndDate = compSubscription.EndDate,
+
+                AmountPaid = compSubscription.AmoutToBePaid,
+                Currency = "INR",
+
+                StatusEnum = compSubscription.Status,
+                ChangeReasonEnum = HistoryChangeReasonEnum.Initial_Purchase
+            };
+            
+
+            await  _unitOfWork.BeginTransactionAsync();
             try
             {
                 await _floorRepo.AddAsync(floor);
                 await _companyRepo.UpdateAsync(company);
-                await _compSubRepo.UpdateAsync(subscription);
+                await _compSubRepo.UpdateAsync(compSubscription);
                 await _userRepo.UpdateAsync(user);
+                await _historyRepo.AddAsync(history);
 
                 await _unitOfWork.CommitAsync();
+               
+            
             }
             catch
             {
