@@ -38,7 +38,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
             builder.HasOne(u => u.Employee)
                 .WithOne(e => e.User)
                 .HasForeignKey<Employees>(e => e.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
 
             builder.HasOne(u => u.Company)

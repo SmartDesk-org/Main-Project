@@ -16,7 +16,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations.SeedData
         public void Configure(EntityTypeBuilder<RolePermission> builder)
         {
                     builder.HasData(
-                        new RolePermission {  RoleId = 1, ModuleCode = ModuleCode.User, View = true, Add = true, Edit = true, Delete = true },
+                        new RolePermission { RoleId = 1, ModuleCode = ModuleCode.User, View = true, Add = true, Edit = true, Delete = true },
                         new RolePermission {RoleId = 1, ModuleCode = ModuleCode.Subscription, View = true, Add = true, Edit = true, Delete = true },
                         new RolePermission {  RoleId = 2, ModuleCode = ModuleCode.User, View = true, Add = true, Edit = true, Delete = false },
                         new RolePermission { RoleId = 2, ModuleCode = ModuleCode.Subscription, View = true, Add = false, Edit = false, Delete = false }

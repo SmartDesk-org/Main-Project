@@ -7,7 +7,7 @@ public class CompanyMeetingRoomConfiguration
 {
     public void Configure(EntityTypeBuilder<CompanyMeetingRoom> builder)
     {
-        builder.ToTable("company_meeting_rooms");
+        builder.ToTable("CompanyMeetingRoom");
 
         builder.HasKey(x => x.RoomId);
 
@@ -28,7 +28,7 @@ public class CompanyMeetingRoomConfiguration
         builder.HasOne(x => x.Company)
                .WithMany(c => c.MeetingRooms)
                .HasForeignKey(x => x.CompanyId)
-               .OnDelete(DeleteBehavior.Cascade);
+               .OnDelete(DeleteBehavior.Restrict);
 
         // ==============================
         // Floor → MeetingRooms (1:N)
