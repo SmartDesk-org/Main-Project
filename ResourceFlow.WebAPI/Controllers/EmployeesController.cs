@@ -14,7 +14,7 @@ namespace ResourceFlow.WebAPI.Controllers
         private readonly IEmployeeService _employeeService;
         private readonly IUserDapperRepository _userRepo;
 
-        public EmployeeController(IEmployeeService employeeService,IUserDapperRepository userDapperRepository)
+        public EmployeeController(IEmployeeService employeeService, IUserDapperRepository userDapperRepository)
         {
             _employeeService = employeeService;
             _userRepo = userDapperRepository;
@@ -24,8 +24,8 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             int userId = User.GetUserId();
             int? companyId = await _userRepo.GetCompanyId(userId);
-        
-            var result = await _employeeService.BulkUploadAsync(request.File,companyId.Value);
+
+            var result = await _employeeService.BulkUploadAsync(request.File, companyId.Value);
             return Ok(result);
         }
         [HttpGet("upload-template")]
@@ -42,7 +42,7 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             int userId = User.GetUserId();
             int? companyId = await _userRepo.GetCompanyId(userId);
-            var result = await _employeeService.CreateEmployeeAsync(dto,companyId.Value);
+            var result = await _employeeService.CreateEmployeeAsync(dto, companyId.Value);
             return Ok(result);
         }
         [HttpGet]
@@ -50,6 +50,36 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             var response = await _employeeService.GetAllEmployees();
             return Ok(response);
+        }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateEmployeeDto dto)
+        {
+            int userId = User.GetUserId();
+            int? companyId = await _userRepo.GetCompanyId(userId);
+            if (companyId is null)
+            {
+                return Unauthorized("User is not authorized with any company!");
+            }
+            var result = await _employeeService.UpdateEmployeeAsync(id, dto, companyId.Value);
+
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            int userId = User.GetUserId();
+            int? companyId = await _userRepo.GetCompanyId(userId);
+
+            if (companyId is null)
+                return Unauthorized("User is not associated with any company");
+
+            var result = await _employeeService.DeleteEmployeeAsync(
+                id,
+                companyId.Value
+            );
+
+            return StatusCode(result.StatusCode, result);
         }
     }
 }
