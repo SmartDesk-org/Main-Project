@@ -9,7 +9,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<CompanyFloor> builder)
         {
-            builder.ToTable("company_floors");
+            builder.ToTable("CompanyFloor");
 
             builder.HasKey(x => x.FloorId);
 

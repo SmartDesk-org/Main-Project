@@ -13,7 +13,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<CompanyDesk> builder)
         {
-            builder.ToTable("company_desks");
+            builder.ToTable("CompanyDesk");
 
             builder.HasKey(x => x.DeskId);
 
