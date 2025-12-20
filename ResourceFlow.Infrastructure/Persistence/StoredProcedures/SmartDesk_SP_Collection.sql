@@ -189,7 +189,7 @@ END
   EXEC dbo.USER_SP @FLAG = 'GETBYNAME', @ROLENAME = 'Admin';
 
 }*/
-
+GO
 CREATE OR ALTER PROCEDURE [dbo].[SP_ROLES]
     @FLAG          VARCHAR(40),
     @ROLEID        INT             = NULL,
