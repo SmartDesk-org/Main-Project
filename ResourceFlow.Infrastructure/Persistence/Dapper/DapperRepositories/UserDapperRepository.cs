@@ -15,7 +15,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
 {
     public class UserDapperRepository:IUserDapperRepository
     {
-                    private readonly string _connectionString;
+                    private readonly string? _connectionString;
 
             public UserDapperRepository(IConfiguration config)
             {

@@ -110,7 +110,7 @@ namespace ResourceFlow.Application.Services.Company
                 if (dto.ExpirationYear == 1)
                 {
                     endDate = startDate.AddYears(1);
-                    totalAmount = subPlan.PriceYearly
+                    totalAmount = subPlan.PriceYearly;
                 }
                 else
                 {

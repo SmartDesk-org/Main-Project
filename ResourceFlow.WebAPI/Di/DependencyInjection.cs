@@ -34,6 +34,7 @@ using ResourceFlow.Infrastructure.Services;
 using System.Text.Json.Serialization;
 using DinkToPdf.Contracts;
 using DinkToPdf;
+using ResourceFlow.Application.Interfaces.History;
 
 
 namespace ResourceFlow.WebAPI.DI
@@ -71,6 +72,7 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IClientMessageService, ClientMessagesService>();
             services.AddScoped<IBillingService, BillingService>();
             services.AddScoped<IPdfService, PdfService>();
+            services.AddScoped<IHistoryService, HistoryService>();
 
            
 
@@ -80,6 +82,7 @@ namespace ResourceFlow.WebAPI.DI
             services.AddTransient<StoredProcedureInstaller>();
             services.AddScoped<IUserDapperRepository, UserDapperRepository>();
             services.AddScoped<ISubscriptionPlanDapperRepository, SubscriptionDapperRepository>();
+            services.AddScoped<IHistoryDapperRepository, HistoryDapperRepository>();
 
             services.AddScoped<ICompanyDapperRepository, CompanyDapperRepository>();
             services.AddScoped<IEmployeeDapperRepository, EmployeeDapperRepository>();
