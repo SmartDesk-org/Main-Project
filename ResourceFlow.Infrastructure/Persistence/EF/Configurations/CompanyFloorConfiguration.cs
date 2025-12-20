@@ -22,7 +22,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
                             .IsRequired();
 
                      builder.Property(x => x.Map)
-                            .HasColumnType("nvarchar(max)")   // ✅ SQL Server compatible
+                            .HasColumnType("nvarchar(max)")  
                             .IsRequired();
 
                      builder.Property(x => x.IsActive)
