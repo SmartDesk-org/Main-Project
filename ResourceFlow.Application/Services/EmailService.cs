@@ -117,9 +117,9 @@ namespace ResourceFlow.Application.Services
                 return false;
             }
         }
-        public Task<bool> SendAsync(string to, string subject, string htmlBody)
+        private async Task<bool> SendAsync(string to, string subject, string htmlBody, byte[]? attachment=null ,string? attachmentName=null)
         {
-            // ========== DUMMY EMAIL SENDER ==========
+            // ========== Generic  EMAIL SENDER ==========
             Console.WriteLine("==================================================");
             Console.WriteLine("📧 EMAIL SENDING (DUMMY SERVICE)");
             Console.WriteLine($"To      : {to}");
@@ -128,10 +128,72 @@ namespace ResourceFlow.Application.Services
             Console.WriteLine(htmlBody);
             Console.WriteLine("==================================================");
 
-            return Task.FromResult(true);
+            var smtp = _config.GetSection("smtp");
+            try
+            {
+                using var client = new SmtpClient
+                {
+                    Host = smtp["Host"],
+                    Port = int.Parse(smtp["Port"]),
+                    EnableSsl = true,
+                    Credentials = new NetworkCredential
+                    {
+                        UserName = smtp["Username"],
+                        Password = smtp["Password"]
+                    }
+                };
+
+                var message = new MailMessage
+                {
+                    From = new MailAddress(smtp["SenderEmail"], "SmartDesk"),
+                    Subject = subject,
+                    Body = htmlBody,
+                    IsBodyHtml = true
+                };
+
+                message.To.Add(to);
+
+                if(attachment != null)
+                {
+                    message.Attachments.Add(
+                        new Attachment(
+                            new MemoryStream(attachment),
+                            attachmentName ?? "bill.pdf",
+                            "application/pdf"
+                            )
+                        );
+                }
+
+                await client.SendMailAsync(message);
+                return true;
+            }
+            catch
+            {
+                Console.WriteLine("failed sending mail");
+                return false;
+            }
+
         }
 
        
+
+        public async Task<bool> SendBillAsync(string toMail, byte[] pdf)
+        {
+            var body = $@"
+                        <h1>Smart Desk<h1>
+                         <h3>Your Purchase Bill</h3>
+                        <p>Please find your bill attached.</p>
+                        <p>Thank you for your purchase.</p>
+                        ";
+
+            return await  SendAsync(
+                toMail,
+                "Your Purcahse Bill",
+                body,
+                pdf,
+                "bill.pdf"
+                );
+        }
 
 
         public Task<bool> SendWelcomeEmailAsync(string to)

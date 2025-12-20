@@ -209,7 +209,7 @@ BEGIN
         IF @FLAG = 'GETALL'
         BEGIN
             SELECT Id AS RoleId,RoleName,CreatedBy
-            FROM Roles
+            FROM Roles 
             WHERE IsDeleted = 0;
             RETURN;
         END
@@ -1463,4 +1463,56 @@ END
 GO
 
 ------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------
+/*{[
+  Title       : [dbo].[sp_GetHistoryByCompany]
+  Description : Handles history for companies 
+  CreatedOn and Owner : { 20/12/2025 : Suhail}
 
+  Execution Statements:
+
+  -- Get all notifications
+  EXEC dbo.SP_NOTIFICATION @FLAG = 'GETALL';
+
+  -- Get notification by ID
+  EXEC dbo.SP_NOTIFICATION @FLAG = 'GETBYID', @ID = 1;
+
+  -- Get notifications by Company ID
+  EXEC dbo.SP_NOTIFICATION @FLAG = 'GETBYCOMPANYID', @COMPANYID = 10;
+
+  -- Get notifications by User ID
+  EXEC dbo.SP_NOTIFICATION @FLAG = 'GETBYUSERID', @USERID = 100;
+
+  -- Get notifications by Role ID
+  EXEC dbo.SP_NOTIFICATION @FLAG = 'GETBYROLEID', @ROLEID = 2;
+
+  -- Get sent notifications
+  EXEC dbo.SP_NOTIFICATION @FLAG = 'GETBYSENTSTATUS', @ISSENT = 1;
+
+  -- Get unread notifications
+  EXEC dbo.SP_NOTIFICATION @FLAG = 'GETBYREADSTATUS', @ISREAD = 0;
+}*/
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_GetHistoryByCompany
+( 
+	@CompanyId INT
+)
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	SELECT 
+		c.Name				AS CompanyName,
+		s.SubscriptionName AS SubscriptionName,
+		h.StartDate,
+		h.EndDate,
+		h.AmountPaid,
+		h.Status,
+		h.ChangeReason
+	FROM Histories h
+	INNER JOIN CompanyDetails c ON h.CompanyId=c.CompanyId
+	INNER JOIN Subscriptions s ON h.SubscriptionId=s.Id
+	WHERE c.IsDeleted=0 AND h.CompanyId=@CompanyId
+	ORDER BY h.CreatedAt DESC
+END;
+GO
