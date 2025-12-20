@@ -23,7 +23,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
         {
             using var con = new SqlConnection(_connectionString);
             var result = await con.QueryFirstOrDefaultAsync<CompanySubscription>(
-                "[dbo].[SP_COMPANYDETAILS]",
+                "[dbo].[SP_COMPANYSUBSCRIPTION]",
                 new
                 {
                     FLAG = "GETACTIVEBYCOMPANYID",

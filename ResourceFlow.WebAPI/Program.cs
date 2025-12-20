@@ -11,7 +11,6 @@ using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Controllers & JSON options
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -70,6 +69,8 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
+
+
 .AddJwtBearer(options =>
 {
     options.Events = new JwtBearerEvents
@@ -120,6 +121,7 @@ builder.Services.AddRateLimiter(options =>
 
 
 var app = builder.Build();
+
 
 if (app.Environment.IsDevelopment())
 {

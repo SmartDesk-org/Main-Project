@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
+using ResourceFlow.Domain.Entities.SubscriptionModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
@@ -13,18 +14,19 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
 {
-    public class CompanyDapperRepository:ICompanyDapperRepository
+    public class CompanyDapperRepository : ICompanyDapperRepository
     {
         private readonly string _connectionString;
         public CompanyDapperRepository(IConfiguration config)
         {
             _connectionString = config.GetConnectionString("DefaultConnection");
         }
-        public async  Task<CompanyDetails> GetAllCompany()
+        public async Task<CompanyDetails> GetAllCompany()
         {
             using var con = new SqlConnection(_connectionString);
             var result = await con.QueryFirstOrDefaultAsync<CompanyDetails>(
                 "[dbo].[SP_COMPANYDETAILS]",
+
                 new
                 {
                     FLAG = "GETALL"
@@ -38,7 +40,9 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
         {
             using var con = new SqlConnection(_connectionString);
             var result = await con.QueryFirstOrDefaultAsync<CompanyDetails>(
+
                 "[dbo].[SP_COMPANYDETAILS]",
+
                 new
                 {
                     FLAG = "GETBYID",
@@ -49,5 +53,23 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
                 );
             return result;
         }
+
+        public async Task<CompanySubscription?> GetActiveCompanySubscriptionByCompanyId(int companyId)
+        {
+            using var con = new SqlConnection(_connectionString);
+
+            var result = await con.QueryFirstOrDefaultAsync<CompanySubscription>(
+                "[dbo].[SP_COMPANYSUBSCRIPTION]",
+                new
+                {
+                    FLAG = "GETACTIVE_BYCOMPANYID",
+                    COMPANYID = companyId
+                },
+                commandType: CommandType.StoredProcedure
+            );
+
+            return result;
+        }
+
     }
 }

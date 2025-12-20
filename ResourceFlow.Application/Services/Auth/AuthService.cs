@@ -78,7 +78,7 @@ namespace ResourceFlow.Application.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Registration failed for email {Email}", dto.Email);
-                return new Response<object>(500, "Registration failed");
+                return new Response<object>(500, ex.InnerException?.Message ?? ex.Message);
             }
         }
 
@@ -116,7 +116,7 @@ namespace ResourceFlow.Application.Services
 
                 _logger.LogInformation("Login successful for UserId {UserId}", user.UserId);
 
-                var res = new 
+                var res = new
 
                 {
                     AccessToken = accessToken,
@@ -144,8 +144,8 @@ namespace ResourceFlow.Application.Services
 
                 _logger.LogInformation("Refresh token request received");
 
-               
-                
+
+
 
 
                 var user = await _userDapperRepository.GetByRefreshToken(refreshToken);
@@ -161,7 +161,7 @@ namespace ResourceFlow.Application.Services
 
                 var trackedUser = await _authRepo.GetByIdAsync(user.UserId);
 
-               
+
                 var dbUser = await _userDapperRepository.GetByUserIdAsync(user.UserId);
 
                 if (dbUser == null)
@@ -170,7 +170,7 @@ namespace ResourceFlow.Application.Services
                 if (user.RefreshTokenExpiry < DateTime.UtcNow ||
                       user.RefreshTokenExpiry < DateTime.UtcNow)
                     return new Response<object>(401, "Session expired. Please login again.");
-          
+
                 trackedUser.RefreshToken = newRefreshToken;
                 trackedUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
@@ -179,7 +179,7 @@ namespace ResourceFlow.Application.Services
 
                 _logger.LogInformation("Token refreshed for UserId {UserId}", user.UserId);
 
-               
+
 
                 var res = new AuthTokensDto
 
@@ -189,11 +189,10 @@ namespace ResourceFlow.Application.Services
                     AccessTokenExpiry = exp,
                     RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
                     Role = user.RoleId
-
                 };
-               
+
                 // STEP 5: RETURN RESPONSE
-                return new Response<object>(200, "Token refreshed",res );
+                return new Response<object>(200, "Token refreshed", res);
 
 
             }
@@ -286,10 +285,10 @@ namespace ResourceFlow.Application.Services
             {
 
                 dto.Token = dto.Token?.Trim();
-                dto.CurrentPassword=dto.CurrentPassword.Trim();
-                dto.NewPassword=dto.NewPassword.Trim();
+                dto.CurrentPassword = dto.CurrentPassword.Trim();
+                dto.NewPassword = dto.NewPassword.Trim();
 
-                
+
                 if (!string.IsNullOrWhiteSpace(dto.Token))
                 {
                     _logger.LogInformation("Password reset using token");

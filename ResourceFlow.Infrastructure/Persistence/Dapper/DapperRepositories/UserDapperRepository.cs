@@ -13,52 +13,73 @@ using static ResourceFlow.Infrastructure.Persistence.Dapper.Repositories.UserDap
 
 namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
 {
-    public class UserDapperRepository:IUserDapperRepository
+    public class UserDapperRepository : IUserDapperRepository
     {
-                    private readonly string _connectionString;
+        private readonly string _connectionString;
 
-            public UserDapperRepository(IConfiguration config)
-            {
-                _connectionString = config.GetConnectionString("DefaultConnection");
-            }
+        public UserDapperRepository(IConfiguration config)
+        {
+            _connectionString = config.GetConnectionString("DefaultConnection");
+        }
 
-            public async Task<User> GetByEmailAsync(string email)
-            {
-                using var conn = new SqlConnection(_connectionString);
+        public async Task<int?> GetCompanyId(int userId)
+        {
+            using var conn = new SqlConnection(_connectionString);
 
-                var result = await conn.QueryFirstOrDefaultAsync<User>(
-                    "[dbo].[SP_USER]",
-                    new
-                    {
-                        FLAG = "GETBYEMAIL",
-                        EMAIL = email
-                    },
-                    commandType: CommandType.StoredProcedure
-                );
 
-                return result;
-            }
+       
+            var companyId = await conn.QueryFirstOrDefaultAsync<int?>(
+                "SP_USER",
+                new
+                {
+                    FLAG = "GET_COMPANYID_BY_USERID",
+                    USERID = userId
+                },
+                commandType: CommandType.StoredProcedure
+            );
 
-            public async Task<User> GetByPasswordResetTokenAsync(string token)
-            {
-                using var conn = new SqlConnection(_connectionString);
+            return companyId;
+        }
 
-                var result = await conn.QueryFirstOrDefaultAsync<User>(
-                    "[dbo].[SP_USER]",
-                    new
-                    {
-                        FLAG = "GETBYPASSWORDRESETTOKEN",
-                        PASSWORDRESETTOKEN = token
-                    },
-                    commandType: CommandType.StoredProcedure
-                );
+        public async Task<User> GetByEmailAsync(string email)
+        {
+            using var conn = new SqlConnection(_connectionString);
 
-                return result;
-            }
-           
+
+            var result = await conn.QueryFirstOrDefaultAsync<User>(
+                "[dbo].[SP_USER]",
+                new
+                {
+                    FLAG = "GETBYEMAIL",
+                    EMAIL = email
+                },
+                commandType: CommandType.StoredProcedure
+            );
+
+            return result;
+        }
+
+        public async Task<User> GetByPasswordResetTokenAsync(string token)
+        {
+            using var conn = new SqlConnection(_connectionString);
+
+            var result = await conn.QueryFirstOrDefaultAsync<User>(
+                "[dbo].[SP_USER]",
+                new
+                {
+                    FLAG = "GETBYPASSWORDRESETTOKEN",
+                    PASSWORDRESETTOKEN = token
+                },
+                commandType: CommandType.StoredProcedure
+            );
+
+            return result;
+        }
+
+
         public async Task<User> GetByRefreshToken(string RefreshToken)
         {
-            using var con=new SqlConnection(_connectionString);
+            using var con = new SqlConnection(_connectionString);
             var result = await con.QueryFirstOrDefaultAsync<User>(
                 "[dbo].[SP_USER]",
                 new
@@ -69,7 +90,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
                 );
             return result;
         }
-         public async Task<User> GetByUserIdAsync(int id)
+        public async Task<User> GetByUserIdAsync(int id)
         {
 
             using var con = new SqlConnection(_connectionString);
@@ -78,7 +99,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
                 new
                 {
                     FLAG = "GETBYID",
-                    USERID=id
+                    USERID = id
                 }, commandType: CommandType.StoredProcedure
                 );
             return result;

@@ -21,7 +21,9 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper
         }
 
         public IDbConnection CreateConnection()
-            => new SqlConnection(_connectionString);
+        {
+            return new SqlConnection(_connectionString);
+        }
     }
 }
 

@@ -16,7 +16,6 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             _service = service;
         }
-        [Authorize]
         [HttpGet("GetAll")]
         public async Task<ActionResult> GetAll()
         {
