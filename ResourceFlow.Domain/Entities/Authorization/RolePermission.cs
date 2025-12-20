@@ -20,7 +20,6 @@ namespace ResourceFlow.Domain.Entities.Authorization
         public int RoleId { get; set; }
         public Roles Role { get; set; }
 
-        
         public ModuleCode ModuleCode { get; set; }
 
         public bool View { get; set; }

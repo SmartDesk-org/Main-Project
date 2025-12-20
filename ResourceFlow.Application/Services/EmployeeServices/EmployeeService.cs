@@ -354,8 +354,56 @@ public class EmployeeService : IEmployeeService
         var result = await _employeeRepo.GetAllAsync();
         if (result == null || !result.Any())
         {
-            return new Response<IEnumerable<Employees>>(404, "No Eployees Found");
+            return new Response<IEnumerable<Employees>>(404, "Employees Not Found");
         }
         return new Response<IEnumerable<Employees>>(200, "Employees Fetched Successully", result);
     }
+    public async Task<ApiResponse<object>> UpdateEmployeeAsync(
+    int employeeId,
+    UpdateEmployeeDto dto,
+    int companyId)
+    {
+        var employee = await _employeeRepo
+            .FindAsync(e =>
+                e.Id == employeeId &&
+                e.CompanyId == companyId &&
+                !e.IsDeleted);
+
+        var entity = employee.FirstOrDefault();
+
+        if (entity == null)
+            return new ApiResponse<object>(404, "Employee not found");
+
+        entity.Department = dto.Department;
+        entity.DefaultFloorId = dto.DefaultFloorId;
+        entity.Status = dto.Status;
+        entity.ModifiedAt = DateTime.UtcNow;
+
+        await _employeeRepo.UpdateAsync(entity);
+
+        return new ApiResponse<object>(200, "Employee updated successfully");
+    }
+    public async Task<ApiResponse<object>> DeleteEmployeeAsync(
+        int employeeId,
+        int companyId)
+    {
+        var employee = await _employeeRepo
+            .FindAsync(e =>
+                e.Id == employeeId &&
+                e.CompanyId == companyId &&
+                !e.IsDeleted);
+
+        var entity = employee.FirstOrDefault();
+
+        if (entity == null)
+            return new ApiResponse<object>(404, "Employee not found");
+
+        entity.IsDeleted = true;
+        entity.DeletedAt = DateTime.UtcNow;
+
+        await _employeeRepo.UpdateAsync(entity);
+
+        return new ApiResponse<object>(200, "Employee deleted successfully");
+    }
+
 }

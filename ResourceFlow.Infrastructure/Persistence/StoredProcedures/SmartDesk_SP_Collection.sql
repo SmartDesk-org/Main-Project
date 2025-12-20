@@ -31,7 +31,7 @@ Description : created 'GET_COMPANYID_BY_USRERID'
 }*/
 
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_USER]
+CREATE PROCEDURE [dbo].[SP_USER]
     @FLAG                  VARCHAR(40),
     @USERID                INT              = NULL,
     @COMPANYID             INT              = NULL,
@@ -189,7 +189,7 @@ END
 
 }*/
 GO
-CREATE OR ALTER PROCEDURE [dbo].[SP_ROLES]
+CREATE  PROCEDURE [dbo].[SP_ROLES]
     @FLAG          VARCHAR(40),
     @ROLEID        INT             = NULL,
     @ROLENAME      NVARCHAR(100)   = NULL,
@@ -293,7 +293,7 @@ GO
 }*/
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_EMPLOYEE]
+CREATE  PROCEDURE [dbo].[SP_EMPLOYEE]
     @FLAG              VARCHAR(40),
     @ID                INT              = NULL,
     @USERID            INT              = NULL,
@@ -437,7 +437,7 @@ GO
 }*/
 
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_COMPANYDETAILS]
+CREATE PROCEDURE [dbo].[SP_COMPANYDETAILS]
     @FLAG              VARCHAR(40),
     @COMPANYID         INT              = NULL,
     @NAME              NVARCHAR(200)    = NULL,
@@ -565,7 +565,7 @@ GO
 }*/
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_RESOURCE] 
+CREATE PROCEDURE [dbo].[SP_RESOURCE] 
     @FLAG       VARCHAR(40),
     @RESOURCEID INT              = NULL,
     @RESOURCENAME NVARCHAR(200)  = NULL,
@@ -679,7 +679,7 @@ GO
 
 
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_SUBSCRIPTION] 
+CREATE PROCEDURE [dbo].[SP_SUBSCRIPTION] 
     @FLAG           VARCHAR(40),
     @SUBSCRIPTIONID INT              = NULL,
     @SUBSCRIPTIONNAME NVARCHAR(200)  = NULL,
@@ -814,7 +814,7 @@ Description : Updated and added new Flag named 'GETACTIVE_BYCOMPANYID' to retrie
 }*/
 GO
 
-CREATE or alter  PROCEDURE [dbo].[SP_COMPANYSUBSCRIPTION]
+CREATE  PROCEDURE [dbo].[SP_COMPANYSUBSCRIPTION]
     @FLAG                VARCHAR(40),
     @ID                  INT              = NULL,
     @COMPANYID           INT              = NULL,
@@ -1046,7 +1046,7 @@ GO
   EXEC dbo.SP_BILLING @FLAG = 'GETBYSTATUS', @PAYMENTSTATUS = 'PAID';
 }*/
 GO
-CREATE OR ALTER PROCEDURE [dbo].[SP_BILLING] 
+CREATE PROCEDURE [dbo].[SP_BILLING] 
     @FLAG                  VARCHAR(40),
     @BILLINGID             INT              = NULL,
     @COMPANYID             INT              = NULL,
@@ -1170,7 +1170,7 @@ GO
 }*/
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_PAYMENT] 
+CREATE  PROCEDURE [dbo].[SP_PAYMENT] 
     @FLAG           VARCHAR(40),
     @PAYMENTID      INT              = NULL,
     @COMPANYID      INT              = NULL,
@@ -1302,7 +1302,7 @@ GO
 }*/
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_NOTIFICATION]
+CREATE PROCEDURE [dbo].[SP_NOTIFICATION]
     @FLAG            VARCHAR(40),
     @ID              INT              = NULL,
     @COMPANYID       INT              = NULL,

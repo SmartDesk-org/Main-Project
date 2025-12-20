@@ -25,10 +25,6 @@ public class EmployeeImportValidator : IEmployeeImportValidator
     {
         var errors = new List<ImportErrorDto>();
         var valid = new List<EmployeeImportDto>();
-
-        // ---------------------------------------
-        // STEP 1 — Fetch ONLY required floors
-        // ---------------------------------------
         var distinctFloorIds = rows
             .Where(r => r.DefaultFloorId != null)
             .Select(r => r.DefaultFloorId.Value)
