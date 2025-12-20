@@ -1,6 +1,7 @@
 ﻿
-﻿using FluentValidation;
+using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -32,6 +33,7 @@ using ResourceFlow.Infrastructure.Persistence.Dapper.Repositories;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 using ResourceFlow.Infrastructure.Services;
+using System.Data;
 using System.Text.Json.Serialization;
 
 
@@ -79,10 +81,12 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IPermissionService, PermissionService>();
 
             services.AddScoped(typeof(IAppLogger<>), typeof(AppLogger<>));
-
-
-
-
+            services.AddScoped<IDbConnection>(sp =>
+                new SqlConnection(
+                    sp.GetRequiredService<IConfiguration>()
+                      .GetConnectionString("DefaultConnection")
+                )
+            );
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -116,11 +120,11 @@ namespace ResourceFlow.WebAPI.DI
             // Swagger
             services.AddSwaggerGen(options =>
             {
-               
+
 
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
-                   
+
                 });
             });
 
