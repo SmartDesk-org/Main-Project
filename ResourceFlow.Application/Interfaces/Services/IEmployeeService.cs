@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Employees;
+using ResourceFlow.Domain.Entities.CompanyModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,10 @@ namespace ResourceFlow.Application.Interfaces.Services
 {
     public interface IEmployeeService
     {
-        Task<ApiResponse<BulkUploadResponse>> BulkUploadAsync(IFormFile file);
+        Task<ApiResponse<BulkUploadResponse>> BulkUploadAsync(IFormFile file,int companyId);
         byte[] GenerateEmployeeUploadTemplate();
-
+        Task<ApiResponse<object>> CreateEmployeeAsync(EmployeeImportDto dto,int companyId);
+        Task<Response<IEnumerable<Employees>>>GetAllEmployees();
     }
 
 }

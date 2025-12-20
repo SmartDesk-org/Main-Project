@@ -2,15 +2,16 @@
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Application.Validators.Employee;
 using ResourceFlow.Domain.Entities.Authentication;
+using ResourceFlow.Domain.Entities.CompanyModels;
 using ResourceFlow.Domain.Entities.FloorModels;
 
 public class EmployeeImportValidator : IEmployeeImportValidator
 {
-    private readonly IGenericRepository<Floors> _floorRepo;
+    private readonly IGenericRepository<CompanyFloor> _floorRepo;
     private readonly IGenericRepository<User> _userRepo;
 
     public EmployeeImportValidator(
-        IGenericRepository<Floors> floorRepo,
+        IGenericRepository<CompanyFloor> floorRepo,
         IGenericRepository<User> userRepo
     )
     {
@@ -39,10 +40,6 @@ public class EmployeeImportValidator : IEmployeeImportValidator
 
         var validFloorIds = validFloors.Select(f => f.FloorId).ToHashSet();
 
-
-        // ---------------------------------------
-        // STEP 2 — Fetch ONLY emails relevant to Excel rows
-        // ---------------------------------------
         var distinctEmails = rows
             .Select(r => r.Email.ToLower())
             .Distinct()
@@ -67,9 +64,7 @@ public class EmployeeImportValidator : IEmployeeImportValidator
             .ToHashSet();
 
 
-        // ---------------------------------------
-        // STEP 4 — Validate row-by-row
-        // ---------------------------------------
+    
         int rowNumber = 2;
 
         foreach (var r in rows)

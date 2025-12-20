@@ -1,15 +1,6 @@
-﻿
-
 ﻿using ResourceFlow.Domain.Entities.CompanyModels;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using ResourceFlow.Domain.Enums;
 namespace ResourceFlow.Domain.Entities.Authentication
 {
@@ -27,15 +18,15 @@ namespace ResourceFlow.Domain.Entities.Authentication
         public string? PasswordResetToken { get; set; }
         public DateTime? PasswordResetExpiry { get; set; }
         public Roles? Role { get; set; }
-        [NotMapped]
-        public RoleEnum RoleEnum
-        {
-            get => (RoleEnum)RoleId;         
-            set => RoleId = (int)value;      
-        }
         public virtual Employees? Employee { get; set; }
         public bool IsBlocked { get; set; } = false;
         public bool IsActive { get; set; } = true;
         public CompanyDetails? Company { get; set; }
+        [NotMapped]
+        public RoleEnum RoleEnum
+        {
+            get => (RoleEnum)RoleId;
+            set => RoleId = (int)value;
+        }
     }
 }

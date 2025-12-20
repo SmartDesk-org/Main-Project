@@ -10,5 +10,6 @@ namespace ResourceFlow.Application.Interfaces.Repositories.DapperRepository
     public interface IEmployeeDapperRepository
     {
         Task<IEnumerable<Employees>> GetEmployeeByCompanyId(int companyId);
+        Task<IEnumerable<Employees>> GetAllEmployeesAsync();
     }
 }

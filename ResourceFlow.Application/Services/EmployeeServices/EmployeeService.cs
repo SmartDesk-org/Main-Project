@@ -21,12 +21,12 @@ public class EmployeeService : IEmployeeService
     private readonly IEmployeeDapperRepository _dapperRepo;
     private readonly IGenericRepository<User> _userRepo;
     private readonly IGenericRepository<Employees> _employeeRepo;
-    private readonly IGenericRepository<Floors> _floorRepo;
     private readonly IGenericRepository<CompanyDetails> _companyRepo;
     private readonly IGenericRepository<Subscription> _subscriptionRepo;
 
     private readonly IExcelReader _excelReader;
     private readonly IEmployeeImportValidator _validator;
+    private readonly ICompanyDapperRepository _DapperercompanyRepo;
     private readonly IUnitOfWork _uow;
 
     // CRITICAL CHANGE: Use ScopeFactory (Singleton) instead of ServiceProvider (Request-Scoped)
@@ -42,22 +42,23 @@ public class EmployeeService : IEmployeeService
         IExcelReader excelReader,
         IEmployeeImportValidator validator,
         IUnitOfWork uow,
-        IServiceScopeFactory scopeFactory // Inject this!
+        IServiceScopeFactory scopeFactory,
+        ICompanyDapperRepository dapperRepository
     )
     {
         _dapperRepo = dapperRepo;
         _userRepo = userRepo;
         _employeeRepo = employeeRepo;
-        _floorRepo = floorRepo;
         _companyRepo = companyRepo;
         _subscriptionRepo = subscriptionRepo;
         _excelReader = excelReader;
         _validator = validator;
         _uow = uow;
         _scopeFactory = scopeFactory;
+        _DapperercompanyRepo = dapperRepository;
     }
 
-    public async Task<ApiResponse<BulkUploadResponse>> BulkUploadAsync(IFormFile file)
+    public async Task<ApiResponse<BulkUploadResponse>> BulkUploadAsync(IFormFile file, int companyId)
     {
         var response = new BulkUploadResponse();
 
@@ -72,7 +73,6 @@ public class EmployeeService : IEmployeeService
             return new ApiResponse<BulkUploadResponse>(400, "File is empty.");
 
         response.TotalRecords = rows.Count;
-        int companyId = 2; // TODO: Fetch from User Claims
 
         // 2. Validate Rows
         var (validRows, errors) = await _validator.ValidateAsync(rows, companyId);
@@ -84,7 +84,31 @@ public class EmployeeService : IEmployeeService
 
         // 3. Subscription Check
         var company = await _companyRepo.GetByIdAsync(companyId);
-        var subscription = await _subscriptionRepo.GetByIdAsync(company.CompanySubscriptionId);
+        if (company == null)
+        {
+            return new ApiResponse<BulkUploadResponse>(404, "Company not found");
+        }
+
+        var companySubscription =
+            await _DapperercompanyRepo.GetActiveCompanySubscriptionByCompanyId(companyId);
+
+        if (companySubscription == null)
+        {
+            return new ApiResponse<BulkUploadResponse>(
+                400, "No active subscription for this company"
+            );
+        }
+
+        var subscription =
+            await _subscriptionRepo.GetByIdAsync(companySubscription.SubscriptionId);
+
+        if (subscription == null)
+        {
+            return new ApiResponse<BulkUploadResponse>(
+                404, "Subscription plan not found"
+            );
+        }
+
 
         var existingEmployees = await _dapperRepo.GetEmployeeByCompanyId(companyId);
         int currentCount = existingEmployees.Count(e => e.Status != EmployeeStatus.Terminated);
@@ -227,5 +251,107 @@ public class EmployeeService : IEmployeeService
         sheet.Cells.AutoFitColumns();
 
         return package.GetAsByteArray();
+    }
+    public async Task<ApiResponse<object>> CreateEmployeeAsync(EmployeeImportDto dto, int companyId)
+    {
+        if (dto == null)
+            return new ApiResponse<object>(400, "Invalid request");
+
+        if (dto.DefaultFloorId <= 0)
+            return new ApiResponse<object>(400, "Default floor is required");
+
+        dto.EmployeeName = dto.EmployeeName?.Trim();
+        dto.Email = dto.Email?.Trim().ToLower();
+        dto.Department = dto.Department?.Trim();
+
+        var (validRows, errors) =
+            await _validator.ValidateAsync(new List<EmployeeImportDto> { dto }, companyId);
+
+        if (errors.Any())
+            return new ApiResponse<object>(400, "Validation failed", errors);
+
+        var company = await _companyRepo.GetByIdAsync(companyId);
+        if (company == null)
+            return new ApiResponse<object>(404, "Company not found");
+        var companySubscription =
+            await _DapperercompanyRepo.GetActiveCompanySubscriptionByCompanyId(companyId);
+
+        if (companySubscription == null)
+        {
+            return new ApiResponse<object>(
+                400, "No active subscription for this company");
+        }
+
+        var subscription =
+            await _subscriptionRepo.GetByIdAsync(companySubscription.SubscriptionId);
+
+        if (subscription == null)
+        {
+            return new ApiResponse<object>(
+                404, "Subscription plan not found");
+        }
+
+        var existingEmployees = await _dapperRepo.GetEmployeeByCompanyId(companyId);
+        int currentCount = existingEmployees.Count(e => e.Status != EmployeeStatus.Terminated);
+
+        if (currentCount + 1 > subscription.EmployeeLimit)
+            return new ApiResponse<object>(400,
+                $"Limit exceeded. Plan allows {subscription.EmployeeLimit} employees.");
+
+        var rawPassword = "Emp@" + Guid.NewGuid().ToString("N")[..6];
+
+        await _uow.BeginTransactionAsync();
+        try
+        {
+            var user = new User
+            {
+                UserName = dto.Email,
+                Email = dto.Email,
+                PassWord = BCrypt.Net.BCrypt.HashPassword(rawPassword),
+                CompanyId = companyId,
+                RoleId = 2,
+                IsActive = true,
+                IsBlocked = false
+            };
+
+            await _userRepo.AddAsync(user);
+            await _uow.SaveChangesAsync();
+
+            var employee = new Employees
+            {
+                UserId = user.UserId,
+                CompanyId = companyId,
+                Department = dto.Department,
+                DefaultFloorId = dto.DefaultFloorId,
+                Status = EmployeeStatus.Active
+            };
+
+            await _employeeRepo.AddAsync(employee);
+            await _uow.SaveChangesAsync();
+
+            await _uow.CommitAsync();
+
+            _ = ProcessEmailBackground(
+                new List<User> { user },
+                new Dictionary<string, string> { { user.Email, rawPassword } }
+            );
+
+            return new ApiResponse<object>(200, "Employee created successfully");
+        }
+        catch
+        {
+            await _uow.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task<Response<IEnumerable<Employees>>> GetAllEmployees()
+    {
+        var result = await _employeeRepo.GetAllAsync();
+        if (result == null)
+        {
+            return new Response<IEnumerable<Employees>>(404, "No Eployees Found");
+        }
+        return new Response<IEnumerable<Employees>>(200, "Employees Fetched Successully", result);
     }
 }

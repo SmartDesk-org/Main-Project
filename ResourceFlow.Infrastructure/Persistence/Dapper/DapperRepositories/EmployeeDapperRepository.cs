@@ -3,35 +3,43 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Domain.Entities.CompanyModels;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
 {
-    public class EmployeeDapperRepository:IEmployeeDapperRepository
+    public class EmployeeDapperRepository : IEmployeeDapperRepository
     {
+        private readonly IDbConnection _db;
         private readonly string _connectionString;
-        public EmployeeDapperRepository(IConfiguration config)
+
+        public EmployeeDapperRepository(IDbConnection db, IConfiguration configuration)
         {
-            _connectionString = config.GetConnectionString("DefaultConnection");
+            _db = db;
+            _connectionString = configuration.GetConnectionString("DefaultConnection")
+                ?? throw new Exception("Connection string not found.");
         }
-         public async Task<IEnumerable<Employees>> GetEmployeeByCompanyId(int companyId)
+        public async Task<IEnumerable<Employees>> GetEmployeeByCompanyId(int companyId)
         {
-            using var con = new SqlConnection(_connectionString);
-            var result = await con.QueryAsync<Employees>(
-                "[dbo].[EMPLOYEE_SP]",
-                new
-                {
-                    FLAG = "GETBYCOMPANYID",
-                    COMPANYID = companyId
-                },
-                 commandType: CommandType.StoredProcedure
-                );
-            return result;
+            var parameters = new DynamicParameters();
+            parameters.Add("@FLAG", "GETBYCOMPANYID");
+            parameters.Add("@COMPANYID", companyId);
+
+            return await _db.QueryAsync<Employees>(
+                "SP_EMPLOYEE",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+        }
+        public async Task<IEnumerable<Employees>> GetAllEmployeesAsync()
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@FLAG", "GETALL");
+
+            return await _db.QueryAsync<Employees>(
+                "SP_EMPLOYEE",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
         }
     }
 }

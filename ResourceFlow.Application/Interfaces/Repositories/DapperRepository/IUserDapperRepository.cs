@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Application.Interfaces.Repositories.DapperRepository
 {
-    public interface IUserDapperRepository
+    public interface
+    IUserDapperRepository
     {
         Task<User> GetByEmailAsync(string email);
         Task<User> GetByPasswordResetTokenAsync(string token);
         Task<User> GetByRefreshToken(string RefreshToken);
-        Task<User>GetByUserIdAsync(int id);
-        
+        Task<User> GetByUserIdAsync(int id);
+        Task<int?> GetCompanyId(int userId);
+
     }
 }
