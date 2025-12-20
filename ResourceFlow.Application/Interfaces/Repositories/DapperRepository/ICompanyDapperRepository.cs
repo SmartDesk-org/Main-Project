@@ -12,5 +12,6 @@ namespace ResourceFlow.Application.Interfaces.Repositories.DapperRepository
         Task<CompanyDetails> GetAllCompany();
         Task<CompanySubscription?> GetActiveCompanySubscriptionByCompanyId(int companyId);
         Task<CompanyDetails> GetCompanyByCompanyId(int id);
+       
     }
 }

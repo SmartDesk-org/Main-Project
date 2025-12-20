@@ -7,8 +7,10 @@ using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Application.Validators.Employee;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.CompanyModels;
-using ResourceFlow.Domain.Entities.FloorModels;
+
+
 using ResourceFlow.Domain.Entities.SubscriptionModels;
+
 using ResourceFlow.Domain.Enums;
 using OfficeOpenXml;
 using System.Linq;
@@ -21,8 +23,10 @@ public class EmployeeService : IEmployeeService
     private readonly IEmployeeDapperRepository _dapperRepo;
     private readonly IGenericRepository<User> _userRepo;
     private readonly IGenericRepository<Employees> _employeeRepo;
+
     private readonly IGenericRepository<CompanyDetails> _companyRepo;
     private readonly IGenericRepository<Subscription> _subscriptionRepo;
+
 
     private readonly IExcelReader _excelReader;
     private readonly IEmployeeImportValidator _validator;
@@ -36,9 +40,9 @@ public class EmployeeService : IEmployeeService
         IEmployeeDapperRepository dapperRepo,
         IGenericRepository<User> userRepo,
         IGenericRepository<Employees> employeeRepo,
-        IGenericRepository<Floors> floorRepo,
         IGenericRepository<CompanyDetails> companyRepo,
         IGenericRepository<Subscription> subscriptionRepo,
+
         IExcelReader excelReader,
         IEmployeeImportValidator validator,
         IUnitOfWork uow,
@@ -113,10 +117,10 @@ public class EmployeeService : IEmployeeService
         var existingEmployees = await _dapperRepo.GetEmployeeByCompanyId(companyId);
         int currentCount = existingEmployees.Count(e => e.Status != EmployeeStatus.Terminated);
 
-        if (currentCount + validRows.Count > subscription.EmployeeLimit)
+        if (currentCount + validRows.Count > subscription.MaxEmployees)
         {
             return new ApiResponse<BulkUploadResponse>(400,
-                $"Limit Exceeded. Plan allows {subscription.EmployeeLimit}. You have {currentCount}.");
+                $"Limit Exceeded. Plan allows {subscription.MaxEmployees}. You have {currentCount}.");
         }
         int chunkSize = 50;
         var chunks = validRows.Chunk(chunkSize).ToList();
@@ -294,9 +298,9 @@ public class EmployeeService : IEmployeeService
         var existingEmployees = await _dapperRepo.GetEmployeeByCompanyId(companyId);
         int currentCount = existingEmployees.Count(e => e.Status != EmployeeStatus.Terminated);
 
-        if (currentCount + 1 > subscription.EmployeeLimit)
+        if (currentCount + 1 > subscription.MaxEmployees)
             return new ApiResponse<object>(400,
-                $"Limit exceeded. Plan allows {subscription.EmployeeLimit} employees.");
+                $"Limit exceeded. Plan allows {subscription.MaxEmployees} employees.");
 
         var rawPassword = "Emp@" + Guid.NewGuid().ToString("N")[..6];
 
@@ -350,8 +354,56 @@ public class EmployeeService : IEmployeeService
         var result = await _employeeRepo.GetAllAsync();
         if (result == null || !result.Any())
         {
-            return new Response<IEnumerable<Employees>>(404, "No Eployees Found");
+            return new Response<IEnumerable<Employees>>(404, "Employees Not Found");
         }
         return new Response<IEnumerable<Employees>>(200, "Employees Fetched Successully", result);
     }
+    public async Task<ApiResponse<object>> UpdateEmployeeAsync(
+    int employeeId,
+    UpdateEmployeeDto dto,
+    int companyId)
+    {
+        var employee = await _employeeRepo
+            .FindAsync(e =>
+                e.Id == employeeId &&
+                e.CompanyId == companyId &&
+                !e.IsDeleted);
+
+        var entity = employee.FirstOrDefault();
+
+        if (entity == null)
+            return new ApiResponse<object>(404, "Employee not found");
+
+        entity.Department = dto.Department;
+        entity.DefaultFloorId = dto.DefaultFloorId;
+        entity.Status = dto.Status;
+        entity.ModifiedAt = DateTime.UtcNow;
+
+        await _employeeRepo.UpdateAsync(entity);
+
+        return new ApiResponse<object>(200, "Employee updated successfully");
+    }
+    public async Task<ApiResponse<object>> DeleteEmployeeAsync(
+        int employeeId,
+        int companyId)
+    {
+        var employee = await _employeeRepo
+            .FindAsync(e =>
+                e.Id == employeeId &&
+                e.CompanyId == companyId &&
+                !e.IsDeleted);
+
+        var entity = employee.FirstOrDefault();
+
+        if (entity == null)
+            return new ApiResponse<object>(404, "Employee not found");
+
+        entity.IsDeleted = true;
+        entity.DeletedAt = DateTime.UtcNow;
+
+        await _employeeRepo.UpdateAsync(entity);
+
+        return new ApiResponse<object>(200, "Employee deleted successfully");
+    }
+
 }

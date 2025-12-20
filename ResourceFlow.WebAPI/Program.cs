@@ -2,17 +2,15 @@
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using ResourceFlow.Infrastructure.Services;
 using ResourceFlow.WebAPI.DI;
-
-using ResourceFlow.WebAPI.Middleware;
 using System.Text;
 
 using System.Threading.RateLimiting;
-using Serilog;
+
 using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
+
 // Controllers & JSON options
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

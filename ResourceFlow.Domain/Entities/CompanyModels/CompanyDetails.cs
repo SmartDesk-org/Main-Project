@@ -17,5 +17,9 @@ public class CompanyDetails : BaseEntity
     public virtual CompanySubscription CompanySubscription { get; set; }
     public virtual ICollection<Resource> Resources { get; set; }
     public virtual ICollection<User> Users { get; set; }
-    public virtual ICollection<CompanyFloor> CompanyFloors { get; set; } = new List<CompanyFloor>();
+
+    public ICollection<CompanyFloor> CompanyFloors { get; set; } = new List<CompanyFloor>();
+    public ICollection<CompanyDesk> Desks { get; set; } = new List<CompanyDesk>();
+    public ICollection<CompanyMeetingRoom> MeetingRooms { get; set; } = new List<CompanyMeetingRoom>();
+
 }

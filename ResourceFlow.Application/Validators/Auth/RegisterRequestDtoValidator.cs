@@ -20,8 +20,8 @@ namespace ResourceFlow.Application.Validators.Auth
 
             RuleFor(x => x.UserName)
                 .NotEmpty()
-                .Length(3, 50)
-                .Matches(@"^[A-Za-z]+$")
+                .Length(3, 100)
+                .Matches(@"^[A-Za-z][A-Za-z\s]*$")
                 .WithMessage("Username must contain only letters")
                 .Must(u => char.IsLetter(u[0]))
                 .WithMessage("Username must start with a letter");

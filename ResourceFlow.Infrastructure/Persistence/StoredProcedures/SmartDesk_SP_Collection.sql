@@ -3,9 +3,6 @@
   Description : Handles all user-related read operations using FLAG-based logic
   CreatedOn and Owner  : { 16/12/2025 :Ganga Suresh V}
 
-
-
-
 2.modifiedOn and Owner :{19-12-2025 : Mohammed Rinshad}
 Description : created 'GET_COMPANYID_BY_USRERID'
 }
@@ -34,7 +31,7 @@ Description : created 'GET_COMPANYID_BY_USRERID'
 }*/
 
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_USER]
+CREATE PROCEDURE [dbo].[SP_USER]
     @FLAG                  VARCHAR(40),
     @USERID                INT              = NULL,
     @COMPANYID             INT              = NULL,
@@ -54,7 +51,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_USER]
     @MODIFIEDBY            INT              = NULL,
     @DELETEDAT             DATETIME2        = NULL,
     @DELETEDBY             INT              = NULL,
+
     @ISDELETED             BIT              = NULL
+
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -190,7 +189,9 @@ END
 
 }*/
 GO
-CREATE OR ALTER PROCEDURE [dbo].[SP_ROLES]
+
+CREATE  PROCEDURE [dbo].[SP_ROLES]
+
     @FLAG          VARCHAR(40),
     @ROLEID        INT             = NULL,
     @ROLENAME      NVARCHAR(100)   = NULL,
@@ -294,7 +295,7 @@ GO
 }*/
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_EMPLOYEE]
+CREATE  PROCEDURE [dbo].[SP_EMPLOYEE]
     @FLAG              VARCHAR(40),
     @ID                INT              = NULL,
     @USERID            INT              = NULL,
@@ -438,7 +439,7 @@ GO
 }*/
 
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_COMPANYDETAILS]
+CREATE PROCEDURE [dbo].[SP_COMPANYDETAILS]
     @FLAG              VARCHAR(40),
     @COMPANYID         INT              = NULL,
     @NAME              NVARCHAR(200)    = NULL,
@@ -478,6 +479,21 @@ BEGIN
                 CompanyId, Name, Address, IsActive
             FROM CompanyDetails
             WHERE CompanyId = @COMPANYID AND IsDeleted = 0;
+            RETURN;
+        END
+
+        IF @FLAG = 'GETCOMPANY_ACTIVEBY_COMPANYID'
+        BEGIN
+            IF @COMPANYID IS NULL
+            BEGIN
+                RAISERROR('COMPANYID is required for GETBYID', 16, 1);
+                RETURN;
+            END
+              
+            SELECT 
+                CompanyId, Name, Address, IsActive
+            FROM CompanyDetails
+            WHERE CompanyId = @COMPANYID AND IsDeleted = 0 AND IsActive=true;
             RETURN;
         END
      
@@ -551,7 +567,7 @@ GO
 }*/
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_RESOURCE] 
+CREATE PROCEDURE [dbo].[SP_RESOURCE] 
     @FLAG       VARCHAR(40),
     @RESOURCEID INT              = NULL,
     @RESOURCENAME NVARCHAR(200)  = NULL,
@@ -665,7 +681,7 @@ GO
 
 
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_SUBSCRIPTION] 
+CREATE PROCEDURE [dbo].[SP_SUBSCRIPTION] 
     @FLAG           VARCHAR(40),
     @SUBSCRIPTIONID INT              = NULL,
     @SUBSCRIPTIONNAME NVARCHAR(200)  = NULL,
@@ -800,7 +816,7 @@ Description : Updated and added new Flag named 'GETACTIVE_BYCOMPANYID' to retrie
 }*/
 GO
 
-CREATE or alter  PROCEDURE [dbo].[SP_COMPANYSUBSCRIPTION]
+CREATE  PROCEDURE [dbo].[SP_COMPANYSUBSCRIPTION]
     @FLAG                VARCHAR(40),
     @ID                  INT              = NULL,
     @COMPANYID           INT              = NULL,
@@ -883,6 +899,32 @@ BEGIN
             WHERE SubscriptionId = @SUBSCRIPTIONID AND IsDeleted = 0;
             RETURN;
         END
+
+             IF @FLAG = 'GETACTIVEBYCOMPANYID'
+            BEGIN
+                IF @COMPANYID IS NULL
+                BEGIN
+                    RAISERROR('COMPANYID is required for GETACTIVEBYCOMPANYID', 16, 1);
+                    RETURN;
+                END
+
+                SELECT TOP 1
+                    Id,
+                    CompanyId,
+                    SubscriptionId,
+                    StartDate,
+                    EndDate,
+                    IsActive,
+                    Status
+                FROM CompanySubscriptions
+                WHERE CompanyId = @COMPANYID
+                  AND IsActive = 1
+                  AND IsDeleted = 0
+                ORDER BY StartDate DESC;
+
+                RETURN;
+            END
+
 
         IF @FLAG = 'GETACTIVE'
         BEGIN
@@ -1006,7 +1048,7 @@ GO
   EXEC dbo.SP_BILLING @FLAG = 'GETBYSTATUS', @PAYMENTSTATUS = 'PAID';
 }*/
 GO
-CREATE OR ALTER PROCEDURE [dbo].[SP_BILLING] 
+CREATE PROCEDURE [dbo].[SP_BILLING] 
     @FLAG                  VARCHAR(40),
     @BILLINGID             INT              = NULL,
     @COMPANYID             INT              = NULL,
@@ -1130,7 +1172,7 @@ GO
 }*/
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_PAYMENT] 
+CREATE  PROCEDURE [dbo].[SP_PAYMENT] 
     @FLAG           VARCHAR(40),
     @PAYMENTID      INT              = NULL,
     @COMPANYID      INT              = NULL,
@@ -1262,7 +1304,7 @@ GO
 }*/
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_NOTIFICATION]
+CREATE PROCEDURE [dbo].[SP_NOTIFICATION]
     @FLAG            VARCHAR(40),
     @ID              INT              = NULL,
     @COMPANYID       INT              = NULL,
@@ -1421,3 +1463,6 @@ BEGIN
     END CATCH
 END
 GO
+
+------------------------------------------------------------------------------------------------------------------------------------
+

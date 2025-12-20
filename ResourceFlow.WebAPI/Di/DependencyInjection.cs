@@ -79,6 +79,8 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<ICompanyDapperRepository, CompanyDapperRepository>();
             services.AddScoped<IEmployeeDapperRepository, EmployeeDapperRepository>();
             services.AddScoped<IPermissionService, PermissionService>();
+            services.AddScoped<ICompanySubscriptionDapperRepository, CompanySubscriptionDapperRepository>();
+            services.AddScoped<ISubscriptionValidationService, SubscriptionValidator>();
 
             services.AddScoped(typeof(IAppLogger<>), typeof(AppLogger<>));
             services.AddScoped<IDbConnection>(sp =>

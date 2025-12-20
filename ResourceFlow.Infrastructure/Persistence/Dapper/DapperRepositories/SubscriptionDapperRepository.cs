@@ -25,14 +25,14 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
         {
             var conn = new SqlConnection(_connectionString);
              var res=  await conn.QueryAsync<Subscription>(
-                    "[dbo].[SUBSCRIPTION_SP]",
+                    "[dbo].[SP_SUBSCRIPTION]",
                     new
                     {
                         FLAG = "GETALL"
                     }
                 );
 
-            Console.WriteLine("from dapper repo");
+            //Console.WriteLine("from dapper repo");
 
             return res;
         }

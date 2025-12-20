@@ -6,7 +6,7 @@ public class AppModuleConfiguration : IEntityTypeConfiguration<AppModule>
 {
     public void Configure(EntityTypeBuilder<AppModule> builder)
     {
-        builder.ToTable("Modules");
+        builder.ToTable("AppModules");
 
         builder.HasKey(m => m.Id);
 

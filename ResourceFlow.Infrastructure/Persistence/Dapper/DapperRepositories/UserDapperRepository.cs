@@ -26,6 +26,8 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
         {
             using var conn = new SqlConnection(_connectionString);
 
+
+       
             var companyId = await conn.QueryFirstOrDefaultAsync<int?>(
                 "SP_USER",
                 new
@@ -42,6 +44,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
         public async Task<User> GetByEmailAsync(string email)
         {
             using var conn = new SqlConnection(_connectionString);
+
 
             var result = await conn.QueryFirstOrDefaultAsync<User>(
                 "[dbo].[SP_USER]",
@@ -72,6 +75,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
 
             return result;
         }
+
 
         public async Task<User> GetByRefreshToken(string RefreshToken)
         {

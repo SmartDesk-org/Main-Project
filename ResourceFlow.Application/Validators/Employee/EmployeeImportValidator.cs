@@ -3,7 +3,8 @@ using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Application.Validators.Employee;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.CompanyModels;
-using ResourceFlow.Domain.Entities.FloorModels;
+
+
 
 public class EmployeeImportValidator : IEmployeeImportValidator
 {
@@ -24,10 +25,6 @@ public class EmployeeImportValidator : IEmployeeImportValidator
     {
         var errors = new List<ImportErrorDto>();
         var valid = new List<EmployeeImportDto>();
-
-        // ---------------------------------------
-        // STEP 1 — Fetch ONLY required floors
-        // ---------------------------------------
         var distinctFloorIds = rows
             .Where(r => r.DefaultFloorId != null)
             .Select(r => r.DefaultFloorId.Value)
