@@ -11,7 +11,7 @@ namespace ResourceFlow.Application.Interfaces.Services
 
         Task<AuthTokensDto> LoginAsync(LoginRequestDto dto);
 
-        Task<AuthTokensDto> RefreshTokenAsync(string RefreshToken);
+        Task<Response<AuthTokensDto>> RefreshTokenAsync(string RefreshToken);
 
         Task<Response<object>> LogoutAsync(int userId);
 

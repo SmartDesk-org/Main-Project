@@ -116,11 +116,9 @@ namespace ResourceFlow.Application.Services
 
                 _logger.LogInformation("Login successful for UserId {UserId}", user.UserId);
 
-<<<<<<< HEAD
-                var res = new
-=======
+
                 var res = new AuthTokensDto
->>>>>>> hub/Suhail
+
 
                 {
                     AccessToken = accessToken,
@@ -141,20 +139,13 @@ namespace ResourceFlow.Application.Services
             }
         }
 
-        public async Task<AuthTokensDto> RefreshTokenAsync(string refreshToken)
+        public async Task<Response<AuthTokensDto>> RefreshTokenAsync(string refreshToken)
         {
             try
             {
 
                 _logger.LogInformation("Refresh token request received");
 
-<<<<<<< HEAD
-
-
-
-
-=======
->>>>>>> hub/Suhail
                 var user = await _userDapperRepository.GetByRefreshToken(refreshToken);
                 if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
                 {
@@ -176,13 +167,13 @@ namespace ResourceFlow.Application.Services
 
                 if (user.RefreshTokenExpiry < DateTime.UtcNow ||
                       user.RefreshTokenExpiry < DateTime.UtcNow)
-<<<<<<< HEAD
-                    return new Response<object>(401, "Session expired. Please login again.");
 
-=======
+                  //return new Response<AuthTokensDTO>(401, "Session expired. Please login again.");
+
+
                     throw new Exception("Session expired. Please login again.");
           
->>>>>>> hub/Suhail
+
                 trackedUser.RefreshToken = newRefreshToken;
                 trackedUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
@@ -202,16 +193,15 @@ namespace ResourceFlow.Application.Services
                     RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
                     Role = user.RoleId
                 };
-<<<<<<< HEAD
-
-                // STEP 5: RETURN RESPONSE
-                return new Response<object>(200, "Token refreshed", res);
-=======
->>>>>>> hub/Suhail
 
                 _logger.LogInformation("token {token}", res.RefreshToken);
                 // STEP 5: RETURN RESPONSE
-                return res;
+                return new Response<AuthTokensDto>(200, "Token refreshed", res);
+
+
+               
+                // STEP 5: RETURN RESPONSE
+               
 
             }
             catch (Exception ex)
@@ -235,12 +225,11 @@ namespace ResourceFlow.Application.Services
                 user.RefreshTokenExpiry = DateTime.MinValue;
 
                 await _authRepo.SaveAsync();
-
+                _logger.LogInformation("Logout successful for UserId {UserId}", userId);
                 return new Response<object>(200, "Logout successfull.");
 
 
-                _logger.LogInformation("Logout successful for UserId {UserId}", userId);
-                return new Response<object>(200, "Logout successful");
+              
             }
             catch (Exception ex)
             {
