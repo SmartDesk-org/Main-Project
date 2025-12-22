@@ -1465,36 +1465,19 @@ GO
 ------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
 /*{[
-  Title       : [dbo].[sp_GetHistoryByCompany]
+  Title       : [dbo].[]
   Description : Handles history for companies 
   CreatedOn and Owner : { 20/12/2025 : Suhail}
 
   Execution Statements:
 
-  -- Get all notifications
-  EXEC dbo.SP_NOTIFICATION @FLAG = 'GETALL';
-
-  -- Get notification by ID
-  EXEC dbo.SP_NOTIFICATION @FLAG = 'GETBYID', @ID = 1;
-
-  -- Get notifications by Company ID
-  EXEC dbo.SP_NOTIFICATION @FLAG = 'GETBYCOMPANYID', @COMPANYID = 10;
-
-  -- Get notifications by User ID
-  EXEC dbo.SP_NOTIFICATION @FLAG = 'GETBYUSERID', @USERID = 100;
-
-  -- Get notifications by Role ID
-  EXEC dbo.SP_NOTIFICATION @FLAG = 'GETBYROLEID', @ROLEID = 2;
-
-  -- Get sent notifications
-  EXEC dbo.SP_NOTIFICATION @FLAG = 'GETBYSENTSTATUS', @ISSENT = 1;
-
-  -- Get unread notifications
-  EXEC dbo.SP_NOTIFICATION @FLAG = 'GETBYREADSTATUS', @ISREAD = 0;
+  -- Get all histories of a company
+  EXEC [dbo].[SP_HISTORYBYCOMPANY] @CompanyDi=companyID
+  
 }*/
 GO
 
-CREATE OR ALTER PROCEDURE dbo.sp_GetHistoryByCompany
+CREATE OR ALTER PROCEDURE [dbo].[SP_HISTORYBYCOMPANY]
 ( 
 	@CompanyId INT
 )
