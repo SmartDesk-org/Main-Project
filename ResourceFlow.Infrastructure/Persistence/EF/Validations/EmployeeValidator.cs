@@ -16,7 +16,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Validations
                 .GreaterThan(0).WithMessage("CompanyId must be greater than 0");
 
             RuleFor(e => e.DefaultFloorId)
-                .NotNull().WithMessage("DefaultFloorId is required")
+                .GreaterThan(0).WithMessage("DefaultFloorId is required")
                 .GreaterThanOrEqualTo(0).WithMessage("DefaultFloorId must be >= 0");
 
             RuleFor(e => e.Department)

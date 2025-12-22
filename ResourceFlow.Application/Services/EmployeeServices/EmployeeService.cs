@@ -7,15 +7,11 @@ using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Application.Validators.Employee;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.CompanyModels;
-
-
 using ResourceFlow.Domain.Entities.SubscriptionModels;
-
 using ResourceFlow.Domain.Enums;
 using OfficeOpenXml;
-using System.Linq;
 using System.Collections.Concurrent;
-using Microsoft.Extensions.DependencyInjection; // Required for IServiceScopeFactory
+using Microsoft.Extensions.DependencyInjection; 
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 
 public class EmployeeService : IEmployeeService
@@ -26,6 +22,7 @@ public class EmployeeService : IEmployeeService
 
     private readonly IGenericRepository<CompanyDetails> _companyRepo;
     private readonly IGenericRepository<Subscription> _subscriptionRepo;
+    private readonly IGenericRepository<CompanyFloor> _floorRepo;
 
 
     private readonly IExcelReader _excelReader;
@@ -42,7 +39,7 @@ public class EmployeeService : IEmployeeService
         IGenericRepository<Employees> employeeRepo,
         IGenericRepository<CompanyDetails> companyRepo,
         IGenericRepository<Subscription> subscriptionRepo,
-
+        IGenericRepository<CompanyFloor>companyFloor ,
         IExcelReader excelReader,
         IEmployeeImportValidator validator,
         IUnitOfWork uow,
@@ -50,6 +47,7 @@ public class EmployeeService : IEmployeeService
         ICompanyDapperRepository dapperRepository
     )
     {
+        _floorRepo = companyFloor;
         _dapperRepo = dapperRepo;
         _userRepo = userRepo;
         _employeeRepo = employeeRepo;
@@ -261,46 +259,57 @@ public class EmployeeService : IEmployeeService
         if (dto == null)
             return new ApiResponse<object>(400, "Invalid request");
 
-        if (dto.DefaultFloorId <= 0)
-            return new ApiResponse<object>(400, "Default floor is required");
-
         dto.EmployeeName = dto.EmployeeName?.Trim();
         dto.Email = dto.Email?.Trim().ToLower();
         dto.Department = dto.Department?.Trim();
 
+        // 1️⃣ Basic + bulk-style validation
         var (validRows, errors) =
             await _validator.ValidateAsync(new List<EmployeeImportDto> { dto }, companyId);
 
         if (errors.Any())
             return new ApiResponse<object>(400, "Validation failed", errors);
 
+        // 2️⃣ Company check
         var company = await _companyRepo.GetByIdAsync(companyId);
         if (company == null)
             return new ApiResponse<object>(404, "Company not found");
+
+        // 3️⃣ ✅ FLOOR BELONGS TO COMPANY CHECK (CRITICAL FIX)
+        var floorExists = await _floorRepo.FindAsync(f =>
+            f.FloorId == dto.DefaultFloorId &&
+            f.CompanyId == companyId &&
+            !f.IsDeleted);
+
+        if (!floorExists.Any())
+        {
+            return new ApiResponse<object>(
+                400,
+                "Invalid floor. Floor does not belong to this company."
+            );
+        }
+
+        // 4️⃣ Subscription check
         var companySubscription =
             await _DapperercompanyRepo.GetActiveCompanySubscriptionByCompanyId(companyId);
 
         if (companySubscription == null)
-        {
-            return new ApiResponse<object>(
-                400, "No active subscription for this company");
-        }
+            return new ApiResponse<object>(400, "No active subscription for this company");
 
         var subscription =
             await _subscriptionRepo.GetByIdAsync(companySubscription.SubscriptionId);
 
         if (subscription == null)
-        {
-            return new ApiResponse<object>(
-                404, "Subscription plan not found");
-        }
+            return new ApiResponse<object>(404, "Subscription plan not found");
 
         var existingEmployees = await _dapperRepo.GetEmployeeByCompanyId(companyId);
         int currentCount = existingEmployees.Count(e => e.Status != EmployeeStatus.Terminated);
 
         if (currentCount + 1 > subscription.MaxEmployees)
-            return new ApiResponse<object>(400,
-                $"Limit exceeded. Plan allows {subscription.MaxEmployees} employees.");
+            return new ApiResponse<object>(
+                400,
+                $"Limit exceeded. Plan allows {subscription.MaxEmployees} employees."
+            );
 
         var rawPassword = "Emp@" + Guid.NewGuid().ToString("N")[..6];
 
@@ -349,6 +358,7 @@ public class EmployeeService : IEmployeeService
         }
     }
 
+
     public async Task<Response<IEnumerable<Employees>>> GetAllEmployees()
     {
         var result = await _employeeRepo.GetAllAsync();
@@ -363,18 +373,31 @@ public class EmployeeService : IEmployeeService
     UpdateEmployeeDto dto,
     int companyId)
     {
-        var employee = await _employeeRepo
-            .FindAsync(e =>
-                e.Id == employeeId &&
-                e.CompanyId == companyId &&
-                !e.IsDeleted);
+        var employee = await _employeeRepo.FindAsync(e =>
+            e.Id == employeeId &&
+            e.CompanyId == companyId &&
+            !e.IsDeleted);
 
         var entity = employee.FirstOrDefault();
 
         if (entity == null)
             return new ApiResponse<object>(404, "Employee not found");
 
-        entity.Department = dto.Department;
+        // ✅ FLOOR BELONGS TO COMPANY CHECK
+        var floorExists = await _floorRepo.FindAsync(f =>
+            f.FloorId == dto.DefaultFloorId &&
+            f.CompanyId == companyId &&
+            !f.IsDeleted);
+
+        if (!floorExists.Any())
+        {
+            return new ApiResponse<object>(
+                400,
+                "Invalid floor. Floor does not belong to this company."
+            );
+        }
+
+        entity.Department = dto.Department?.Trim();
         entity.DefaultFloorId = dto.DefaultFloorId;
         entity.Status = dto.Status;
         entity.ModifiedAt = DateTime.UtcNow;
@@ -383,6 +406,7 @@ public class EmployeeService : IEmployeeService
 
         return new ApiResponse<object>(200, "Employee updated successfully");
     }
+
     public async Task<ApiResponse<object>> DeleteEmployeeAsync(
         int employeeId,
         int companyId)
