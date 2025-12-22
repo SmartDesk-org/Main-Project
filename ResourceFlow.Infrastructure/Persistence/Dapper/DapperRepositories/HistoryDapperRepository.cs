@@ -27,7 +27,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
         {
             using var conn = new SqlConnection(_connectionString);
             var result = await conn.QueryAsync<HistoryResponseDto>(
-                "dbo.sp_GetHistoryByCompany",
+                "[dbo].[SP_HISTORYBYCOMPANY]",
                 new
                 {
                     CompanyId = companyId

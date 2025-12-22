@@ -139,12 +139,13 @@ namespace ResourceFlow.Application.Services
             }
         }
 
-        public async Task<Response<AuthTokensDto>> RefreshTokenAsync(string refreshToken)
+        public async Task<AuthTokensDto> RefreshTokenAsync(string refreshToken)
         {
             try
             {
 
                 _logger.LogInformation("Refresh token request received");
+
 
                 var user = await _userDapperRepository.GetByRefreshToken(refreshToken);
                 if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
@@ -168,11 +169,7 @@ namespace ResourceFlow.Application.Services
                 if (user.RefreshTokenExpiry < DateTime.UtcNow ||
                       user.RefreshTokenExpiry < DateTime.UtcNow)
 
-                  //return new Response<AuthTokensDTO>(401, "Session expired. Please login again.");
-
-
                     throw new Exception("Session expired. Please login again.");
-          
 
                 trackedUser.RefreshToken = newRefreshToken;
                 trackedUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
@@ -194,14 +191,10 @@ namespace ResourceFlow.Application.Services
                     Role = user.RoleId
                 };
 
+
                 _logger.LogInformation("token {token}", res.RefreshToken);
                 // STEP 5: RETURN RESPONSE
-                return new Response<AuthTokensDto>(200, "Token refreshed", res);
-
-
-               
-                // STEP 5: RETURN RESPONSE
-               
+                return res;
 
             }
             catch (Exception ex)
