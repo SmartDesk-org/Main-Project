@@ -75,5 +75,13 @@ namespace ResourceFlow.WebAPI.Controllers
             var res = await _service.ChangeStatusAsync(id, userId);
             return StatusCode(res.StatusCode, res);
         }
+
+        [Authorize]
+        [HttpGet("SubscriptionTypes")]
+        public async Task<ActionResult> SubscriptionTypes()
+        {
+           var res= await _service.GetAllSubscriptionTypes();
+            return StatusCode(res.StatusCode, res);
+        }
     }
 }

@@ -36,6 +36,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<int>("CompanyId")
                         .HasColumnType("int");
 
+                    b.Property<string>("CompanyMail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("CompanySubscriptionId")
                         .HasColumnType("int");
 
@@ -51,10 +57,16 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<int?>("DeletedBy")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("Discount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("InvoiceNumber")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("InvoicePdfPath")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -65,15 +77,16 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("int");
 
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
+                    b.Property<int>("PaymentMethod")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("int");
 
-                    b.Property<string>("PaymentStatus")
-                        .IsRequired()
+                    b.Property<int>("PaymentStatus")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("SubTotal")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("SubscriptionEndDate")
                         .HasColumnType("datetime2");
@@ -81,8 +94,14 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Property<int>("SubscriptionId")
                         .HasColumnType("int");
 
+                    b.Property<string>("SubscriptionName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("SubscriptionStartDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(10,2)");
@@ -288,21 +307,21 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 20, 9, 14, 22, 468, DateTimeKind.Utc).AddTicks(2123),
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 384, DateTimeKind.Utc).AddTicks(286),
                             IsDeleted = false,
                             RoleName = "SuperAdmin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 20, 9, 14, 22, 468, DateTimeKind.Utc).AddTicks(2124),
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 384, DateTimeKind.Utc).AddTicks(288),
                             IsDeleted = false,
                             RoleName = "CompanyAdmin"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 20, 9, 14, 22, 468, DateTimeKind.Utc).AddTicks(2124),
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 384, DateTimeKind.Utc).AddTicks(289),
                             IsDeleted = false,
                             RoleName = "Employee"
                         });
@@ -389,12 +408,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 12, 20, 9, 14, 22, 722, DateTimeKind.Utc).AddTicks(9303),
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 697, DateTimeKind.Utc).AddTicks(4380),
                             Email = "suhailpalakkal1@gmail.com",
                             IsActive = true,
                             IsBlocked = false,
                             IsDeleted = false,
-                            PassWord = "$2a$11$4I2bKUShEfa1FLM2YAcRBeYmX6WASTqnUrFsVyn9EPIG/ArfIjvPO",
+                            PassWord = "$2a$11$mOsSyRKlBduNuNWYlK7QSO6t0ag6HUw6X90IeNTIuCvBnesS5djti",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1,
@@ -453,7 +472,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 1,
                             Code = 1,
-                            CreatedAt = new DateTime(2025, 12, 20, 9, 14, 22, 468, DateTimeKind.Utc).AddTicks(1699),
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 383, DateTimeKind.Utc).AddTicks(9821),
                             IsDeleted = false,
                             Name = "User Management"
                         },
@@ -461,7 +480,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 2,
                             Code = 2,
-                            CreatedAt = new DateTime(2025, 12, 20, 9, 14, 22, 468, DateTimeKind.Utc).AddTicks(1703),
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 383, DateTimeKind.Utc).AddTicks(9825),
                             IsDeleted = false,
                             Name = "Company Details"
                         },
@@ -469,7 +488,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 3,
                             Code = 3,
-                            CreatedAt = new DateTime(2025, 12, 20, 9, 14, 22, 468, DateTimeKind.Utc).AddTicks(1704),
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 383, DateTimeKind.Utc).AddTicks(9826),
                             IsDeleted = false,
                             Name = "Company Floor",
                             ParentId = 2
@@ -478,7 +497,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 4,
                             Code = 4,
-                            CreatedAt = new DateTime(2025, 12, 20, 9, 14, 22, 468, DateTimeKind.Utc).AddTicks(1705),
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 383, DateTimeKind.Utc).AddTicks(9827),
                             IsDeleted = false,
                             Name = "Resource Management"
                         },
@@ -486,7 +505,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 5,
                             Code = 5,
-                            CreatedAt = new DateTime(2025, 12, 20, 9, 14, 22, 468, DateTimeKind.Utc).AddTicks(1706),
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 383, DateTimeKind.Utc).AddTicks(9828),
                             IsDeleted = false,
                             Name = "Employee Management"
                         },
@@ -494,7 +513,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 6,
                             Code = 6,
-                            CreatedAt = new DateTime(2025, 12, 20, 9, 14, 22, 468, DateTimeKind.Utc).AddTicks(1706),
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 383, DateTimeKind.Utc).AddTicks(9829),
                             IsDeleted = false,
                             Name = "Subscription Plan"
                         });
@@ -551,7 +570,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                             RoleId = 1,
                             ModuleCode = 1,
                             Add = true,
-                            CreatedAt = new DateTime(2025, 12, 20, 9, 14, 22, 468, DateTimeKind.Utc).AddTicks(1985),
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 384, DateTimeKind.Utc).AddTicks(108),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -562,7 +581,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                             RoleId = 1,
                             ModuleCode = 6,
                             Add = true,
-                            CreatedAt = new DateTime(2025, 12, 20, 9, 14, 22, 468, DateTimeKind.Utc).AddTicks(1987),
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 384, DateTimeKind.Utc).AddTicks(113),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -573,7 +592,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                             RoleId = 2,
                             ModuleCode = 1,
                             Add = true,
-                            CreatedAt = new DateTime(2025, 12, 20, 9, 14, 22, 468, DateTimeKind.Utc).AddTicks(1988),
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 384, DateTimeKind.Utc).AddTicks(114),
                             Delete = false,
                             Edit = true,
                             IsDeleted = false,
@@ -584,12 +603,64 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                             RoleId = 2,
                             ModuleCode = 6,
                             Add = false,
-                            CreatedAt = new DateTime(2025, 12, 20, 9, 14, 22, 468, DateTimeKind.Utc).AddTicks(1989),
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 384, DateTimeKind.Utc).AddTicks(115),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
                             View = true
                         });
+                });
+
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.ClientMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsImportant")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PhoneNo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ClientMessages");
                 });
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.CompanyModels.CompanyDesk", b =>
@@ -651,7 +722,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 
                     b.HasIndex("CompanyId", "Status");
 
-                    b.ToTable("CompanyDesk", (string)null);
+                    b.ToTable("CompanyDesks", (string)null);
                 });
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.CompanyModels.CompanyFloor", b =>
@@ -707,7 +778,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 
                     b.HasIndex("CompanyId", "IsActive");
 
-                    b.ToTable("CompanyFloor", (string)null);
+                    b.ToTable("CompanyFloors", (string)null);
                 });
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.CompanyModels.CompanyMeetingRoom", b =>
@@ -773,7 +844,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 
                     b.HasIndex("CompanyId", "Status");
 
-                    b.ToTable("CompanyMeetingRoom", (string)null);
+                    b.ToTable("CompanyMeetingRooms", (string)null);
                 });
 
             modelBuilder.Entity("ResourceFlow.Domain.Entities.CompanyModels.Employees", b =>
@@ -1060,9 +1131,137 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TypeId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("TypeId");
+
                     b.ToTable("Subscriptions", (string)null);
+                });
+
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.SubscriptionHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<double>("AmountPaid")
+                        .HasColumnType("float");
+
+                    b.Property<int>("ChangeReason")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompanySubscriptionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubscriptionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Histories");
+                });
+
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.SubscriptionType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TypeName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SubscriptionTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 384, DateTimeKind.Utc).AddTicks(1566),
+                            IsDeleted = false,
+                            TypeName = "Basic"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 384, DateTimeKind.Utc).AddTicks(1568),
+                            IsDeleted = false,
+                            TypeName = "Upgrade"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2025, 12, 22, 10, 21, 0, 384, DateTimeKind.Utc).AddTicks(1569),
+                            IsDeleted = false,
+                            TypeName = "Renewal"
+                        });
                 });
 
             modelBuilder.Entity("Billing", b =>
@@ -1248,6 +1447,17 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     b.Navigation("Subscription");
                 });
 
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.Subscription", b =>
+                {
+                    b.HasOne("ResourceFlow.Domain.Entities.SubscriptionModels.SubscriptionType", "Type")
+                        .WithMany("Types")
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Type");
+                });
+
             modelBuilder.Entity("CompanyDetails", b =>
                 {
                     b.Navigation("CompanyFloors");
@@ -1293,6 +1503,11 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
             modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.Subscription", b =>
                 {
                     b.Navigation("CompanySubscriptions");
+                });
+
+            modelBuilder.Entity("ResourceFlow.Domain.Entities.SubscriptionModels.SubscriptionType", b =>
+                {
+                    b.Navigation("Types");
                 });
 #pragma warning restore 612, 618
         }

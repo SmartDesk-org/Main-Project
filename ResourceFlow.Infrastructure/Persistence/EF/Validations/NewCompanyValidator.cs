@@ -34,6 +34,14 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Validations
                 .Equal(x => x.PassWord)
                 .WithMessage("Pass word does not match");
 
+            
+
+            RuleFor(x => x)
+                .Must(x =>
+                (x.ExpirationYear == 1 && x.ExpirationMonth == 0) ||
+                (x.ExpirationYear == 0 && x.ExpirationMonth >= 1 && x.ExpirationMonth <= 11)
+                )
+                .WithMessage("Select either 1 year OR 1–11 months");
         }
     }
 }

@@ -30,14 +30,13 @@ namespace ResourceFlow.WebAPI.Controllers
         [HttpPost("confirm")]
         public async Task<IActionResult> Confirm([FromBody] ConfirmPaymentRequestDto dto)
         {
-            var ok = await _paymentService.ConfirmPaymentAsync(dto.PaymentIntentId, dto.CompanyId);
+            var res = await _paymentService.ConfirmPaymentAsync(dto.PaymentIntentId, dto.CompanyId);
 
-            if (!ok)
-                return BadRequest("Payment failed or pending.");
+            
 
-            await _companyService.ActivateCompanyAsync(dto.CompanyId);
+             await _companyService.ActivateCompanyAsync(dto.CompanyId);
 
-            return Ok("Payment verified. Company activated.");
+            return StatusCode(res.StatusCode, res);
         }
     }
 }

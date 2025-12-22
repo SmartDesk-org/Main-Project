@@ -211,7 +211,7 @@ BEGIN
         IF @FLAG = 'GETALL'
         BEGIN
             SELECT Id AS RoleId,RoleName,CreatedBy
-            FROM Roles
+            FROM Roles 
             WHERE IsDeleted = 0;
             RETURN;
         END
@@ -1465,4 +1465,39 @@ END
 GO
 
 ------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------
+/*{[
+  Title       : [dbo].[]
+  Description : Handles history for companies 
+  CreatedOn and Owner : { 20/12/2025 : Suhail}
 
+  Execution Statements:
+
+  -- Get all histories of a company
+  EXEC [dbo].[SP_HISTORYBYCOMPANY] @CompanyDi=companyID
+  
+}*/
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[SP_HISTORYBYCOMPANY]
+( 
+	@CompanyId INT
+)
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	SELECT 
+		c.Name				AS CompanyName,
+		s.SubscriptionName AS SubscriptionName,
+		h.StartDate,
+		h.EndDate,
+		h.AmountPaid,
+		h.Status,
+		h.ChangeReason
+	FROM Histories h
+	INNER JOIN CompanyDetails c ON h.CompanyId=c.CompanyId
+	INNER JOIN Subscriptions s ON h.SubscriptionId=s.Id
+	WHERE c.IsDeleted=0 AND h.CompanyId=@CompanyId
+	ORDER BY h.CreatedAt DESC
+END;
+GO

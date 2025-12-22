@@ -1,10 +1,12 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using ResourceFlow.Application.DTOs.Subscription;
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,20 +23,18 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
             _connectionString = config.GetConnectionString("DefaultConnection");
         }
 
-        public async Task<IEnumerable<Subscription>> GetAllAsync()
+        public async Task<IEnumerable<SubscrptionResponseDto>> GetAllAsync()
         {
-            var conn = new SqlConnection(_connectionString);
-             var res=  await conn.QueryAsync<Subscription>(
-                    "[dbo].[SP_SUBSCRIPTION]",
-                    new
-                    {
-                        FLAG = "GETALL"
-                    }
-                );
+            using var conn = new SqlConnection(_connectionString);
 
-            //Console.WriteLine("from dapper repo");
+            var res = await conn.QueryAsync<SubscrptionResponseDto>(
+                "[dbo].[SUBSCRIPTION_SP]",
+                new { FLAG = "GETALL" },
+                commandType: CommandType.StoredProcedure
+            );
 
             return res;
         }
+
     }
 }
