@@ -7,6 +7,7 @@ using ResourceFlow.Application.DTOs.History;
 using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
+using ResourceFlow.Domain.Exceptions;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -36,15 +37,24 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
                 "[dbo].[SP_HISTORYBYCOMPANY]",
                  async () =>
                  {
-                     using var conn = new SqlConnection(_connectionString);
-                     result = await conn.QueryAsync<HistoryResponseDto>(
-                        "[dbo].[SP_HISTORYBYCOMPANY]",
-                        new
-                        {
-                            CompanyId = companyId
-                        },
-                        commandType: CommandType.StoredProcedure
-                        );
+                     try
+                     {
+                         using var conn = new SqlConnection(_connectionString);
+                         result = await conn.QueryAsync<HistoryResponseDto>(
+                            "[dbo].[SP_HISTORYBYCOMPANY]",
+                            new
+                            {
+                                CompanyId = companyId
+                            },
+                            commandType: CommandType.StoredProcedure
+                            );
+
+                     }
+                     catch (SqlException ex)
+                     {
+                         throw new StoredProcedureException("Error executing SP_HISTORYBYCOMPANY", ex);
+                     }
+                     
 
                  }
                 );

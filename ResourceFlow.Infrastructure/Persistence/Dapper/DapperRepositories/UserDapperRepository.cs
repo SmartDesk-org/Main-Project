@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Domain.Entities.Authentication;
+using ResourceFlow.Domain.Exceptions;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
@@ -29,17 +30,26 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
                 "SP_USER",
                 async () =>
                 {
-                    using var conn = new SqlConnection(_connectionString);
+                    try
+                    {
+                        using var conn = new SqlConnection(_connectionString);
 
-                    companyId = await conn.QueryFirstOrDefaultAsync<int?>(
-                        "SP_USER",
-                        new
-                        {
-                            FLAG = "GET_COMPANYID_BY_USERID",
-                            USERID = userId
-                        },
-                        commandType: CommandType.StoredProcedure
-                    );
+                        companyId = await conn.QueryFirstOrDefaultAsync<int?>(
+                            "SP_USER",
+                            new
+                            {
+                                FLAG = "GET_COMPANYID_BY_USERID",
+                                USERID = userId
+                            },
+                            commandType: CommandType.StoredProcedure
+                        );
+
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new StoredProcedureException("Error executing SP_USER", ex);
+                    }
+                   
                 });
 
             return companyId;
@@ -53,17 +63,26 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
                 "SP_USER",
                 async () =>
                 {
-                    using var conn = new SqlConnection(_connectionString);
+                    try
+                    {
+                        using var conn = new SqlConnection(_connectionString);
 
-                    result = await conn.QueryFirstOrDefaultAsync<User>(
-                        "[dbo].[SP_USER]",
-                        new
-                        {
-                            FLAG = "GETBYEMAIL",
-                            EMAIL = email
-                        },
-                        commandType: CommandType.StoredProcedure
-                    );
+                        result = await conn.QueryFirstOrDefaultAsync<User>(
+                            "[dbo].[SP_USER]",
+                            new
+                            {
+                                FLAG = "GETBYEMAIL",
+                                EMAIL = email
+                            },
+                            commandType: CommandType.StoredProcedure
+                        );
+
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new StoredProcedureException("Error executing SP_USER", ex);
+                    }
+                  
                 });
 
             return result;
@@ -77,17 +96,27 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
                 "SP_USER",
                 async () =>
                 {
-                    using var conn = new SqlConnection(_connectionString);
+                    try
+                    {
+                        using var conn = new SqlConnection(_connectionString);
 
-                    result = await conn.QueryFirstOrDefaultAsync<User>(
-                        "[dbo].[SP_USER]",
-                        new
-                        {
-                            FLAG = "GETBYPASSWORDRESETTOKEN",
-                            PASSWORDRESETTOKEN = token
-                        },
-                        commandType: CommandType.StoredProcedure
-                    );
+                        result = await conn.QueryFirstOrDefaultAsync<User>(
+                            "[dbo].[SP_USER]",
+                            new
+                            {
+                                FLAG = "GETBYPASSWORDRESETTOKEN",
+                                PASSWORDRESETTOKEN = token
+                            },
+                            commandType: CommandType.StoredProcedure
+                        );
+
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new StoredProcedureException("Error executing SP_USER", ex);
+                    }
+
+                   
                 });
 
             return result;
@@ -101,17 +130,27 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
                 "SP_USER",
                 async () =>
                 {
-                    using var conn = new SqlConnection(_connectionString);
+                    try
+                    {
+                        using var conn = new SqlConnection(_connectionString);
 
-                    result = await conn.QueryFirstOrDefaultAsync<User>(
-                        "[dbo].[SP_USER]",
-                        new
-                        {
-                            FLAG = "GETBYREFRESHTOKEN",
-                            REFRESHTOKEN = refreshToken
-                        },
-                        commandType: CommandType.StoredProcedure
-                    );
+                        result = await conn.QueryFirstOrDefaultAsync<User>(
+                            "[dbo].[SP_USER]",
+                            new
+                            {
+                                FLAG = "GETBYREFRESHTOKEN",
+                                REFRESHTOKEN = refreshToken
+                            },
+                            commandType: CommandType.StoredProcedure
+                        );
+
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new StoredProcedureException("Error executing SP_USER", ex);
+                    }
+                     
+                   
                 });
 
             return result;
@@ -125,17 +164,27 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
                 "SP_USER",
                 async () =>
                 {
-                    using var conn = new SqlConnection(_connectionString);
+                    try
+                    {
+                        using var conn = new SqlConnection(_connectionString);
 
-                    result = await conn.QueryFirstOrDefaultAsync<User>(
-                        "[dbo].[SP_USER]",
-                        new
-                        {
-                            FLAG = "GETBYID",
-                            USERID = id
-                        },
-                        commandType: CommandType.StoredProcedure
-                    );
+                        result = await conn.QueryFirstOrDefaultAsync<User>(
+                            "[dbo].[SP_USER]",
+                            new
+                            {
+                                FLAG = "GETBYID",
+                                USERID = id
+                            },
+                            commandType: CommandType.StoredProcedure
+                        );
+
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new StoredProcedureException("Error executing SP_USER", ex);
+                    }
+
+                   
                 });
 
             return result;

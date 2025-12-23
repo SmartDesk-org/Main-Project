@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
+using ResourceFlow.Domain.Exceptions;
+using ResourceFlow.Domain.Exceptions;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -31,17 +33,26 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
                 "[dbo].[SP_COMPANYSUBSCRIPTION]",
                 async () =>
                 {
-                    using var con = new SqlConnection(_connectionString);
+                    try
+                    {
+                        using var con = new SqlConnection(_connectionString);
 
-                    result = await con.QueryFirstOrDefaultAsync<CompanySubscription>(
-                        "[dbo].[SP_COMPANYSUBSCRIPTION]",
-                        new
-                        {
-                            FLAG = "GETACTIVEBYCOMPANYID",
-                            COMPANYID = companyId
-                        },
-                        commandType: CommandType.StoredProcedure
-                    );
+                        result = await con.QueryFirstOrDefaultAsync<CompanySubscription>(
+                            "[dbo].[SP_COMPANYSUBSCRIPTION]",
+                            new
+                            {
+                                FLAG = "GETACTIVEBYCOMPANYID",
+                                COMPANYID = companyId
+                            },
+                            commandType: CommandType.StoredProcedure
+                        );
+
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new StoredProcedureException("Error executing SP_COMPANYSUBSCRIPTION", ex);
+                    }
+                   
 
                 });
                     

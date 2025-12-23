@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.InkML;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ResourceFlow.Application.Common;
@@ -10,9 +11,10 @@ using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Domain.Entities.Authentication;
+using ResourceFlow.Domain.Exceptions;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using Microsoft.Data.SqlClient;
+
 
 namespace ResourceFlow.Application.Services
 {
@@ -74,6 +76,12 @@ namespace ResourceFlow.Application.Services
                 _logger.LogInformation("User registered successfully. Email: {Email}", dto.Email);
 
                 return new Response<object>(201, "User registered successfully");
+            }
+            catch (StoredProcedureException ex)
+            {
+                _logger.LogError(ex, "SP execution failed during password reset.");
+                return new Response<object>(500, "Database error occurred. Please try again later.");
+
             }
             catch (Exception ex)
             {
@@ -224,6 +232,12 @@ namespace ResourceFlow.Application.Services
 
 
             }
+            catch (StoredProcedureException ex)
+            {
+                _logger.LogError(ex, "SP execution failed during password reset.");
+                return new Response<object>(500, "Database error occurred. Please try again later.");
+
+            }
             catch (Exception ex)
             {
 
@@ -271,6 +285,12 @@ namespace ResourceFlow.Application.Services
 
                 _logger.LogInformation("Password reset email sent to {Email}", dto.Email);
                 return new Response<object>(200, "Password reset link sent");
+            }
+            catch (StoredProcedureException ex)
+            {
+                _logger.LogError(ex, "SP execution failed during password reset.");
+                return new Response<object>(500, "Database error occurred. Please try again later.");
+
             }
             catch (Exception ex)
             {
@@ -336,6 +356,11 @@ namespace ResourceFlow.Application.Services
 
                 _logger.LogInformation("Password changed successfully for UserId {UserId}", userId);
                 return new Response<string>(200, "Password changed successfully.");
+            }
+            catch (StoredProcedureException spEx)
+            {
+                _logger.LogError(spEx, "SP execution failed during password reset.");
+                return new Response<string>(500, "Database error occurred. Please try again later.");
             }
             catch (Exception ex)
             {

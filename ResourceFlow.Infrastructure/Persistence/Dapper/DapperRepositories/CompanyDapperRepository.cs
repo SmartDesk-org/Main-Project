@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
-using ResourceFlow.Infrastructure.Persistence.Dapper.Exceptions;
+using ResourceFlow.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;

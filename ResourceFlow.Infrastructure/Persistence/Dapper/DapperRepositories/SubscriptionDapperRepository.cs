@@ -5,6 +5,8 @@ using ResourceFlow.Application.DTOs.Subscription;
 using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
+using ResourceFlow.Domain.Exceptions;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -31,16 +33,25 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
             IEnumerable<SubscrptionResponseDto> res= Enumerable.Empty<SubscrptionResponseDto>();
 
             await _spLogger.ExecuteAsync(
-                "[dbo].[SUBSCRIPTION_SP]",
+                "[dbo].[SP_SUBSCRIPTION]",
                 async () =>
                 {
-                    using var conn = new SqlConnection(_connectionString);
+                    try
+                    {
+                        using var conn = new SqlConnection(_connectionString);
 
-                     res = await conn.QueryAsync<SubscrptionResponseDto>(
-                        "[dbo].[SUBSCRIPTION_SP]",
-                        new { FLAG = "GETALL" },
-                        commandType: CommandType.StoredProcedure
-                    );
+                        res = await conn.QueryAsync<SubscrptionResponseDto>(
+                           "[dbo].[]",
+                           new { FLAG = "GETALL" },
+                           commandType: CommandType.StoredProcedure
+                       );
+
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new StoredProcedureException("Error executing SP_SUBSCRIPTION", ex);
+                    }
+                   
 
                 }
                 );

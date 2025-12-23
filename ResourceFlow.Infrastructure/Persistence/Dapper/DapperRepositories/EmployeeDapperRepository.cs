@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Domain.Entities.CompanyModels;
+using ResourceFlow.Domain.Exceptions;
 using System.Data;
 
 namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
@@ -29,16 +30,26 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
                 "SP_EMPLOYEE",
                 async () =>
                 {
-                    var parameters = new DynamicParameters();
-                    parameters.Add("@FLAG", "GETBYCOMPANYID");
-                    parameters.Add("@COMPANYID", companyId);
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("@FLAG", "GETBYCOMPANYID");
+                        parameters.Add("@COMPANYID", companyId);
 
-                    result = await _db.QueryAsync<Employees>(
-                        "SP_EMPLOYEE",
-                        parameters,
-                        commandType: CommandType.StoredProcedure
+                        result = await _db.QueryAsync<Employees>(
+                            "SP_EMPLOYEE",
+                            parameters,
+                            commandType: CommandType.StoredProcedure
 
-                     );
+                         );
+
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new StoredProcedureException("Error executing SP_EMPLOYEE", ex);
+                    }
+
+                   
                 });
             return result;
         }
@@ -50,15 +61,24 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
             "SP_EMPLOYEE",
             async () =>
             {
+                try
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("@FLAG", "GETALL");
 
-            var parameters = new DynamicParameters();
-            parameters.Add("@FLAG", "GETALL");
+                    result = await _db.QueryAsync<Employees>(
+                        "SP_EMPLOYEE",
+                        parameters,
+                        commandType: CommandType.StoredProcedure
+                    );
 
-            result = await _db.QueryAsync<Employees>(
-                "SP_EMPLOYEE",
-                parameters,
-                commandType: CommandType.StoredProcedure
-            );
+                }
+                catch (SqlException ex)
+                {
+                    throw new StoredProcedureException("Error executing SP_EMPLOYEE", ex);
+                }
+
+           
         });
 
             return result;

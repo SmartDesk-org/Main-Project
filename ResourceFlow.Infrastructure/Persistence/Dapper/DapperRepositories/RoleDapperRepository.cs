@@ -5,6 +5,7 @@ using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.CompanyModels;
+using ResourceFlow.Domain.Exceptions;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -33,16 +34,26 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
                 "[dbo].[SP_ROLES]",
                 async () =>
                 {
-                    using var con = new SqlConnection(_connectionString);
-                     result = await con.QueryFirstOrDefaultAsync<Roles>(
-                      "[dbo].[SP_ROLES]",
-                      new
-                      {
-                          FLAG = "GETBYID",
-                          ROLEID = RoleId
-                      },
-                       commandType: CommandType.StoredProcedure
-                      );
+                    try
+                    {
+                        using var con = new SqlConnection(_connectionString);
+                        result = await con.QueryFirstOrDefaultAsync<Roles>(
+                         "[dbo].[SP_ROLES]",
+                         new
+                         {
+                             FLAG = "GETBYID",
+                             ROLEID = RoleId
+                         },
+                          commandType: CommandType.StoredProcedure
+                         );
+
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new StoredProcedureException("Error executing SP_ROLES", ex);
+                    }
+
+                   
 
                 });
            
