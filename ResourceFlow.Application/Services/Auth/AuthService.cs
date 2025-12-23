@@ -116,11 +116,7 @@ namespace ResourceFlow.Application.Services
 
                 _logger.LogInformation("Login successful for UserId {UserId}", user.UserId);
 
-<<<<<<< HEAD
-                var res = new
-=======
                 var res = new AuthTokensDto
->>>>>>> hub/Suhail
 
                 {
                     AccessToken = accessToken,
@@ -148,13 +144,7 @@ namespace ResourceFlow.Application.Services
 
                 _logger.LogInformation("Refresh token request received");
 
-<<<<<<< HEAD
 
-
-
-
-=======
->>>>>>> hub/Suhail
                 var user = await _userDapperRepository.GetByRefreshToken(refreshToken);
                 if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
                 {
@@ -176,13 +166,9 @@ namespace ResourceFlow.Application.Services
 
                 if (user.RefreshTokenExpiry < DateTime.UtcNow ||
                       user.RefreshTokenExpiry < DateTime.UtcNow)
-<<<<<<< HEAD
-                    return new Response<object>(401, "Session expired. Please login again.");
 
-=======
                     throw new Exception("Session expired. Please login again.");
           
->>>>>>> hub/Suhail
                 trackedUser.RefreshToken = newRefreshToken;
                 trackedUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
@@ -202,12 +188,7 @@ namespace ResourceFlow.Application.Services
                     RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
                     Role = user.RoleId
                 };
-<<<<<<< HEAD
 
-                // STEP 5: RETURN RESPONSE
-                return new Response<object>(200, "Token refreshed", res);
-=======
->>>>>>> hub/Suhail
 
                 _logger.LogInformation("token {token}", res.RefreshToken);
                 // STEP 5: RETURN RESPONSE
