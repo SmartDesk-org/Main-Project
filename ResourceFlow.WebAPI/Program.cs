@@ -4,14 +4,28 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ResourceFlow.WebAPI.DI;
 using System.Text;
-
 using System.Threading.RateLimiting;
-
 using OfficeOpenXml;
 using ResourceFlow.WebAPI.Middleware;
+using Serilog;
+
+
+
+
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File(
+        "Logs/app-.log",
+        rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.UseSerilog();
 // Controllers & JSON options
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

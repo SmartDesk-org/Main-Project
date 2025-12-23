@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using ResourceFlow.Application.DTOs.Subscription;
+using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
 using System;
@@ -18,21 +19,31 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
 
     {
         private readonly string _connectionString;
-        public SubscriptionDapperRepository(IConfiguration config)
+        private readonly IStoredProcedureLogger _spLogger;
+        public SubscriptionDapperRepository(IConfiguration config, IStoredProcedureLogger spLogger)
         {
             _connectionString = config.GetConnectionString("DefaultConnection");
+            _spLogger = spLogger;
         }
 
         public async Task<IEnumerable<SubscrptionResponseDto>> GetAllAsync()
         {
-            using var conn = new SqlConnection(_connectionString);
+            IEnumerable<SubscrptionResponseDto> res= Enumerable.Empty<SubscrptionResponseDto>();
 
-            var res = await conn.QueryAsync<SubscrptionResponseDto>(
+            await _spLogger.ExecuteAsync(
                 "[dbo].[SUBSCRIPTION_SP]",
-                new { FLAG = "GETALL" },
-                commandType: CommandType.StoredProcedure
-            );
+                async () =>
+                {
+                    using var conn = new SqlConnection(_connectionString);
 
+                     res = await conn.QueryAsync<SubscrptionResponseDto>(
+                        "[dbo].[SUBSCRIPTION_SP]",
+                        new { FLAG = "GETALL" },
+                        commandType: CommandType.StoredProcedure
+                    );
+
+                }
+                );
             return res;
         }
 

@@ -13,10 +13,6 @@
 	</ItemGroup>
 
 	<!-- Folder Structure -->
-	<ItemGroup>
-		<Folder Include="Logging\" />
-		<Folder Include="Persistence\EF\Migrations\" />
-	</ItemGroup>
 
 	<!-- SQL File Copy -->
 	<ItemGroup>

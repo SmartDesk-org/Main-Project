@@ -12,7 +12,7 @@ using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Domain.Entities.Authentication;
 using System.Security.Claims;
 using System.Security.Cryptography;
-
+using Microsoft.Data.SqlClient;
 
 namespace ResourceFlow.Application.Services
 {
@@ -66,7 +66,7 @@ namespace ResourceFlow.Application.Services
                 var user = _mapper.Map<User>(dto);
                 user.PassWord = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
-               
+
 
 
                 await _userRepo.AddAsync(user);
@@ -222,7 +222,7 @@ namespace ResourceFlow.Application.Services
                 return new Response<object>(200, "Logout successfull.");
 
 
-              
+
             }
             catch (Exception ex)
             {
@@ -279,23 +279,27 @@ namespace ResourceFlow.Application.Services
             }
         }
 
+
         public async Task<Response<string>> ResetPasswordAsync(ResetPasswordDto dto, int? userId)
         {
             try
             {
-
                 dto.Token = dto.Token?.Trim();
-                dto.CurrentPassword = dto.CurrentPassword.Trim();
-                dto.NewPassword = dto.NewPassword.Trim();
+                dto.CurrentPassword = dto.CurrentPassword?.Trim();
+                dto.NewPassword = dto.NewPassword?.Trim();
 
-
+                // ===================== FORGOT PASSWORD FLOW =====================
                 if (!string.IsNullOrWhiteSpace(dto.Token))
                 {
                     _logger.LogInformation("Password reset using token");
 
                     var user = await _userDapperRepository.GetByPasswordResetTokenAsync(dto.Token);
+
                     if (user == null || user.PasswordResetExpiry < DateTime.UtcNow)
-                        return new Response<string>(400, "Invalid or expired token");
+                        return new Response<string>(400, "Invalid or expired reset token.");
+
+                    if (BCrypt.Net.BCrypt.Verify(dto.NewPassword, user.PassWord))
+                        return new Response<string>(400, "New password cannot be the same as the old password.");
 
                     user.PassWord = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
                     user.PasswordResetToken = null;
@@ -304,36 +308,45 @@ namespace ResourceFlow.Application.Services
                     await _authRepo.UpdateAsync(user);
 
                     _logger.LogInformation("Password reset successful");
-                    return new Response<string>(200, "Password reset successful");
+                    return new Response<string>(200, "Password reset successful.");
                 }
 
-
-                _logger.LogInformation("Password change for UserId {UserId}", userId);
+                // ===================== CHANGE PASSWORD FLOW =====================
+                _logger.LogInformation("Password change request for UserId {UserId}", userId);
 
                 if (!userId.HasValue)
-                    return new Response<string>(401, "Unauthorized");
+                    return new Response<string>(401, "Unauthorized.");
 
                 if (string.IsNullOrWhiteSpace(dto.CurrentPassword))
                     return new Response<string>(400, "Current password is required.");
-                if (string.IsNullOrWhiteSpace(dto.NewPassword))
-                    return new Response<string>(400, "New password cannot be empty.");
 
+                if (string.IsNullOrWhiteSpace(dto.NewPassword))
+                    return new Response<string>(400, "New password is required.");
 
                 var existingUser = await _userDapperRepository.GetByUserIdAsync(userId.Value);
+
                 if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, existingUser.PassWord))
-                    return new Response<string>(400, "Invalid current password");
+                    return new Response<string>(400, "Invalid current password.");
+
+                if (BCrypt.Net.BCrypt.Verify(dto.NewPassword, existingUser.PassWord))
+                    return new Response<string>(400, "New password cannot be the same as the current password.");
 
                 existingUser.PassWord = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
                 await _authRepo.UpdateAsync(existingUser);
 
                 _logger.LogInformation("Password changed successfully for UserId {UserId}", userId);
-                return new Response<string>(200, "Password changed successfully");
+                return new Response<string>(200, "Password changed successfully.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Reset password failed");
-                return new Response<string>(500, ex.Message);
+                _logger.LogError(ex, "Error during password reset.");
+
+                return new Response<string>(
+                    500,
+                    "An error occurred while processing your request."
+                );
             }
         }
+
     }
 }

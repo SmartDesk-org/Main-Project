@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ResourceFlow.Application.Interfaces.History;
+using ResourceFlow.Domain.Enums.Authorization;
+using ResourceFlow.Infrastructure.Services.Authorization;
 
 namespace ResourceFlow.WebAPI.Controllers
 {
@@ -14,7 +16,7 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             _service = service;
         }
-        //[Authorize]
+        [ModuleAuthorize(ModuleCode.SHI,PermissionAction.View)]
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetHistory(int companyId)
         {
