@@ -16,6 +16,8 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             _service = service;
         }
+
+
         [ModuleAuthorize(ModuleCode.SHI,PermissionAction.View)]
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetHistory(int companyId)

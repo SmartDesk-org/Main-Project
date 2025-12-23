@@ -1,17 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
-
 using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Auth;
-
-using ResourceFlow.Application.Services;
-using ResourceFlow.Infrastructure.Extensions;
-
 using ResourceFlow.Application.Interfaces.Services;
-
+using ResourceFlow.Application.Services;
+using ResourceFlow.Domain.Enums.Authorization;
+using ResourceFlow.Infrastructure.Extensions;
+using ResourceFlow.Infrastructure.Services.Authorization;
 using System.Security.Claims;
 
 namespace ResourceFlow.WebAPI.Controllers
@@ -82,7 +79,6 @@ namespace ResourceFlow.WebAPI.Controllers
 
 
 
-
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh()
         {
@@ -143,12 +139,12 @@ namespace ResourceFlow.WebAPI.Controllers
             return Ok(result);
         }
 
+
+
+
+
+
        
-
-
-
-
-
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
@@ -161,7 +157,7 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-
+        [ModuleAuthorize(ModuleCode.USR, PermissionAction.Edit)]
         [EnableRateLimiting("Fixed")]
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
