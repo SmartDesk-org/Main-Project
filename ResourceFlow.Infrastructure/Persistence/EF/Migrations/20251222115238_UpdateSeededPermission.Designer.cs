@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 
@@ -11,9 +12,11 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251222115238_UpdateSeededPermission")]
+    partial class UpdateSeededPermission
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -307,21 +310,21 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(2653),
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9541),
                             IsDeleted = false,
                             RoleName = "SuperAdmin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(2655),
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9542),
                             IsDeleted = false,
                             RoleName = "CompanyAdmin"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(2656),
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9543),
                             IsDeleted = false,
                             RoleName = "Employee"
                         });
@@ -408,12 +411,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 589, DateTimeKind.Utc).AddTicks(2968),
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 37, 307, DateTimeKind.Utc).AddTicks(2023),
                             Email = "suhailpalakkal1@gmail.com",
                             IsActive = true,
                             IsBlocked = false,
                             IsDeleted = false,
-                            PassWord = "$2a$11$kQhjpYaJLux9FPM8U8AFEOT25HfNvRO42GYJAAOYuHlIQpdjP227u",
+                            PassWord = "$2a$11$ncO5UaGPd7otat4EB20CI.tKQtp0SvdNPKYRRQCi3RoNiNSMszXMK",
                             RefreshToken = "",
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1,
@@ -472,23 +475,23 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 1,
                             Code = 1,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(2068),
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8791),
                             IsDeleted = false,
                             Name = "User Management"
                         },
                         new
                         {
                             Id = 2,
-                            Code = 2,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(2072),
+                            Code = 3,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8796),
                             IsDeleted = false,
                             Name = "Company Details"
                         },
                         new
                         {
                             Id = 3,
-                            Code = 3,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(2073),
+                            Code = 4,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8797),
                             IsDeleted = false,
                             Name = "Company Floor",
                             ParentId = 2
@@ -496,26 +499,114 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 4,
-                            Code = 4,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(2075),
+                            Code = 5,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8798),
                             IsDeleted = false,
-                            Name = "Resource Management"
+                            Name = "Company Desk",
+                            ParentId = 2
                         },
                         new
                         {
                             Id = 5,
-                            Code = 5,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(2076),
+                            Code = 6,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8799),
+                            IsDeleted = false,
+                            Name = "Company Meeting Room",
+                            ParentId = 2
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Code = 7,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8801),
                             IsDeleted = false,
                             Name = "Employee Management"
                         },
                         new
                         {
-                            Id = 6,
-                            Code = 6,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(2077),
+                            Id = 7,
+                            Code = 8,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8801),
                             IsDeleted = false,
-                            Name = "Subscription Plan"
+                            Name = "Subscription Plans"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Code = 9,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8802),
+                            IsDeleted = false,
+                            Name = "Resource Management",
+                            ParentId = 7
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Code = 10,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8803),
+                            IsDeleted = false,
+                            Name = "Subscription Types",
+                            ParentId = 7
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Code = 11,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8805),
+                            IsDeleted = false,
+                            Name = "Company Subscriptions",
+                            ParentId = 7
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Code = 12,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8806),
+                            IsDeleted = false,
+                            Name = "Payment",
+                            ParentId = 10
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Code = 13,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8807),
+                            IsDeleted = false,
+                            Name = "Billing",
+                            ParentId = 10
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Code = 14,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8808),
+                            IsDeleted = false,
+                            Name = "Subscription History",
+                            ParentId = 10
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Code = 15,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8809),
+                            IsDeleted = false,
+                            Name = "Notifications"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Code = 16,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8810),
+                            IsDeleted = false,
+                            Name = "Client Messages"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Code = 2,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(8811),
+                            IsDeleted = false,
+                            Name = "Roles"
                         });
                 });
 
@@ -568,9 +659,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             RoleId = 1,
-                            ModuleCode = 1,
+                            ModuleCode = 8,
                             Add = true,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(2421),
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9171),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -579,9 +670,163 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             RoleId = 1,
-                            ModuleCode = 6,
+                            ModuleCode = 2,
                             Add = true,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(2425),
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9172),
+                            Delete = true,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleCode = 15,
+                            Add = true,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9173),
+                            Delete = true,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleCode = 3,
+                            Add = true,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9174),
+                            Delete = true,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleCode = 11,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9175),
+                            Delete = true,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleCode = 7,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9177),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleCode = 13,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9179),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleCode = 12,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9180),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleCode = 1,
+                            Add = true,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9181),
+                            Delete = true,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleCode = 5,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9194),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleCode = 4,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9195),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleCode = 6,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9196),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleCode = 16,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9197),
+                            Delete = true,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleCode = 14,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9198),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleCode = 10,
+                            Add = true,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9199),
+                            Delete = true,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleCode = 9,
+                            Add = true,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9201),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -590,9 +835,75 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             RoleId = 2,
+                            ModuleCode = 8,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9202),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleCode = 3,
+                            Add = true,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9203),
+                            Delete = true,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleCode = 11,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9204),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleCode = 7,
+                            Add = true,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9205),
+                            Delete = true,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleCode = 13,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9206),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleCode = 12,
+                            Add = true,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9207),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 2,
                             ModuleCode = 1,
                             Add = true,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(2427),
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9208),
                             Delete = false,
                             Edit = true,
                             IsDeleted = false,
@@ -601,13 +912,277 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             RoleId = 2,
+                            ModuleCode = 5,
+                            Add = true,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9209),
+                            Delete = true,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleCode = 4,
+                            Add = true,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9210),
+                            Delete = true,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 2,
                             ModuleCode = 6,
+                            Add = true,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9299),
+                            Delete = true,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleCode = 15,
+                            Add = true,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9300),
+                            Delete = true,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleCode = 2,
                             Add = false,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(2428),
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9301),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = false
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleCode = 16,
+                            Add = true,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9302),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
                             View = true
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleCode = 14,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9303),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleCode = 10,
+                            Add = true,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9304),
+                            Delete = true,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleCode = 9,
+                            Add = true,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9305),
+                            Delete = true,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 8,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9306),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 3,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9307),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 11,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9308),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = false
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 7,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9309),
+                            Delete = false,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 13,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9310),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = false
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 12,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9311),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = false
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 1,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9312),
+                            Delete = false,
+                            Edit = true,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 5,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9313),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 4,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9314),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 6,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9315),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 15,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9316),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = true
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 2,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9317),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = false
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 16,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9319),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = false
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 14,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9320),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = false
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 10,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9321),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = false
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleCode = 9,
+                            Add = false,
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 993, DateTimeKind.Utc).AddTicks(9322),
+                            Delete = false,
+                            Edit = false,
+                            IsDeleted = false,
+                            View = false
                         });
                 });
 
@@ -1244,21 +1819,21 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(4323),
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 994, DateTimeKind.Utc).AddTicks(2942),
                             IsDeleted = false,
                             TypeName = "Basic"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(4326),
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 994, DateTimeKind.Utc).AddTicks(2948),
                             IsDeleted = false,
                             TypeName = "Upgrade"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 23, 9, 24, 0, 85, DateTimeKind.Utc).AddTicks(4327),
+                            CreatedAt = new DateTime(2025, 12, 22, 11, 52, 36, 994, DateTimeKind.Utc).AddTicks(2951),
                             IsDeleted = false,
                             TypeName = "Renewal"
                         });

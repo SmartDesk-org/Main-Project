@@ -41,8 +41,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
    
         public DbSet<RolePermission> RolePermissions { get; set; }
 
-        public DbSet<CompanySubscription> companySubscriptions { get; set; }
-        
+       
         public DbSet<CompanyDesk>CompanyDesks { get; set; }
         public DbSet<CompanyMeetingRoom> CompanyMeetingRooms { get; set; }
         public DbSet<CompanyFloor> Floors { get; set; }
