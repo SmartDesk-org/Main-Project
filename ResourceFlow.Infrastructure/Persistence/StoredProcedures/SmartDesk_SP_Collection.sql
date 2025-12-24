@@ -201,7 +201,9 @@ GO
 }*/
 
 GO
-CREATE   PROCEDURE [dbo].[SP_ROLES]
+
+CREATE  PROCEDURE [dbo].[SP_ROLES]
+
     @FLAG          VARCHAR(40),
     @ROLEID        INT             = NULL,
     @ROLENAME      NVARCHAR(100)   = NULL,

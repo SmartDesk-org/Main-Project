@@ -49,18 +49,18 @@ namespace ResourceFlow.Application.Services
             _logger = logger;
         }
 
+        private const int MAX_FAILED_ATTEMPTS = 3;
+        private static readonly TimeSpan LOCK_DURATION = TimeSpan.FromHours(24);
         public async Task<Response<object>> RegisterAsync(RegisterRequestDto dto)
         {
             try
             {
                 _logger.LogInformation("Register attempt for email {Email}", dto.Email);
 
-                // Normalize input (this is still OK here)
                 dto.Email = dto.Email.Trim().ToLower();
                 dto.UserName = dto.UserName.Trim();
                 dto.Password = dto.Password.Trim();
 
-                // ONLY business-level validation remains
                 var existing = await _userDapperRepository.GetByEmailAsync(dto.Email);
                 if (existing != null)
                     return new Response<object>(409, "Email already registered");
@@ -90,6 +90,7 @@ namespace ResourceFlow.Application.Services
             }
         }
 
+
         public async Task<Response<AuthTokensDto>> LoginAsync(LoginRequestDto dto)
         {
             try
@@ -100,116 +101,165 @@ namespace ResourceFlow.Application.Services
                 dto.Password = dto.Password.Trim();
 
                 var user = await _userDapperRepository.GetByEmailAsync(dto.Email);
-                if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PassWord))
+                if (user == null)
                 {
                     _logger.LogWarning("Invalid login attempt for email {Email}", dto.Email);
-                    throw new Exception("Invalid credentials");
+                    return new Response<AuthTokensDto>(401, "Invalid email or password");
                 }
 
-                if (!user.IsActive || user.IsBlocked)
+                var trackedUser = await _authRepo.GetByIdAsync(user.UserId);
+                if (trackedUser == null)
+                    return new Response<AuthTokensDto>(401, "Invalid email or password");
+
+                if (trackedUser.LockoutEnd.HasValue &&
+                    trackedUser.LockoutEnd > DateTime.UtcNow)
                 {
-                    _logger.LogWarning("Login blocked for UserId {UserId}", user.UserId);
-                    throw new Exception("Account inactive or blocked");
+                    _logger.LogWarning(
+                        "Locked account login attempt for UserId {UserId}",
+                        trackedUser.UserId
+                    );
+
+                    return new Response<AuthTokensDto>(
+                        423,
+                        "Account locked. Try again after 24 hours."
+                    );
                 }
+
+                if (!BCrypt.Net.BCrypt.Verify(dto.Password, trackedUser.PassWord))
+                {
+                    trackedUser.FailedLoginAttempts++;
+                    trackedUser.LastFailedLogin = DateTime.UtcNow;
+
+                    if (trackedUser.FailedLoginAttempts >= MAX_FAILED_ATTEMPTS)
+                    {
+                        trackedUser.LockoutEnd = DateTime.UtcNow.Add(LOCK_DURATION);
+                        _logger.LogWarning(
+                            "UserId {UserId} locked after {Attempts} failed attempts",
+                            trackedUser.UserId,
+                            trackedUser.FailedLoginAttempts
+                        );
+                    }
+
+                    await _authRepo.SaveAsync();
+                    return new Response<AuthTokensDto>(401, "Invalid credentials");
+                }
+
+                if (!trackedUser.IsActive || trackedUser.IsBlocked)
+                {
+                    _logger.LogWarning("Login blocked for UserId {UserId}", trackedUser.UserId);
+                    return new Response<AuthTokensDto>(403, "Account inactive or blocked");
+                }
+
+                trackedUser.FailedLoginAttempts = 0;
+                trackedUser.LockoutEnd = null;
+                trackedUser.LastFailedLogin = null;
 
                 var (accessToken, exp) = _jwtService.GenerateAccessToken(user);
                 var refreshToken = _jwtService.GenerateRefreshToken();
 
-                var trackedUser = await _authRepo.GetByIdAsync(user.UserId);
                 trackedUser.RefreshToken = refreshToken;
                 trackedUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
                 await _authRepo.SaveAsync();
 
-
-                _logger.LogInformation("Login successful for UserId {UserId}", user.UserId);
-
-
-                var res = new AuthTokensDto
+                _logger.LogInformation("Login successful for UserId {UserId}", trackedUser.UserId);
 
 
-                {
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken,
-                    //AccessTokenExpiry = exp,
-                    //RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
-                    //Role = user.RoleId
-                };
-
-
-                return new Response<AuthTokensDto>(200, "Login Succesfull", res);
+                return new Response<AuthTokensDto>(
+                    200,
+                    "Login successful",
+                    new AuthTokensDto
+                    {
+                        AccessToken = accessToken,
+                        RefreshToken = refreshToken,
+                        Role = user.RoleId
+                    }
+                );
 
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Login failed");
-                throw;
+                return new Response<AuthTokensDto>(
+                    500,
+                    "An unexpected error occurred. Please try again later."
+                );
             }
         }
 
-        public async Task<AuthTokensDto> RefreshTokenAsync(string refreshToken)
+        public async Task<Response<AuthTokensDto>> RefreshTokenAsync(string refreshToken)
         {
             try
             {
-
                 _logger.LogInformation("Refresh token request received");
 
-
-                var user = await _userDapperRepository.GetByRefreshToken(refreshToken);
-                if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
+                if (string.IsNullOrWhiteSpace(refreshToken))
                 {
-                    _logger.LogWarning("Invalid or expired refresh token");
-                    throw new Exception("Invalid or expired refresh token");
+                    return new Response<AuthTokensDto>(401, "Invalid refresh token");
                 }
 
+                // 1️⃣ Fast lookup via Dapper
+                var user = await _userDapperRepository.GetByRefreshToken(refreshToken);
 
-                var (accessToken, exp) = _jwtService.GenerateAccessToken(user);
+                if (user == null)
+                {
+                    _logger.LogWarning("Refresh failed: token not found");
+                    return new Response<AuthTokensDto>(401, "Invalid refresh token");
+                }
+
+                if (user.RefreshTokenExpiry < DateTime.UtcNow)
+                {
+                    _logger.LogWarning("Refresh failed: token expired for UserId {UserId}", user.UserId);
+                    return new Response<AuthTokensDto>(401, "Session expired. Please login again");
+                }
+
+                // 2️⃣ Load EF-tracked user (source of truth)
+                var trackedUser = await _authRepo.GetByIdAsync(user.UserId);
+                if (trackedUser == null)
+                {
+                    return new Response<AuthTokensDto>(401, "Invalid refresh token");
+                }
+
+                // ❌ Blocked / inactive users
+                if (!trackedUser.IsActive || trackedUser.IsBlocked)
+                {
+                    _logger.LogWarning("Refresh blocked for UserId {UserId}", trackedUser.UserId);
+                    return new Response<AuthTokensDto>(403, "Account inactive or blocked");
+                }
+
+                // 🔑 Generate new tokens
+                var (accessToken, accessExp) = _jwtService.GenerateAccessToken(user);
                 var newRefreshToken = _jwtService.GenerateRefreshToken();
 
-                var trackedUser = await _authRepo.GetByIdAsync(user.UserId);
-
-
-                var dbUser = await _userDapperRepository.GetByUserIdAsync(user.UserId);
-
-                if (dbUser == null)
-                    throw new Exception("User not found");
-
-                if (user.RefreshTokenExpiry < DateTime.UtcNow ||
-                      user.RefreshTokenExpiry < DateTime.UtcNow)
-
-                    throw new Exception("Session expired. Please login again.");
                 trackedUser.RefreshToken = newRefreshToken;
                 trackedUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
                 await _authRepo.SaveAsync();
 
+                _logger.LogInformation("Refresh token successful for UserId {UserId}", user.UserId);
 
-                _logger.LogInformation("Token refreshed for UserId {UserId}", user.UserId);
-
-
-
-                var res = new AuthTokensDto
-
-                {
-                    AccessToken = accessToken,
-                    RefreshToken = newRefreshToken,
-                    AccessTokenExpiry = exp,
-                    RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
-                    Role = user.RoleId
-                };
-
-
-                _logger.LogInformation("token {token}", res.RefreshToken);
-                // STEP 5: RETURN RESPONSE
-                return res;
-
+                return new Response<AuthTokensDto>(
+                    200,
+                    "Token refreshed",
+                    new AuthTokensDto
+                    {
+                        AccessToken = accessToken,
+                        RefreshToken = newRefreshToken,
+                        RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
+                        Role = user.RoleId
+                    }
+                );
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Refresh token failed");
-                throw new Exception("refresh failed");
+                return new Response<AuthTokensDto>(
+                    500,
+                    "An unexpected error occurred. Please login again."
+                );
             }
         }
+
 
         public async Task<Response<object>> LogoutAsync(int userId)
         {
@@ -267,6 +317,11 @@ namespace ResourceFlow.Application.Services
 
                 user.PasswordResetToken = token;
                 user.PasswordResetExpiry = DateTime.UtcNow.AddMinutes(15);
+                user.FailedLoginAttempts = 0;
+                user.LockoutEnd = null;
+                user.LastFailedLogin = null;
+
+                await _authRepo.SaveAsync();
 
                 await _authRepo.UpdateAsync(user);
 

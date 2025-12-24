@@ -8,11 +8,7 @@ using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.CompanyModels;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
 using ResourceFlow.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace ResourceFlow.Application.Services.Company
 {
@@ -25,9 +21,8 @@ namespace ResourceFlow.Application.Services.Company
         private readonly IGenericRepository<Resource> _resourceRepo;
         private readonly IGenericRepository<CompanyFloor> _floorRepo;
         private readonly IGenericRepository<SubscriptionHistory> _historyRepo;
-        private readonly IJwtService _jwtservice;
-
         private readonly IUnitOfWork _unitOfWork;
+
         private readonly IMapper _mapper;
 
         public CompanyService(
@@ -35,7 +30,6 @@ namespace ResourceFlow.Application.Services.Company
             IGenericRepository<User> userRepo,
             IGenericRepository<CompanySubscription> compSubRepo,
             IGenericRepository<Subscription> subRepo,
-            IGenericRepository<Resource> resourceRepo,
             IGenericRepository<CompanyFloor> floorRepo,
             IGenericRepository<SubscriptionHistory> historyRepo,
             IUnitOfWork unitOfWork,
@@ -46,7 +40,6 @@ namespace ResourceFlow.Application.Services.Company
             _userRepo = userRepo;
             _compSubRepo = compSubRepo;
             _subRepo = subRepo;
-            _resourceRepo = resourceRepo;
             _floorRepo = floorRepo;
             _historyRepo = historyRepo;
             _mapper = mapper;

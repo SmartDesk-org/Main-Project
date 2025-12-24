@@ -20,10 +20,6 @@ Log.Logger = new LoggerConfiguration()
         rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
-
-
-
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog();
