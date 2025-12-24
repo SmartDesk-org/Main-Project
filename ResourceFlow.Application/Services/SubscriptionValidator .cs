@@ -5,7 +5,7 @@ using ResourceFlow.Domain.Enums.Subscriptions;
 using ResourceFlow.Domain.Exceptions.Subscriptions;
 using ResourceFlow.Domain.Exceptions.Subscriptions.Company;
 using ResourceFlow.Domain.Exceptions.Subscriptions.Subscription;
-using ResourceFlow.Domain.Exceptions.Subscriptions.Subscription.ResourceFlow.Domain.Exceptions.Subscriptions.Subscription;
+
 
 namespace ResourceFlow.Application.Services
 {

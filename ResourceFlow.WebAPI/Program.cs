@@ -7,8 +7,7 @@ using System.Text;
 using System.Threading.RateLimiting;
 using OfficeOpenXml;
 using ResourceFlow.WebAPI.Middleware;
-<<<<<<< HEAD
-=======
+
 using Serilog;
 
 
@@ -24,7 +23,7 @@ Log.Logger = new LoggerConfiguration()
 
 
 
->>>>>>> 671942c9e2248c9f918dc76bd4807271fad51a93
+
 
 var builder = WebApplication.CreateBuilder(args);
 

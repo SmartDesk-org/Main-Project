@@ -90,7 +90,7 @@ namespace ResourceFlow.Application.Services
             }
         }
 
-        public async Task<AuthTokensDto> LoginAsync(LoginRequestDto dto)
+        public async Task<Response<AuthTokensDto>> LoginAsync(LoginRequestDto dto)
         {
             try
             {
@@ -131,13 +131,13 @@ namespace ResourceFlow.Application.Services
                 {
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
-                    AccessTokenExpiry = exp,
-                    RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
-                    Role = user.RoleId
+                    //AccessTokenExpiry = exp,
+                    //RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
+                    //Role = user.RoleId
                 };
 
 
-                return res;
+                return new Response<AuthTokensDto>(200, "Login Succesfull", res);
 
             }
             catch (Exception ex)
@@ -222,13 +222,11 @@ namespace ResourceFlow.Application.Services
                     return new Response<object>(404, "User not found");
 
                 user.RefreshToken = string.Empty;
-                user.RefreshTokenExpiry = DateTime.MinValue;
+                user.RefreshTokenExpiry = null;
 
                 await _authRepo.SaveAsync();
                 _logger.LogInformation("Logout successful for UserId {UserId}", userId);
                 return new Response<object>(200, "Logout successfull.");
-
-
 
             }
             catch (StoredProcedureException ex)
