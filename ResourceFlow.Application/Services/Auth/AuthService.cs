@@ -164,6 +164,7 @@ namespace ResourceFlow.Application.Services
 
                 _logger.LogInformation("Login successful for UserId {UserId}", trackedUser.UserId);
 
+
                 return new Response<AuthTokensDto>(
                     200,
                     "Login successful",
@@ -174,6 +175,7 @@ namespace ResourceFlow.Application.Services
                         Role = user.RoleId
                     }
                 );
+
             }
             catch (Exception ex)
             {
@@ -270,13 +272,11 @@ namespace ResourceFlow.Application.Services
                     return new Response<object>(404, "User not found");
 
                 user.RefreshToken = string.Empty;
-                user.RefreshTokenExpiry = DateTime.MinValue;
+                user.RefreshTokenExpiry = null;
 
                 await _authRepo.SaveAsync();
                 _logger.LogInformation("Logout successful for UserId {UserId}", userId);
                 return new Response<object>(200, "Logout successfull.");
-
-
 
             }
             catch (StoredProcedureException ex)
