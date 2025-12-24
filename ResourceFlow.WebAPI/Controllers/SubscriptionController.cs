@@ -60,6 +60,7 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+
         [ModuleAuthorize(ModuleCode.SPS, PermissionAction.Delete)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
