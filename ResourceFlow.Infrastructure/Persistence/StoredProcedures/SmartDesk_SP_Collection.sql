@@ -692,6 +692,9 @@ GO
 
   -- Get active subscriptions
   EXEC dbo.SP_SUBSCRIPTION @FLAG = 'GETBYACTIVE', @ISACTIVE = 1;
+
+  Modified On and Modified By : { 124/12/2025 : Suhail }
+  Description : Added typeName in GETALL joining subscrptioType table 
 }*/
 
 CREATE  PROCEDURE [dbo].[SP_SUBSCRIPTION] 
@@ -713,17 +716,19 @@ BEGIN
         IF @FLAG = 'GETALL'
         BEGIN
             SELECT 
-                Id,
-        SubscriptionName,
-        MaxEmployees,
-        MaxFloors,
-        MaxDesks,
-        MaxMeetingRooms,
-        PriceMonthly,
-        PriceYearly,
-        Description,
-        IsActive
-            FROM Subscriptions
+                s.Id,
+        s.SubscriptionName,
+        s.MaxEmployees,
+        s.MaxFloors,
+        s.MaxDesks,
+        s.MaxMeetingRooms,
+        s.PriceMonthly,
+        s.PriceYearly,
+        s.Description,
+        s.IsActive,
+        t.TypeName
+            FROM Subscriptions s
+            JOIN SubscriptionTypes t ON s.TypeId =t.Id
             WHERE IsDeleted = 0;
             RETURN;
         END
