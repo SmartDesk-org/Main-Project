@@ -31,13 +31,10 @@ namespace ResourceFlow.WebAPI.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto dto)
         {
             _logger.LogInformation("Register API called. Email: {Email}", dto?.Email);
-
             try
             {
                 var res = await _auth.RegisterAsync(dto);
-
                 _logger.LogInformation("Register completed. StatusCode: {StatusCode}", res.StatusCode);
-
                 return StatusCode(res.StatusCode, res);
             }
             catch (Exception ex)
@@ -107,9 +104,6 @@ namespace ResourceFlow.WebAPI.Controllers
                 _logger.LogWarning("Refresh token invalid");
                 return Unauthorized();
             }
-
-            //var data = res.Data as AuthTokensDto;
-
             Response.Cookies.Append("refreshToken", res.Data.RefreshToken, new CookieOptions
             {
                 HttpOnly = true,
