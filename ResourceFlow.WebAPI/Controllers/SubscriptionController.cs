@@ -7,6 +7,8 @@ using ResourceFlow.Domain.Enums.Authorization;
 using ResourceFlow.Infrastructure.Extensions;
 using ResourceFlow.Infrastructure.Services.Authorization;
 
+
+
 namespace ResourceFlow.WebAPI.Controllers
 {
     [ApiController]
@@ -14,15 +16,15 @@ namespace ResourceFlow.WebAPI.Controllers
     public class SubscriptionController : ControllerBase
     {
         private readonly ISubscriptionService _service;
-        private readonly IPermissionService _permissionService;
+       
 
-        public SubscriptionController(ISubscriptionService service,IPermissionService permissionService)
+        public SubscriptionController(ISubscriptionService service)
         {
             _service = service;
-            _permissionService = permissionService;
+            
         }
 
-        [ModuleAuthorize(ModuleCode.Subscription, PermissionAction.Add)]
+        [ModuleAuthorize(ModuleCode.SPS,PermissionAction.Add)]
         [HttpPost]
         public async Task<IActionResult> CreatePlan(CreateSubscriptionPlanDto dto)
         {
@@ -48,7 +50,7 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(res.StatusCode,res);
         }
 
-        [Authorize]
+        [ModuleAuthorize(ModuleCode.SPS, PermissionAction.Edit)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, UpdateSubscriptionPlanDto dto)
         {
@@ -58,6 +60,7 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        [ModuleAuthorize(ModuleCode.SPS, PermissionAction.Delete)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -67,7 +70,7 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        [Authorize]
+        [ModuleAuthorize(ModuleCode.SPS, PermissionAction.Edit)]
         [HttpPatch("{id}/changeStatus")]
         public async Task<IActionResult> ChangeStatus(int id)
         {
@@ -76,7 +79,7 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        [Authorize]
+        [ModuleAuthorize(ModuleCode.STY,PermissionAction.View)]
         [HttpGet("SubscriptionTypes")]
         public async Task<ActionResult> SubscriptionTypes()
         {

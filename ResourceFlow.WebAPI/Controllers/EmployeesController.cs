@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using ResourceFlow.Application.DTOs.Employees;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Interfaces.Services;
+using ResourceFlow.Domain.Enums.Authorization;
 using ResourceFlow.Infrastructure.Extensions;
+using ResourceFlow.Infrastructure.Services.Authorization;
 
 namespace ResourceFlow.WebAPI.Controllers
 {
@@ -19,6 +21,9 @@ namespace ResourceFlow.WebAPI.Controllers
             _employeeService = employeeService;
             _userRepo = userDapperRepository;
         }
+
+
+        [ModuleAuthorize(ModuleCode.EMP,PermissionAction.Add)]
         [HttpPost("bulk-upload")]
         public async Task<IActionResult> BulkUpload([FromForm] EmployeeUploadRequest request)
         {
@@ -28,6 +33,9 @@ namespace ResourceFlow.WebAPI.Controllers
             var result = await _employeeService.BulkUploadAsync(request.File, companyId.Value);
             return Ok(result);
         }
+
+
+        [ModuleAuthorize(ModuleCode.EMP, PermissionAction.Add)]
         [HttpGet("upload-template")]
         public IActionResult DownloadTemplate()
         {
@@ -37,6 +45,9 @@ namespace ResourceFlow.WebAPI.Controllers
 
             return File(fileBytes, excelContentType, "EmployeeUploadTemplate.xlsx");
         }
+
+
+        [ModuleAuthorize(ModuleCode.EMP, PermissionAction.Add)]
         [HttpPost]
         public async Task<IActionResult> CreateEmployee([FromBody] EmployeeImportDto dto)
         {
@@ -45,12 +56,19 @@ namespace ResourceFlow.WebAPI.Controllers
             var result = await _employeeService.CreateEmployeeAsync(dto, companyId.Value);
             return Ok(result);
         }
+
+
+        [ModuleAuthorize(ModuleCode.EMP, PermissionAction.View)]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+            
             var response = await _employeeService.GetAllEmployees();
             return Ok(response);
         }
+
+
+        [ModuleAuthorize(ModuleCode.EMP, PermissionAction.Edit)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateEmployeeDto dto)
         {
@@ -65,6 +83,8 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+
+        [ModuleAuthorize(ModuleCode.EMP,PermissionAction.Delete)]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

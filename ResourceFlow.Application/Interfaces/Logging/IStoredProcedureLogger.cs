@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Application.Interfaces.Logging
 {
-    public interface IAppLogger<T>
+    public interface IStoredProcedureLogger
     {
-        void Info(string message);
-        void Warning(string message);
-        void Error(Exception ex, string message);
+
+        Task ExecuteAsync(string procedureName, Func<Task> action);
+
     }
+
 }
+

@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using ResourceFlow.Application.DTOs.ClientMessages;
 using ResourceFlow.Application.Interfaces.ClientMessages;
 using ResourceFlow.Domain.Entities;
+using ResourceFlow.Domain.Enums.Authorization;
+using ResourceFlow.Infrastructure.Services.Authorization;
 
 namespace ResourceFlow.WebAPI.Controllers
 {
@@ -25,16 +27,17 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        [ModuleAuthorize(ModuleCode.CLM,PermissionAction.View)]
         [HttpGet]
-        [Authorize]
+       
         public async Task<IActionResult> GetAll()
         {
             var result = await _service.GetAllAsync();
             return StatusCode(result.StatusCode, result);
         }
-
+        [ModuleAuthorize(ModuleCode.CLM,PermissionAction.Edit)]
         [HttpPut("{id}/toggle-read")]
-        [Authorize]
+       
         public async Task<IActionResult> ToggleRead(int id)
         {
             var adminId = int.Parse(User.FindFirst("UserId")!.Value);
@@ -43,9 +46,9 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-      
+        [ModuleAuthorize(ModuleCode.CLM, PermissionAction.Edit)]
         [HttpPut("{id}/toggle-important")]
-        [Authorize]
+       
         public async Task<IActionResult> ToggleImportant(int id)
         {
             var adminId = int.Parse(User.FindFirst("UserId")!.Value);
@@ -54,9 +57,9 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-       
+        [ModuleAuthorize(ModuleCode.CLM,PermissionAction.Delete)]
         [HttpDelete("{id}")]
-        [Authorize]
+        
         public async Task<IActionResult> Delete(int id)
         {
             var adminId = int.Parse(User.FindFirst("UserId")!.Value);

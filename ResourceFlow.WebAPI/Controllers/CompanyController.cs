@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ResourceFlow.Application.DTOs.Company;
 using ResourceFlow.Application.Interfaces.Company;
+using ResourceFlow.Domain.Enums.Authorization;
 using ResourceFlow.Infrastructure.Extensions;
+using ResourceFlow.Infrastructure.Services.Authorization;
 
 namespace ResourceFlow.WebAPI.Controllers
 {
@@ -16,6 +18,7 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             _service = service;
         }
+        [ModuleAuthorize(ModuleCode.CDS,PermissionAction.View)]
         [HttpGet("GetAll")]
         public async Task<ActionResult> GetAll()
         {

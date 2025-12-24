@@ -5,9 +5,6 @@ using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.Authorization;
 using ResourceFlow.Domain.Entities.CompanyModels;
 using ResourceFlow.Domain.Entities.Finance;
-
-
-
 using ResourceFlow.Domain.Entities.SubscriptionModels;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -44,11 +41,10 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
    
         public DbSet<RolePermission> RolePermissions { get; set; }
 
-        public DbSet<CompanySubscription> companySubscriptions { get; set; }
-        
+       
         public DbSet<CompanyDesk>CompanyDesks { get; set; }
         public DbSet<CompanyMeetingRoom> CompanyMeetingRooms { get; set; }
-        
+        public DbSet<CompanyFloor> Floors { get; set; }
         public DbSet<ClientMessage> ClientMessages { get; set; }
         public DbSet<SubscriptionType> SubscriptionTypes { get; set; }
 
