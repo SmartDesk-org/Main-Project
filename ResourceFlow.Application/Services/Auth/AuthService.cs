@@ -178,7 +178,6 @@ namespace ResourceFlow.Application.Services
                       user.RefreshTokenExpiry < DateTime.UtcNow)
 
                     throw new Exception("Session expired. Please login again.");
-
                 trackedUser.RefreshToken = newRefreshToken;
                 trackedUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
