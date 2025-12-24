@@ -52,7 +52,6 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
                         throw new StoredProcedureException("Error executing SP_SUBSCRIPTION", ex);
                     }
                    
-
                 }
                 );
             return res;
