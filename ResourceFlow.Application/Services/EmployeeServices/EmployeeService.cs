@@ -120,6 +120,7 @@ public class EmployeeService : IEmployeeService
             return new ApiResponse<BulkUploadResponse>(400,
                 $"Limit Exceeded. Plan allows {subscription.MaxEmployees}. You have {currentCount}.");
         }
+        
         int chunkSize = 50;
         var chunks = validRows.Chunk(chunkSize).ToList();
 

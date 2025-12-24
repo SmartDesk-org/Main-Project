@@ -9,7 +9,7 @@ namespace ResourceFlow.Domain.Entities.SubscriptionModels
 {
     public class CompanySubscription:BaseEntity
     {
-        public int Id { get; set; }
+        public  int Id { get; set; }
         public int CompanyId { get; set; }
         public int SubscriptionId { get; set; }
         public DateTime StartDate { get; set; } = DateTime.UtcNow;

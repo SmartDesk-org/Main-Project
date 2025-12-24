@@ -29,6 +29,7 @@ Description : created 'GET_COMPANYID_BY_USRERID'
 
 
 }*/
+GO
 
 
 CREATE PROCEDURE [dbo].[SP_USER]
@@ -84,7 +85,7 @@ BEGIN
 		IF (@FLAG = 'GET_COMPANYID_BY_USERID')
 		BEGIN
 			SELECT 
-						CompanyId
+                  CompanyId
 					FROM [dbo].[Users]
 					WHERE UserId = @USERID
 					  AND IsDeleted = 0;
@@ -163,12 +164,22 @@ BEGIN
         END
 
         RAISERROR('INVALID INPUT FLAG', 16, 1);
+        RETURN;
 
     END TRY
+
     BEGIN CATCH
-        THROW;
+        DECLARE @ERR_MSG VARCHAR(MAX), @ERR_SEVERITY INT, @ERR_STATE INT;
+
+        SELECT  
+            @ERR_MSG      = ERROR_MESSAGE(),
+            @ERR_SEVERITY = ERROR_SEVERITY(),
+            @ERR_STATE    = ERROR_STATE();
+
+        RAISERROR(@ERR_MSG, @ERR_SEVERITY, @ERR_STATE);
     END CATCH
 END
+GO
 
 ----------------------------------------------------------------------------------------------------------------------------------------
 /*{
@@ -188,6 +199,7 @@ END
   EXEC dbo.USER_SP @FLAG = 'GETBYNAME', @ROLENAME = 'Admin';
 
 }*/
+
 GO
 
 CREATE  PROCEDURE [dbo].[SP_ROLES]
@@ -293,6 +305,7 @@ GO
   -- Get employees by Department
   EXEC dbo.SP_EMPLOYEE @FLAG = 'GETBYDEPARTMENT', @DEPARTMENT = 'HR';
 }*/
+
 GO
 
 CREATE  PROCEDURE [dbo].[SP_EMPLOYEE]
@@ -437,9 +450,10 @@ GO
   -- Get company by name
   EXEC dbo.SP_COMPANYDETAILS @FLAG = 'GETBYNAME', @NAME = 'ABC Pvt Ltd';
 }*/
+GO
 
 
-CREATE PROCEDURE [dbo].[SP_COMPANYDETAILS]
+CREATE  PROCEDURE [dbo].[SP_COMPANYDETAILS]
     @FLAG              VARCHAR(40),
     @COMPANYID         INT              = NULL,
     @NAME              NVARCHAR(200)    = NULL,
@@ -493,7 +507,7 @@ BEGIN
             SELECT 
                 CompanyId, Name, Address, IsActive
             FROM CompanyDetails
-            WHERE CompanyId = @COMPANYID AND IsDeleted = 0 AND IsActive=true;
+            WHERE CompanyId = @COMPANYID AND IsDeleted = 0 AND IsActive=1;
             RETURN;
         END
      
@@ -545,6 +559,7 @@ BEGIN
     END CATCH
 END
 GO
+
 -------------------------------------------------------------------------------------------------------------------------------------
 /*{
   Title       : [dbo].[SP_RESOURCE]
@@ -565,9 +580,10 @@ GO
   -- Get resource by name
   EXEC dbo.SP_RESOURCE @FLAG = 'GETBYNAME', @RESOURCENAME = 'Desk';
 }*/
+
 GO
 
-CREATE PROCEDURE [dbo].[SP_RESOURCE] 
+CREATE  PROCEDURE [dbo].[SP_RESOURCE] 
     @FLAG       VARCHAR(40),
     @RESOURCEID INT              = NULL,
     @RESOURCENAME NVARCHAR(200)  = NULL,
@@ -658,6 +674,7 @@ BEGIN
     END CATCH
 END
 GO
+GO
 -------------------------------------------------------------------------------------------------------------------------------------
 /*{
   Title       : [dbo].[SP_SUBSCRIPTION]
@@ -679,9 +696,7 @@ GO
   EXEC dbo.SP_SUBSCRIPTION @FLAG = 'GETBYACTIVE', @ISACTIVE = 1;
 }*/
 
-
-
-CREATE PROCEDURE [dbo].[SP_SUBSCRIPTION] 
+CREATE  PROCEDURE [dbo].[SP_SUBSCRIPTION] 
     @FLAG           VARCHAR(40),
     @SUBSCRIPTIONID INT              = NULL,
     @SUBSCRIPTIONNAME NVARCHAR(200)  = NULL,
@@ -702,10 +717,10 @@ BEGIN
             SELECT 
                 Id,
         SubscriptionName,
-        EmployeeLimit,
-        FloorLimit,
-        DeskLimit,
-        MeetingRoomLimit,
+        MaxEmployees,
+        MaxFloors,
+        MaxDesks,
+        MaxMeetingRooms,
         PriceMonthly,
         PriceYearly,
         Description,
@@ -778,6 +793,8 @@ BEGIN
     END CATCH
 END
 GO
+
+
 -------------------------------------------------------------------------------------------------------------------------------------
 
 /*{
@@ -814,6 +831,7 @@ Description : Updated and added new Flag named 'GETACTIVE_BYCOMPANYID' to retrie
   -- Get subscriptions expiring within a week
   EXEC dbo.SP_COMPANYSUBSCRIPTION @FLAG = 'GETEXPIRINGWITHINWEEK';
 }*/
+
 GO
 
 CREATE  PROCEDURE [dbo].[SP_COMPANYSUBSCRIPTION]
@@ -841,7 +859,7 @@ BEGIN
             SELECT 
                 Id, CompanyId, SubscriptionId, StartDate, EndDate,
                 IsActive, Status
-            FROM CompanySubscriptions
+            FROM CompanySubscription
             WHERE IsDeleted = 0;
             RETURN;
         END
@@ -860,7 +878,7 @@ BEGIN
             SELECT 
                 Id, CompanyId, SubscriptionId, StartDate, EndDate,
                 IsActive, Status
-            FROM CompanySubscriptions
+            FROM CompanySubscription
             WHERE Id = @ID AND IsDeleted = 0;
 
             RETURN;
@@ -878,7 +896,7 @@ BEGIN
             SELECT 
                 Id, CompanyId, SubscriptionId, StartDate, EndDate,
                 IsActive, Status
-            FROM CompanySubscriptions
+            FROM CompanySubscription
             WHERE CompanyId = @COMPANYID AND IsDeleted = 0;
             RETURN;
         END
@@ -895,35 +913,11 @@ BEGIN
             SELECT 
                 Id, CompanyId, SubscriptionId, StartDate, EndDate,
                 IsActive, Status
-            FROM CompanySubscriptions
+            FROM CompanySubscription
             WHERE SubscriptionId = @SUBSCRIPTIONID AND IsDeleted = 0;
             RETURN;
         END
 
-             IF @FLAG = 'GETACTIVEBYCOMPANYID'
-            BEGIN
-                IF @COMPANYID IS NULL
-                BEGIN
-                    RAISERROR('COMPANYID is required for GETACTIVEBYCOMPANYID', 16, 1);
-                    RETURN;
-                END
-
-                SELECT TOP 1
-                    Id,
-                    CompanyId,
-                    SubscriptionId,
-                    StartDate,
-                    EndDate,
-                    IsActive,
-                    Status
-                FROM CompanySubscriptions
-                WHERE CompanyId = @COMPANYID
-                  AND IsActive = 1
-                  AND IsDeleted = 0
-                ORDER BY StartDate DESC;
-
-                RETURN;
-            END
 
 
         IF @FLAG = 'GETACTIVE'
@@ -931,7 +925,7 @@ BEGIN
             SELECT 
                 Id, CompanyId, SubscriptionId, StartDate, EndDate,
                 IsActive, Status
-            FROM CompanySubscriptions
+            FROM CompanySubscription
             WHERE IsActive = 1 AND IsDeleted = 0;
             RETURN;
         END
@@ -967,7 +961,7 @@ END
             SELECT 
                 Id, CompanyId, SubscriptionId, StartDate, EndDate,
                 IsActive, Status
-            FROM CompanySubscriptions
+            FROM CompanySubscription
             WHERE Status = @STATUS AND IsDeleted = 0;
             RETURN;
         END
@@ -977,7 +971,7 @@ END
             SELECT 
                 Id, CompanyId, SubscriptionId, StartDate, EndDate,
                 IsActive, Status
-            FROM CompanySubscriptions
+            FROM CompanySubscription
             WHERE EndDate < GETUTCDATE() 
               AND IsDeleted = 0;
             RETURN;
@@ -987,7 +981,7 @@ END
             SELECT 
                 Id, CompanyId, SubscriptionId, StartDate, EndDate,
                 IsActive, Status
-            FROM CompanySubscriptions
+            FROM CompanySubscription
             WHERE 
                 CAST(EndDate AS DATE) = CAST(GETUTCDATE()  AS DATE)
                 AND IsDeleted = 0;
@@ -1000,7 +994,7 @@ END
             SELECT 
                 Id, CompanyId, SubscriptionId, StartDate, EndDate,
                 IsActive, Status
-            FROM CompanySubscriptions
+            FROM CompanySubscription
             WHERE 
                 EndDate >= GETUTCDATE() 
                 AND EndDate <= DATEADD(DAY, 7, GETUTCDATE() )
@@ -1025,7 +1019,7 @@ END
         RAISERROR(@ERR_MSG, @ERR_SEVERITY, @ERR_STATE);
     END CATCH
 END
-GO
+
 -------------------------------------------------------------------------------------------------------------------------------------
 
 /*{
@@ -1047,8 +1041,9 @@ GO
   -- Get billing by payment status
   EXEC dbo.SP_BILLING @FLAG = 'GETBYSTATUS', @PAYMENTSTATUS = 'PAID';
 }*/
+
 GO
-CREATE PROCEDURE [dbo].[SP_BILLING] 
+CREATE  PROCEDURE [dbo].[SP_BILLING] 
     @FLAG                  VARCHAR(40),
     @BILLINGID             INT              = NULL,
     @COMPANYID             INT              = NULL,
@@ -1146,6 +1141,7 @@ BEGIN
     END CATCH
 END
 GO
+
 -------------------------------------------------------------------------------------------------------------------------------------
 
 /*{
@@ -1170,14 +1166,15 @@ GO
   -- Get payment by status
   EXEC dbo.SP_PAYMENT @FLAG = 'GETBYSTATUS', @PAYMENTSTATUS = 'SUCCESS';
 }*/
+
 GO
 
 CREATE  PROCEDURE [dbo].[SP_PAYMENT] 
     @FLAG           VARCHAR(40),
     @PAYMENTID      INT              = NULL,
     @COMPANYID      INT              = NULL,
-    @SUBSCRIPTIONID INT              = NULL,
-    @TRANSACTIONID  NVARCHAR(200)    = NULL,
+    @PAYMENTINTENTID INT             = NULL,
+    @RECEIPTID      NVARCHAR(200)    = NULL,
     @PAYMENTSTATUS  NVARCHAR(50)     = NULL,
     @CREATEAT       DATETIME2        = NULL,
     @CREATEDBY      INT              = NULL,
@@ -1194,8 +1191,8 @@ BEGIN
         IF @FLAG = 'GETALL'
         BEGIN
             SELECT 
-                Id, CompanyId, SubscriptionId, TransactionId, Amount, PaymentDate, PaymentStatus
-            FROM Payment
+                Id, CompanyId, PaymentIntentId, ReceiptId, Amount, PaymentDate, PaymentStatus
+            FROM Payments
             WHERE IsDeleted = 0;
             RETURN;
         END        
@@ -1207,8 +1204,8 @@ BEGIN
                 RETURN;
             END
             SELECT 
-                Id, CompanyId, SubscriptionId, TransactionId, Amount, PaymentDate, PaymentStatus
-            FROM Payment
+                Id, CompanyId, PaymentIntentId, ReceiptId, Amount, PaymentDate, PaymentStatus
+            FROM Payments
             WHERE Id = @PAYMENTID AND IsDeleted = 0;
             RETURN;
         END
@@ -1221,26 +1218,13 @@ BEGIN
                 RETURN;
             END
             SELECT 
-                Id, CompanyId, SubscriptionId, TransactionId, Amount, PaymentDate, PaymentStatus
-            FROM Payment
+                Id, CompanyId, PaymentIntentId, ReceiptId, Amount, PaymentDate, PaymentStatus
+            FROM Payments
             WHERE CompanyId = @COMPANYID AND IsDeleted = 0;
             RETURN;
         END
 
-        
-        IF @FLAG = 'GETBYSUBSCRIPTIONID'
-        BEGIN
-            IF @SUBSCRIPTIONID IS NULL
-            BEGIN
-                RAISERROR('SUBSCRIPTIONID is required for GETBYSUBSCRIPTIONID', 16, 1);
-                RETURN;
-            END
-            SELECT 
-                Id, CompanyId, SubscriptionId, TransactionId, Amount, PaymentDate, PaymentStatus
-            FROM Payment
-            WHERE SubscriptionId = @SUBSCRIPTIONID AND IsDeleted = 0;
-            RETURN;
-        END
+   
 
         IF @FLAG = 'GETBYSTATUS'
         BEGIN
@@ -1251,8 +1235,8 @@ BEGIN
             END
 
             SELECT 
-                Id, CompanyId, SubscriptionId, TransactionId, Amount, PaymentDate, PaymentStatus
-            FROM Payment
+                Id, CompanyId, PaymentIntentId,ReceiptId, Amount, PaymentDate, PaymentStatus
+            FROM Payments
             WHERE PaymentStatus = @PAYMENTSTATUS AND IsDeleted = 0;
             RETURN;
         END
@@ -1304,7 +1288,7 @@ GO
 }*/
 GO
 
-CREATE PROCEDURE [dbo].[SP_NOTIFICATION]
+CREATE  PROCEDURE [dbo].[SP_NOTIFICATION]
     @FLAG            VARCHAR(40),
     @ID              INT              = NULL,
     @COMPANYID       INT              = NULL,
@@ -1336,7 +1320,7 @@ BEGIN
                 NotificationType, TargetChannel, Status,
                 ReferenceType, ReferenceId, SentAt, IsSent,
                 ReadAt, IsRead, RetryCount
-            FROM Notification
+            FROM Notifications
             WHERE IsDeleted = 0;
             RETURN;
         END
@@ -1356,7 +1340,7 @@ BEGIN
                 NotificationType, TargetChannel, Status,
                 ReferenceType, ReferenceId, SentAt, IsSent,
                 ReadAt, IsRead, RetryCount
-            FROM Notification
+            FROM Notifications
             WHERE Id = @ID AND IsDeleted = 0;
             RETURN;
         END
@@ -1373,7 +1357,7 @@ BEGIN
                 NotificationType, TargetChannel, Status,
                 ReferenceType, ReferenceId, SentAt, IsSent,
                 ReadAt, IsRead, RetryCount
-            FROM Notification
+            FROM Notifications
             WHERE CompanyId = @COMPANYID AND IsDeleted = 0;
             RETURN;
         END
@@ -1390,7 +1374,7 @@ BEGIN
                 NotificationType, TargetChannel, Status,
                 ReferenceType, ReferenceId, SentAt, IsSent,
                 ReadAt, IsRead, RetryCount
-            FROM Notification
+            FROM Notifications
             WHERE UserId = @USERID AND IsDeleted = 0;
             RETURN;
         END
@@ -1407,7 +1391,7 @@ BEGIN
                 NotificationType, TargetChannel, Status,
                 ReferenceType, ReferenceId, SentAt, IsSent,
                 ReadAt, IsRead, RetryCount
-            FROM Notification
+            FROM Notifications
             WHERE RoleId = @ROLEID AND IsDeleted = 0;
             RETURN;
         END
@@ -1424,7 +1408,7 @@ BEGIN
                 NotificationType, TargetChannel, Status,
                 ReferenceType, ReferenceId, SentAt, IsSent,
                 ReadAt, IsRead, RetryCount
-            FROM Notification
+            FROM Notifications
             WHERE IsSent = @ISSENT AND IsDeleted = 0;
             RETURN;
         END
@@ -1441,7 +1425,7 @@ BEGIN
                 NotificationType, TargetChannel, Status,
                 ReferenceType, ReferenceId, SentAt, IsSent,
                 ReadAt, IsRead, RetryCount
-            FROM Notification
+            FROM Notifications
             WHERE IsRead = @ISREAD AND IsDeleted = 0;
             RETURN;
         END
@@ -1463,7 +1447,6 @@ BEGIN
     END CATCH
 END
 GO
-
 ------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
 /*{[
@@ -1471,33 +1454,49 @@ GO
   Description : Handles history for companies 
   CreatedOn and Owner : { 20/12/2025 : Suhail}
 
+  ModifiedOn and Owner:{ 23/12/2025 : Ganga Suresh V}
+  Description :Added  error capture details
+
   Execution Statements:
 
   -- Get all histories of a company
   EXEC [dbo].[SP_HISTORYBYCOMPANY] @CompanyDi=companyID
   
 }*/
-GO
-
-CREATE OR ALTER PROCEDURE [dbo].[SP_HISTORYBYCOMPANY]
+CREATE  PROCEDURE [dbo].[SP_HISTORYBYCOMPANY]
 ( 
-	@CompanyId INT
+    @CompanyId INT
 )
-AS 
+AS
 BEGIN
-	SET NOCOUNT ON;
-	SELECT 
-		c.Name				AS CompanyName,
-		s.SubscriptionName AS SubscriptionName,
-		h.StartDate,
-		h.EndDate,
-		h.AmountPaid,
-		h.Status,
-		h.ChangeReason
-	FROM Histories h
-	INNER JOIN CompanyDetails c ON h.CompanyId=c.CompanyId
-	INNER JOIN Subscriptions s ON h.SubscriptionId=s.Id
-	WHERE c.IsDeleted=0 AND h.CompanyId=@CompanyId
-	ORDER BY h.CreatedAt DESC
+    BEGIN TRY
+              
+        SELECT 
+            c.Name              AS CompanyName,
+            s.SubscriptionName  AS SubscriptionName,
+            h.StartDate,
+            h.EndDate,
+            h.AmountPaid,
+            h.Status,
+            h.ChangeReason
+        FROM Histories h
+        INNER JOIN CompanyDetails c ON h.CompanyId = c.CompanyId
+        INNER JOIN Subscriptions s ON h.SubscriptionId = s.Id
+        WHERE c.IsDeleted = 0 AND h.CompanyId = @CompanyId
+        ORDER BY h.CreatedAt DESC;
+    END TRY
+    BEGIN CATCH
+        
+        DECLARE @ERRMSG NVARCHAR(MAX), @ERRSEVERITY INT, @ERRSTATE INT;
+
+        SELECT  
+            @ERRMSG      = ERROR_MESSAGE(),
+            @ERRSEVERITY = ERROR_SEVERITY(),
+            @ERRSTATE    = ERROR_STATE();
+
+        RAISERROR(@ERRMSG, @ERRSEVERITY, @ERRSTATE);
+    END CATCH
 END;
 GO
+
+-----------------------------------------------------------------------------------------------------------------------------------------

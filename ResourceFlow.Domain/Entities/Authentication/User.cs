@@ -28,5 +28,8 @@ namespace ResourceFlow.Domain.Entities.Authentication
             get => (RoleEnum)RoleId;
             set => RoleId = (int)value;
         }
+        public int FailedLoginAttempts { get; set; }
+        public DateTime? LockoutEnd { get; set; }
+        public DateTime? LastFailedLogin { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.InkML;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ResourceFlow.Application.Common;
@@ -10,6 +11,7 @@ using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Domain.Entities.Authentication;
+using ResourceFlow.Domain.Exceptions;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
@@ -47,18 +49,18 @@ namespace ResourceFlow.Application.Services
             _logger = logger;
         }
 
+        private const int MAX_FAILED_ATTEMPTS = 3;
+        private static readonly TimeSpan LOCK_DURATION = TimeSpan.FromHours(24);
         public async Task<Response<object>> RegisterAsync(RegisterRequestDto dto)
         {
             try
             {
                 _logger.LogInformation("Register attempt for email {Email}", dto.Email);
 
-                // Normalize input (this is still OK here)
                 dto.Email = dto.Email.Trim().ToLower();
                 dto.UserName = dto.UserName.Trim();
                 dto.Password = dto.Password.Trim();
 
-                // ONLY business-level validation remains
                 var existing = await _userDapperRepository.GetByEmailAsync(dto.Email);
                 if (existing != null)
                     return new Response<object>(409, "Email already registered");
@@ -66,7 +68,7 @@ namespace ResourceFlow.Application.Services
                 var user = _mapper.Map<User>(dto);
                 user.PassWord = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
-               
+
 
 
                 await _userRepo.AddAsync(user);
@@ -75,6 +77,12 @@ namespace ResourceFlow.Application.Services
 
                 return new Response<object>(201, "User registered successfully");
             }
+            catch (StoredProcedureException ex)
+            {
+                _logger.LogError(ex, "SP execution failed during password reset.");
+                return new Response<object>(500, "Database error occurred. Please try again later.");
+
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Registration failed for email {Email}", dto.Email);
@@ -82,7 +90,8 @@ namespace ResourceFlow.Application.Services
             }
         }
 
-        public async Task<AuthTokensDto> LoginAsync(LoginRequestDto dto)
+
+        public async Task<Response<AuthTokensDto>> LoginAsync(LoginRequestDto dto)
         {
             try
             {
@@ -92,52 +101,93 @@ namespace ResourceFlow.Application.Services
                 dto.Password = dto.Password.Trim();
 
                 var user = await _userDapperRepository.GetByEmailAsync(dto.Email);
-                if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PassWord))
+                if (user == null)
                 {
                     _logger.LogWarning("Invalid login attempt for email {Email}", dto.Email);
-                    throw new Exception("Invalid credentials");
+                    return new Response<AuthTokensDto>(401, "Invalid email or password");
                 }
 
-                if (!user.IsActive || user.IsBlocked)
+                var trackedUser = await _authRepo.GetByIdAsync(user.UserId);
+                if (trackedUser == null)
+                    return new Response<AuthTokensDto>(401, "Invalid email or password");
+
+                if (trackedUser.LockoutEnd.HasValue &&
+                    trackedUser.LockoutEnd > DateTime.UtcNow)
                 {
-                    _logger.LogWarning("Login blocked for UserId {UserId}", user.UserId);
-                    throw new Exception("Account inactive or blocked");
+                    _logger.LogWarning(
+                        "Locked account login attempt for UserId {UserId}",
+                        trackedUser.UserId
+                    );
+
+                    return new Response<AuthTokensDto>(
+                        423,
+                        "Account locked. Try again after 24 hours."
+                    );
                 }
+
+                if (!BCrypt.Net.BCrypt.Verify(dto.Password, trackedUser.PassWord))
+                {
+                    trackedUser.FailedLoginAttempts++;
+                    trackedUser.LastFailedLogin = DateTime.UtcNow;
+
+                    if (trackedUser.FailedLoginAttempts >= MAX_FAILED_ATTEMPTS)
+                    {
+                        trackedUser.LockoutEnd = DateTime.UtcNow.Add(LOCK_DURATION);
+                        _logger.LogWarning(
+                            "UserId {UserId} locked after {Attempts} failed attempts",
+                            trackedUser.UserId,
+                            trackedUser.FailedLoginAttempts
+                        );
+                    }
+
+                    await _authRepo.SaveAsync();
+                    return new Response<AuthTokensDto>(401, "Invalid credentials");
+                }
+
+                if (!trackedUser.IsActive || trackedUser.IsBlocked)
+                {
+                    _logger.LogWarning("Login blocked for UserId {UserId}", trackedUser.UserId);
+                    return new Response<AuthTokensDto>(403, "Account inactive or blocked");
+                }
+
+                trackedUser.FailedLoginAttempts = 0;
+                trackedUser.LockoutEnd = null;
+                trackedUser.LastFailedLogin = null;
 
                 var (accessToken, exp) = _jwtService.GenerateAccessToken(user);
                 var refreshToken = _jwtService.GenerateRefreshToken();
 
-                var trackedUser = await _authRepo.GetByIdAsync(user.UserId);
                 trackedUser.RefreshToken = refreshToken;
                 trackedUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
                 await _authRepo.SaveAsync();
 
+                _logger.LogInformation("Login successful for UserId {UserId}", trackedUser.UserId);
 
-                _logger.LogInformation("Login successful for UserId {UserId}", user.UserId);
-
-
-                var res = new AuthTokensDto
-
-
-                {
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken,
-                    AccessTokenExpiry = exp,
-                    RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
-                    Role = user.RoleId
-                };
-
-
-                return res;
-
+                return new Response<AuthTokensDto>(
+                    200,
+                    "Login successful",
+                    new AuthTokensDto
+                    {
+                        AccessToken = accessToken,
+                        RefreshToken = refreshToken,
+                        AccessTokenExpiry = exp,
+                        RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
+                        Role = user.RoleId
+                    }
+                );
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Login failed");
-                throw;
+                return new Response<AuthTokensDto>(
+                    500,
+                    "An unexpected error occurred. Please try again later."
+                );
             }
         }
+
+
 
         public async Task<AuthTokensDto> RefreshTokenAsync(string refreshToken)
         {
@@ -170,7 +220,6 @@ namespace ResourceFlow.Application.Services
                       user.RefreshTokenExpiry < DateTime.UtcNow)
 
                     throw new Exception("Session expired. Please login again.");
-
                 trackedUser.RefreshToken = newRefreshToken;
                 trackedUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
@@ -193,7 +242,6 @@ namespace ResourceFlow.Application.Services
 
 
                 _logger.LogInformation("token {token}", res.RefreshToken);
-                // STEP 5: RETURN RESPONSE
                 return res;
 
             }
@@ -222,7 +270,13 @@ namespace ResourceFlow.Application.Services
                 return new Response<object>(200, "Logout successfull.");
 
 
-              
+
+            }
+            catch (StoredProcedureException ex)
+            {
+                _logger.LogError(ex, "SP execution failed during password reset.");
+                return new Response<object>(500, "Database error occurred. Please try again later.");
+
             }
             catch (Exception ex)
             {
@@ -256,6 +310,11 @@ namespace ResourceFlow.Application.Services
 
                 user.PasswordResetToken = token;
                 user.PasswordResetExpiry = DateTime.UtcNow.AddMinutes(15);
+                user.FailedLoginAttempts = 0;
+                user.LockoutEnd = null;
+                user.LastFailedLogin = null;
+
+                await _authRepo.SaveAsync();
 
                 await _authRepo.UpdateAsync(user);
 
@@ -272,6 +331,12 @@ namespace ResourceFlow.Application.Services
                 _logger.LogInformation("Password reset email sent to {Email}", dto.Email);
                 return new Response<object>(200, "Password reset link sent");
             }
+            catch (StoredProcedureException ex)
+            {
+                _logger.LogError(ex, "SP execution failed during password reset.");
+                return new Response<object>(500, "Database error occurred. Please try again later.");
+
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Forgot password failed");
@@ -279,23 +344,27 @@ namespace ResourceFlow.Application.Services
             }
         }
 
+
         public async Task<Response<string>> ResetPasswordAsync(ResetPasswordDto dto, int? userId)
         {
             try
             {
-
                 dto.Token = dto.Token?.Trim();
-                dto.CurrentPassword = dto.CurrentPassword.Trim();
-                dto.NewPassword = dto.NewPassword.Trim();
+                dto.CurrentPassword = dto.CurrentPassword?.Trim();
+                dto.NewPassword = dto.NewPassword?.Trim();
 
-
+                // ===================== FORGOT PASSWORD FLOW =====================
                 if (!string.IsNullOrWhiteSpace(dto.Token))
                 {
                     _logger.LogInformation("Password reset using token");
 
                     var user = await _userDapperRepository.GetByPasswordResetTokenAsync(dto.Token);
+
                     if (user == null || user.PasswordResetExpiry < DateTime.UtcNow)
-                        return new Response<string>(400, "Invalid or expired token");
+                        return new Response<string>(400, "Invalid or expired reset token.");
+
+                    if (BCrypt.Net.BCrypt.Verify(dto.NewPassword, user.PassWord))
+                        return new Response<string>(400, "New password cannot be the same as the old password.");
 
                     user.PassWord = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
                     user.PasswordResetToken = null;
@@ -304,36 +373,50 @@ namespace ResourceFlow.Application.Services
                     await _authRepo.UpdateAsync(user);
 
                     _logger.LogInformation("Password reset successful");
-                    return new Response<string>(200, "Password reset successful");
+                    return new Response<string>(200, "Password reset successful.");
                 }
 
-
-                _logger.LogInformation("Password change for UserId {UserId}", userId);
+                // ===================== CHANGE PASSWORD FLOW =====================
+                _logger.LogInformation("Password change request for UserId {UserId}", userId);
 
                 if (!userId.HasValue)
-                    return new Response<string>(401, "Unauthorized");
+                    return new Response<string>(401, "Unauthorized.");
 
                 if (string.IsNullOrWhiteSpace(dto.CurrentPassword))
                     return new Response<string>(400, "Current password is required.");
-                if (string.IsNullOrWhiteSpace(dto.NewPassword))
-                    return new Response<string>(400, "New password cannot be empty.");
 
+                if (string.IsNullOrWhiteSpace(dto.NewPassword))
+                    return new Response<string>(400, "New password is required.");
 
                 var existingUser = await _userDapperRepository.GetByUserIdAsync(userId.Value);
+
                 if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, existingUser.PassWord))
-                    return new Response<string>(400, "Invalid current password");
+                    return new Response<string>(400, "Invalid current password.");
+
+                if (BCrypt.Net.BCrypt.Verify(dto.NewPassword, existingUser.PassWord))
+                    return new Response<string>(400, "New password cannot be the same as the current password.");
 
                 existingUser.PassWord = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
                 await _authRepo.UpdateAsync(existingUser);
 
                 _logger.LogInformation("Password changed successfully for UserId {UserId}", userId);
-                return new Response<string>(200, "Password changed successfully");
+                return new Response<string>(200, "Password changed successfully.");
+            }
+            catch (StoredProcedureException spEx)
+            {
+                _logger.LogError(spEx, "SP execution failed during password reset.");
+                return new Response<string>(500, "Database error occurred. Please try again later.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Reset password failed");
-                return new Response<string>(500, ex.Message);
+                _logger.LogError(ex, "Error during password reset.");
+
+                return new Response<string>(
+                    500,
+                    "An error occurred while processing your request."
+                );
             }
         }
+
     }
 }

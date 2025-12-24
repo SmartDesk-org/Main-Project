@@ -1,17 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
-
 using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Auth;
-
-using ResourceFlow.Application.Services;
-using ResourceFlow.Infrastructure.Extensions;
-
 using ResourceFlow.Application.Interfaces.Services;
-
+using ResourceFlow.Application.Services;
+using ResourceFlow.Domain.Enums.Authorization;
+using ResourceFlow.Infrastructure.Extensions;
+using ResourceFlow.Infrastructure.Services.Authorization;
 using System.Security.Claims;
 
 namespace ResourceFlow.WebAPI.Controllers
@@ -54,29 +51,34 @@ namespace ResourceFlow.WebAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
-            try
+            var result = await _auth.LoginAsync(dto);
+
+            if (result.StatusCode != 200 || result.Data == null)
             {
-                var res = await _auth.LoginAsync(dto);
+                _logger.LogWarning(
+                    "Login failed. Email: {Email}, Status: {Status}",
+                    dto?.Email,
+                    result.StatusCode
+                );
 
-                
-                    Response.Cookies.Append("refreshToken", res.RefreshToken, new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Secure = false, // set to true in production
-                        SameSite = SameSiteMode.Lax,
-                        Expires = DateTime.UtcNow.AddDays(7)
-                    });
-                
-
-                _logger.LogInformation("Login successful. Email: {Email}", dto?.Email);
-
-                return StatusCode(200, res);
+                return StatusCode(result.StatusCode, result);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Login failed. Email: {Email}", dto?.Email);
-                return StatusCode(500, new { message = ex.Message });
-            }
+
+            Response.Cookies.Append(
+                "refreshToken",
+                result.Data.RefreshToken,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = DateTime.UtcNow.AddDays(7)
+                }
+            );
+
+            _logger.LogInformation("Login successful. Email: {Email}", dto?.Email);
+
+            return Ok(result);
         }
 
 
@@ -116,12 +118,12 @@ namespace ResourceFlow.WebAPI.Controllers
                 Expires = res.RefreshTokenExpiry
             });
 
-            _logger.LogInformation("Refresh token successful {token}",res.RefreshToken);
+            _logger.LogInformation("Refresh token successful {token}", res.RefreshToken);
 
             return StatusCode(200, res.AccessToken);
         }
 
-   
+
         [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
@@ -143,12 +145,6 @@ namespace ResourceFlow.WebAPI.Controllers
             return Ok(result);
         }
 
-       
-
-
-
-
-
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
@@ -160,7 +156,6 @@ namespace ResourceFlow.WebAPI.Controllers
 
             return StatusCode(result.StatusCode, result);
         }
-
 
         [EnableRateLimiting("Fixed")]
         [HttpPost("reset-password")]
