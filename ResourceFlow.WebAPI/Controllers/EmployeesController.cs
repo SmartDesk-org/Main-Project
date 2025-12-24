@@ -62,6 +62,7 @@ namespace ResourceFlow.WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+            
             var response = await _employeeService.GetAllEmployees();
             return Ok(response);
         }

@@ -54,7 +54,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations.SeedData
                   new RolePermission { RoleId = 2, ModuleCode = RLS, Add = false, Edit = false, Delete = false, View = false },
                   new RolePermission { RoleId = 2, ModuleCode = CLM, Add = true,  Edit = false, Delete = false, View = true },
                   new RolePermission { RoleId = 2, ModuleCode = SHI, Add = false, Edit = false, Delete = false, View = true },
-                  new RolePermission { RoleId = 2, ModuleCode = STY, Add = true, Edit = true, Delete = true, View = true },
+                  new RolePermission { RoleId = 2, ModuleCode = STY, Add = false, Edit = false, Delete = false, View = true },
                   new RolePermission { RoleId = 2, ModuleCode = RES, Add = true, Edit = true, Delete = true, View = true },
 
                   // ------------------- Employees -------------------

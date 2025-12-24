@@ -60,6 +60,7 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+
         [ModuleAuthorize(ModuleCode.SPS, PermissionAction.Delete)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
@@ -79,7 +80,7 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        [ModuleAuthorize(ModuleCode.SPS,PermissionAction.View)]
+        [ModuleAuthorize(ModuleCode.STY,PermissionAction.View)]
         [HttpGet("SubscriptionTypes")]
         public async Task<ActionResult> SubscriptionTypes()
         {
