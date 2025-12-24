@@ -171,8 +171,6 @@ namespace ResourceFlow.Application.Services
                     {
                         AccessToken = accessToken,
                         RefreshToken = refreshToken,
-                        AccessTokenExpiry = exp,
-                        RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
                         Role = user.RoleId
                     }
                 );
@@ -187,70 +185,79 @@ namespace ResourceFlow.Application.Services
             }
         }
 
-
-
-        public async Task<AuthTokensDto> RefreshTokenAsync(string refreshToken)
+        public async Task<Response<AuthTokensDto>> RefreshTokenAsync(string refreshToken)
         {
             try
             {
-
                 _logger.LogInformation("Refresh token request received");
 
-
-                var user = await _userDapperRepository.GetByRefreshToken(refreshToken);
-                if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
+                if (string.IsNullOrWhiteSpace(refreshToken))
                 {
-                    _logger.LogWarning("Invalid or expired refresh token");
-                    throw new Exception("Invalid or expired refresh token");
+                    return new Response<AuthTokensDto>(401, "Invalid refresh token");
                 }
 
+                // 1️⃣ Fast lookup via Dapper
+                var user = await _userDapperRepository.GetByRefreshToken(refreshToken);
 
-                var (accessToken, exp) = _jwtService.GenerateAccessToken(user);
+                if (user == null)
+                {
+                    _logger.LogWarning("Refresh failed: token not found");
+                    return new Response<AuthTokensDto>(401, "Invalid refresh token");
+                }
+
+                if (user.RefreshTokenExpiry < DateTime.UtcNow)
+                {
+                    _logger.LogWarning("Refresh failed: token expired for UserId {UserId}", user.UserId);
+                    return new Response<AuthTokensDto>(401, "Session expired. Please login again");
+                }
+
+                // 2️⃣ Load EF-tracked user (source of truth)
+                var trackedUser = await _authRepo.GetByIdAsync(user.UserId);
+                if (trackedUser == null)
+                {
+                    return new Response<AuthTokensDto>(401, "Invalid refresh token");
+                }
+
+                // ❌ Blocked / inactive users
+                if (!trackedUser.IsActive || trackedUser.IsBlocked)
+                {
+                    _logger.LogWarning("Refresh blocked for UserId {UserId}", trackedUser.UserId);
+                    return new Response<AuthTokensDto>(403, "Account inactive or blocked");
+                }
+
+                // 🔑 Generate new tokens
+                var (accessToken, accessExp) = _jwtService.GenerateAccessToken(user);
                 var newRefreshToken = _jwtService.GenerateRefreshToken();
 
-                var trackedUser = await _authRepo.GetByIdAsync(user.UserId);
-
-
-                var dbUser = await _userDapperRepository.GetByUserIdAsync(user.UserId);
-
-                if (dbUser == null)
-                    throw new Exception("User not found");
-
-                if (user.RefreshTokenExpiry < DateTime.UtcNow ||
-                      user.RefreshTokenExpiry < DateTime.UtcNow)
-
-                    throw new Exception("Session expired. Please login again.");
                 trackedUser.RefreshToken = newRefreshToken;
                 trackedUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
                 await _authRepo.SaveAsync();
 
+                _logger.LogInformation("Refresh token successful for UserId {UserId}", user.UserId);
 
-                _logger.LogInformation("Token refreshed for UserId {UserId}", user.UserId);
-
-
-
-                var res = new AuthTokensDto
-
-                {
-                    AccessToken = accessToken,
-                    RefreshToken = newRefreshToken,
-                    AccessTokenExpiry = exp,
-                    RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
-                    Role = user.RoleId
-                };
-
-
-                _logger.LogInformation("token {token}", res.RefreshToken);
-                return res;
-
+                return new Response<AuthTokensDto>(
+                    200,
+                    "Token refreshed",
+                    new AuthTokensDto
+                    {
+                        AccessToken = accessToken,
+                        RefreshToken = newRefreshToken,
+                        RefreshTokenExpiry = trackedUser.RefreshTokenExpiry,
+                        Role = user.RoleId
+                    }
+                );
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Refresh token failed");
-                throw new Exception("refresh failed");
+                return new Response<AuthTokensDto>(
+                    500,
+                    "An unexpected error occurred. Please login again."
+                );
             }
         }
+
 
         public async Task<Response<object>> LogoutAsync(int userId)
         {

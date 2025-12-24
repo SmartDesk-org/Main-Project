@@ -20,10 +20,7 @@ namespace ResourceFlow.Application.Services.Company
         private readonly IGenericRepository<Subscription> _subRepo;
         private readonly IGenericRepository<Resource> _resourceRepo;
         private readonly IGenericRepository<CompanyFloor> _floorRepo;
-
         private readonly IGenericRepository<SubscriptionHistory> _historyRepo;
-        private readonly IJwtService _jwtservice;
-
         private readonly IUnitOfWork _unitOfWork;
 
         private readonly IMapper _mapper;
