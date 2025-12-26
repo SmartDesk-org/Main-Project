@@ -448,6 +448,10 @@ GO
   -- Get company by name
   EXEC dbo.SP_COMPANYDETAILS @FLAG = 'GETBYNAME', @NAME = 'ABC Pvt Ltd';
 }*/
+/*{
+     Modified On  and By : { 24/12/2025 : Suhail }
+      Description : Added column CompanySubscriptionId in all methods
+}*/
 GO
 
 
@@ -472,7 +476,7 @@ BEGIN
         IF @FLAG = 'GETALL'
         BEGIN
             SELECT 
-                CompanyId, Name, Address, IsActive
+                CompanyId, Name, Address, IsActive, CompanySubscriptionId
             FROM CompanyDetails
             WHERE IsDeleted = 0;
             RETURN;
@@ -488,7 +492,7 @@ BEGIN
             END
               
             SELECT 
-                CompanyId, Name, Address, IsActive
+                CompanyId, Name, Address, IsActive, CompanySubscriptionId
             FROM CompanyDetails
             WHERE CompanyId = @COMPANYID AND IsDeleted = 0;
             RETURN;
@@ -503,7 +507,7 @@ BEGIN
             END
               
             SELECT 
-                CompanyId, Name, Address, IsActive
+                CompanyId, Name, Address, IsActive, CompanySubscriptionId
             FROM CompanyDetails
             WHERE CompanyId = @COMPANYID AND IsDeleted = 0 AND IsActive=1;
             RETURN;
@@ -518,7 +522,7 @@ BEGIN
             END
 
             SELECT 
-                CompanyId, Name, Address, IsActive
+                CompanyId, Name, Address, IsActive, CompanySubscriptionId
             FROM CompanyDetails
             WHERE IsActive = @ISACTIVE AND IsDeleted = 0;
             RETURN;
@@ -533,7 +537,7 @@ BEGIN
             END
 
             SELECT 
-                CompanyId, Name, Address, IsActive
+                CompanyId, Name, Address, IsActive, CompanySubscriptionId
             FROM CompanyDetails
             WHERE Name = @NAME AND IsDeleted = 0;
             RETURN;
@@ -1466,40 +1470,38 @@ GO
   EXEC [dbo].[SP_HISTORYBYCOMPANY] @CompanyDi=companyID
   
 }*/
-CREATE  PROCEDURE [dbo].[SP_HISTORYBYCOMPANY]
-( 
+CREATE PROCEDURE [dbo].[SP_HISTORYBYCOMPANY]
+(
     @CompanyId INT
 )
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     BEGIN TRY
-              
         SELECT 
-            c.Name              AS CompanyName,
-            s.SubscriptionName  AS SubscriptionName,
+            c.Name             AS CompanyName,
+            s.SubscriptionName AS SubscriptionName,
             h.StartDate,
             h.EndDate,
             h.AmountPaid,
-            h.Status,
-            h.ChangeReason
+            h.Status           AS StatusEnum,
+            h.ChangeReason     AS ReasonEnum
         FROM Histories h
-        INNER JOIN CompanyDetails c ON h.CompanyId = c.CompanyId
-        INNER JOIN Subscriptions s ON h.SubscriptionId = s.Id
-        WHERE c.IsDeleted = 0 AND h.CompanyId = @CompanyId
+        INNER JOIN CompanyDetails c 
+            ON h.CompanyId = c.CompanyId
+        INNER JOIN Subscriptions s 
+            ON h.SubscriptionId = s.Id
+        WHERE 
+            c.IsDeleted = 0 
+            AND h.CompanyId = @CompanyId
         ORDER BY h.CreatedAt DESC;
     END TRY
     BEGIN CATCH
-        
-        DECLARE @ERRMSG NVARCHAR(MAX), @ERRSEVERITY INT, @ERRSTATE INT;
-
-        SELECT  
-            @ERRMSG      = ERROR_MESSAGE(),
-            @ERRSEVERITY = ERROR_SEVERITY(),
-            @ERRSTATE    = ERROR_STATE();
-
-        RAISERROR(@ERRMSG, @ERRSEVERITY, @ERRSTATE);
+        THROW;
     END CATCH
 END;
 GO
+
 
 -----------------------------------------------------------------------------------------------------------------------------------------

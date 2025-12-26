@@ -21,17 +21,17 @@ namespace ResourceFlow.Application.Services
         }
         public async Task<Response<IEnumerable<HistoryResponseDto>>> GetAllHistoryAsync(int companyId)
         {
-            try
-            {
-                var result = await _historyDapperRepo.GetAllHistoryAsync(companyId);
-                if (result == null || !result.Any())
-                    return new Response<IEnumerable<HistoryResponseDto>>(400, "No history as of now ");
-                return new Response<IEnumerable<HistoryResponseDto>>(200, "HistoryService fetched succesfully", result);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var result = await _historyDapperRepo.GetAllHistoryAsync(companyId);
+
+            if (result == null || !result.Any())
+                return new Response<IEnumerable<HistoryResponseDto>>(
+                    200, "No history found", Enumerable.Empty<HistoryResponseDto>()
+                );
+
+            return new Response<IEnumerable<HistoryResponseDto>>(
+                200, "History fetched successfully", result
+            );
         }
+
     }
 }

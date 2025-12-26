@@ -4,6 +4,7 @@ using ResourceFlow.Domain.Entities;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.Authorization;
 using ResourceFlow.Domain.Entities.CompanyModels;
+using ResourceFlow.Domain.Entities.Feedbacks;
 using ResourceFlow.Domain.Entities.Finance;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
 using System.Linq.Expressions;
@@ -49,6 +50,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
         public DbSet<SubscriptionType> SubscriptionTypes { get; set; }
 
         public DbSet<SubscriptionHistory> Histories { get; set; }
+        public DbSet<Feedback> Feedbacks { get; set; }
 
 
 

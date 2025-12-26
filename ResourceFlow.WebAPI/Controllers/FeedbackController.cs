@@ -1,0 +1,83 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using ResourceFlow.Application.DTOs.Feedback;
+using ResourceFlow.Application.Interfaces.Feedbacks;
+using ResourceFlow.Infrastructure.Extensions;
+
+namespace ResourceFlow.WebAPI.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class FeedbackController : ControllerBase
+    {
+        private readonly IFeedbackservice _service;
+
+        public FeedbackController(IFeedbackservice service)
+        {
+            _service = service;
+        }
+
+        // ---------------------------------------------
+        // GET ALL (Admin)
+        // ---------------------------------------------
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var res = await _service.GetAllAsync();
+            return StatusCode(res.StatusCode, res);
+        }
+
+        // ---------------------------------------------
+        // GET PUBLISHED (Public)
+        // ---------------------------------------------
+        [HttpGet("published")]
+        public async Task<IActionResult> GetPublished()
+        {
+            var res = await _service.GetPublishedAsync();
+            return StatusCode(res.StatusCode, res);
+        }
+
+        // ---------------------------------------------
+        // ADD
+        // ---------------------------------------------
+        [HttpPost]
+        public async Task<IActionResult> Add([FromBody] NewFeedbackDto dto)
+        {
+            var userId = User.GetUserId();
+            var res = await _service.CreateAsync(dto,userId);
+            return StatusCode(res.StatusCode, res);
+        }
+
+        // ---------------------------------------------
+        // TOGGLE PUBLISH
+        // ---------------------------------------------
+        [Authorize]
+        [HttpPatch("{id}/toggle-publish")]
+        public async Task<IActionResult> TogglePublish(int id)
+        {
+            var res = await _service.TogglePublishAsync(id);
+            return StatusCode(res.StatusCode, res);
+        }
+
+        // ---------------------------------------------
+        // DELETE
+        // ---------------------------------------------
+        [Authorize]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var res = await _service.DeleteAsync(id);
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [Authorize]
+        [HttpGet("{ID}/GetAll")]
+        public async Task<IActionResult> GetAllForCompany(int id)
+        {
+            var userId = User.GetUserId();
+            var res = await _service.GetAllForCompany(id, userId);
+            return StatusCode(res.StatusCode, res);
+        }
+    }
+}

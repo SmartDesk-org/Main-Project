@@ -6,6 +6,19 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <None Remove="Persistence\StoredProcedures\11_FeedBack.sql" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Persistence\StoredProcedures\11_FeedBack - Copy.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Persistence\StoredProcedures\11_FeedBack.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
 	<!-- Project References -->
 	<ItemGroup>
 		<ProjectReference Include="..\ResourceFlow.Application\ResourceFlow.Application.csproj" />
