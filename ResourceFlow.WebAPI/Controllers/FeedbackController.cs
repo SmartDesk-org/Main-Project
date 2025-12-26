@@ -72,11 +72,11 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
         [Authorize]
-        [HttpGet("{ID}/GetAll")]
-        public async Task<IActionResult> GetAllForCompany(int id)
+        [HttpGet("GetAllForCompany")]
+        public async Task<IActionResult> GetAllForCompany()
         {
             var userId = User.GetUserId();
-            var res = await _service.GetAllForCompany(id, userId);
+            var res = await _service.GetAllForCompany( userId);
             return StatusCode(res.StatusCode, res);
         }
     }

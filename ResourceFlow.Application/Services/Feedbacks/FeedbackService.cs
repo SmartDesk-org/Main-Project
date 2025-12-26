@@ -106,18 +106,18 @@ namespace ResourceFlow.Application.Services.Feedbacks
             return new Response<bool>(200, "Feedback deleted successfully", true);
         }
 
-        public async Task<Response<IEnumerable<FeedbackResponseDto>>> GetAllForCompany(int companyId, int userId)
+        public async Task<Response<IEnumerable<FeedbackResponseDto>>> GetAllForCompany(int userId)
         {
-            var user =await  _userRepo.FindAsync(u =>u.UserId==userId && u.CompanyId == companyId && u.RoleEnum == RoleEnum.CompanyAdmin && u.IsDeleted == false && u.IsActive == true);
+            var user =await  _userRepo.SingleOrDefaultAsync(u =>u.UserId==userId  && u.RoleId==(int)RoleEnum.CompanyAdmin && u.IsDeleted == false && u.IsActive == true);
 
             if (user == null)
                 return new Response<IEnumerable<FeedbackResponseDto>>(401, "Only company admin can see feedbacks");
 
-            var feedbacks =await  _feedbackDapperRepo.GetByCompanyAsync(companyId);
+            var feedbacks =await  _feedbackDapperRepo.GetByCompanyAsync(user.CompanyId ?? 0);
             if (!feedbacks.Any())
                 return new Response<IEnumerable<FeedbackResponseDto>>(404, "No response found");
 
-            return new Response<IEnumerable<FeedbackResponseDto>>(200, "Feed backes fetched successfully", feedbacks);
+            return new Response<IEnumerable<FeedbackResponseDto>>(200, "Feedbacks fetched successfully", feedbacks);
         }
     }
 }
