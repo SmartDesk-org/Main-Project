@@ -6,6 +6,38 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <None Remove="Persistence\StoredProcedures\01_Users.sql" />
+	  <None Remove="Persistence\StoredProcedures\02_Roles.sql" />
+	  <None Remove="Persistence\StoredProcedures\03_Employees.sql" />
+	  <None Remove="Persistence\StoredProcedures\04_Companydetails.sql" />
+	  <None Remove="Persistence\StoredProcedures\05_Resource.sql" />
+	  <None Remove="Persistence\StoredProcedures\06_Subscriptions.sql" />
+	  <None Remove="Persistence\StoredProcedures\07_Companysubscriptions.sql" />
+	  <None Remove="Persistence\StoredProcedures\08_Billing.sql" />
+	  <None Remove="Persistence\StoredProcedures\09_Payment.sql" />
+	  <None Remove="Persistence\StoredProcedures\10_Notifications.sql" />
+	  <None Remove="Persistence\StoredProcedures\11_Subscriptionhistory.sql" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Persistence\StoredProcedures\01_Users.sql" />
+	  <Content Include="Persistence\StoredProcedures\02_Roles.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Persistence\StoredProcedures\03_Employees.sql" />
+	  <Content Include="Persistence\StoredProcedures\04_Companydetails.sql" />
+	  <Content Include="Persistence\StoredProcedures\05_Resource.sql" />
+	  <Content Include="Persistence\StoredProcedures\06_Subscriptions.sql" />
+	  <Content Include="Persistence\StoredProcedures\07_Companysubscriptions.sql" />
+	  <Content Include="Persistence\StoredProcedures\08_Billing.sql" />
+	  <Content Include="Persistence\StoredProcedures\09_Payment.sql" />
+	  <Content Include="Persistence\StoredProcedures\10_Notifications.sql" />
+	  <Content Include="Persistence\StoredProcedures\11_Subscriptionhistory.sql" />
+	</ItemGroup>
+
+	
+
 	<!-- Project References -->
 	<ItemGroup>
 		<ProjectReference Include="..\ResourceFlow.Application\ResourceFlow.Application.csproj" />
@@ -16,10 +48,12 @@
 
 	<!-- SQL File Copy -->
 	<ItemGroup>
-		<None Update="Persistence\StoredProcedures\**\*.sql">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
+		<Content Include="..\ResourceFlow.Infrastructure\Persistence\StoredProcedures\*.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<Link>StoredProcedures\%(Filename)%(Extension)</Link>
+		</Content>
 	</ItemGroup>
+
 
 	<!-- NuGet Packages -->
 	<ItemGroup>
