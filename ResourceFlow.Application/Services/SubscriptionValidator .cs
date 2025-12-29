@@ -13,13 +13,17 @@ namespace ResourceFlow.Application.Services
     {
         private readonly ICompanyDapperRepository _companyRepository;
         private readonly ICompanySubscriptionDapperRepository _companySubscriptionRepository;
+        private readonly IResourceUsageDapperRepository _usageRepo;
 
         public SubscriptionValidator(
             ICompanyDapperRepository companyRepository,
-            ICompanySubscriptionDapperRepository companySubscriptionRepository)
+            ICompanySubscriptionDapperRepository companySubscriptionRepository,
+            IResourceUsageDapperRepository usageRepo
+            )
         {
             _companyRepository = companyRepository;
             _companySubscriptionRepository = companySubscriptionRepository;
+            _usageRepo = usageRepo;
         }
 
         public async Task ValidateAsync(
@@ -52,6 +56,16 @@ namespace ResourceFlow.Application.Services
 
                 if (action != SubscriptionAction.Read)
                     throw new GracePeriodViolationException();
+            }
+
+            if(action==SubscriptionAction.Create)
+            {
+                var used =await  _usageRepo.GetCountAsync(companyId, feature);
+                var plan = companySubscription.Subscription;
+                var allowed = plan.GetLimit(feature);
+
+                if (used >= allowed)
+                    throw new PlanLimitExceededException(feature);
             }
 
             // 🔒 Limits intentionally skipped for now
