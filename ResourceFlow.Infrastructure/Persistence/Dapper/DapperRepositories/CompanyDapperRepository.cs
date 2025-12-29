@@ -4,16 +4,12 @@ using Microsoft.Extensions.Configuration;
 using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
+
 using ResourceFlow.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Data;
-using System.Linq;
-using System.Security.Cryptography.Xml;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
 {
     public class CompanyDapperRepository : ICompanyDapperRepository

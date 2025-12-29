@@ -56,7 +56,7 @@ namespace ResourceFlow.WebAPI.Controllers
                 var res = await _auth.LoginAsync(dto);
 
                 
-                    Response.Cookies.Append("refreshToken", res.RefreshToken, new CookieOptions
+                    Response.Cookies.Append("refreshToken", res.Data.RefreshToken, new CookieOptions
                     {
                         HttpOnly = true,
                         Secure = false, // set to true in production
@@ -104,17 +104,17 @@ namespace ResourceFlow.WebAPI.Controllers
 
             //var data = res.Data as AuthTokensDto;
 
-            Response.Cookies.Append("refreshToken", res.RefreshToken, new CookieOptions
+            Response.Cookies.Append("refreshToken", res.Data.RefreshToken, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = false,
                 SameSite = SameSiteMode.Lax,
-                Expires = res.RefreshTokenExpiry
+                Expires = res.Data.RefreshTokenExpiry
             });
 
-            _logger.LogInformation("Refresh token successful {token}",res.RefreshToken);
+            _logger.LogInformation("Refresh token successful {token}",res.Data.RefreshToken);
 
-            return StatusCode(200, res.AccessToken);
+            return StatusCode(200, res.Data.AccessToken);
         }
 
    
@@ -157,7 +157,7 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        [ModuleAuthorize(ModuleCode.USR, PermissionAction.Edit)]
+        
         [EnableRateLimiting("Fixed")]
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)

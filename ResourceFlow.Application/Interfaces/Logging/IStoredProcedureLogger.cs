@@ -8,9 +8,9 @@ namespace ResourceFlow.Application.Interfaces.Logging
 {
     public interface IStoredProcedureLogger
     {
-       
-            Task ExecuteAsync(string procedureName, Func<Task> action);
-        
+
+        Task ExecuteAsync(string procedureName, Func<Task> action);
+
     }
 
 }

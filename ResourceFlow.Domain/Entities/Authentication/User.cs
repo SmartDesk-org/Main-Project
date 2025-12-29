@@ -14,7 +14,7 @@ namespace ResourceFlow.Domain.Entities.Authentication
         public string PassWord { get; set; } = string.Empty;
         public int RoleId { get; set; }
         public string RefreshToken { get; set; } = string.Empty;
-        public DateTime RefreshTokenExpiry { get; set; }
+        public DateTime? RefreshTokenExpiry { get; set; }
         public string? PasswordResetToken { get; set; }
         public DateTime? PasswordResetExpiry { get; set; }
         public Roles? Role { get; set; }
@@ -28,5 +28,8 @@ namespace ResourceFlow.Domain.Entities.Authentication
             get => (RoleEnum)RoleId;
             set => RoleId = (int)value;
         }
+        public int FailedLoginAttempts { get; set; }
+        public DateTime? LockoutEnd { get; set; }
+        public DateTime? LastFailedLogin { get; set; }
     }
 }

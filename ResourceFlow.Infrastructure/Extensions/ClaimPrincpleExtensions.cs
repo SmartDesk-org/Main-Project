@@ -24,24 +24,26 @@ namespace ResourceFlow.Infrastructure.Extensions
             return userId;
         }
 
-        public static string GetUserRole(this ClaimsPrincipal User)
+        public static int GetUserRole(this ClaimsPrincipal User)
         {
             var claimsDump = string.Join(", ", User.Claims.Select(c => $"{c.Type}={c.Value}"));
             Debug.WriteLine($"[CLAIMS DEBUG] All Claims: {claimsDump}");
 
-            var roleClaim = User.FindFirst("userRole");
+            var roleClaim = User.FindFirst("roleId");
 
-            Debug.WriteLine($"[CLAIMS DEBUG] userRole found? {roleClaim?.Value}");
+            Debug.WriteLine($"[CLAIMS DEBUG] roleId found? {roleClaim?.Value}");
 
-            if (string.IsNullOrEmpty(roleClaim?.Value))
+            if (string.IsNullOrEmpty(roleClaim?.Value) ||
+                !int.TryParse(roleClaim.Value, out int roleId))
             {
-                Debug.WriteLine("[CLAIMS ERROR] Missing or invalid userRole claim");
+                Debug.WriteLine("[CLAIMS ERROR] Missing or invalid roleId claim");
                 throw new UnauthorizedAccessException("Invalid or missing claim.");
             }
 
-            Debug.WriteLine($"[CLAIMS DEBUG] UserRole = {roleClaim.Value}");
-            return roleClaim.Value;
+            Debug.WriteLine($"[CLAIMS DEBUG] RoleId = {roleId}");
+            return roleId;
         }
+
 
         public static string GetUserEmail(this ClaimsPrincipal User)
         {

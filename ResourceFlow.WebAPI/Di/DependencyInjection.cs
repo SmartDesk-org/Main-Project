@@ -13,6 +13,7 @@ using ResourceFlow.Application.Interfaces.Feedbacks;
 using ResourceFlow.Application.Interfaces.History;
 using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Payments;
+using ResourceFlow.Application.Interfaces.Persistence;
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Interfaces.Services;
@@ -31,6 +32,7 @@ using ResourceFlow.Infrastructure.Persistence.Dapper;
 using ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories;
 using ResourceFlow.Infrastructure.Persistence.Dapper.Repositories;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
+using ResourceFlow.Infrastructure.Persistence.Installers;
 using ResourceFlow.Infrastructure.Services;
 using System.Data;
 using System.Text.Json.Serialization;
@@ -90,8 +92,10 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IPermissionService, PermissionService>();
             services.AddScoped<ICompanySubscriptionDapperRepository, CompanySubscriptionDapperRepository>();
             services.AddScoped<ISubscriptionValidationService, SubscriptionValidator>();
+            services.AddScoped<IStoredProcedureInstaller,StoredProcedureInstaller> ();
 
-            
+
+
             services.AddScoped<IDbConnection>(sp =>
                 new SqlConnection(
                     sp.GetRequiredService<IConfiguration>()
