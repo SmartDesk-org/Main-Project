@@ -2,12 +2,13 @@
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using ResourceFlow.WebAPI.DI;
-using System.Text;
-using System.Threading.RateLimiting;
 using OfficeOpenXml;
+using ResourceFlow.Application.Interfaces.Persistence;
+using ResourceFlow.WebAPI.DI;
 using ResourceFlow.WebAPI.Middleware;
 using Serilog;
+using System.Text;
+using System.Threading.RateLimiting;
 
 
 
@@ -133,6 +134,28 @@ builder.Services.AddRateLimiter(options =>
 
 
 var app = builder.Build();
+
+//StoredProcedure installer;
+
+var autoInstallEnabled =
+    builder.Configuration.GetValue<bool>("Database:AutoInstallStoredProcedures");
+
+if (autoInstallEnabled)
+{
+    using var scope = app.Services.CreateScope();
+    var installer = scope.ServiceProvider
+        .GetRequiredService<IStoredProcedureInstaller>();
+
+    await installer.InstallAsync();
+}
+else
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation(
+        "SP auto-execution skipped. Environment: {Env}",
+        app.Environment.EnvironmentName);
+}
+
 
 
 if (app.Environment.IsDevelopment())
