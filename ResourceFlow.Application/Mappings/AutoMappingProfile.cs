@@ -3,6 +3,7 @@ using ResourceFlow.Application.DTOs.Auth;
 using ResourceFlow.Application.DTOs.ClientMessages;
 using ResourceFlow.Application.DTOs.Feedback;
 using ResourceFlow.Application.DTOs.Floors;
+using ResourceFlow.Application.DTOs.Resources;
 using ResourceFlow.Application.DTOs.Subscription;
 using ResourceFlow.Domain.Entities;
 using ResourceFlow.Domain.Entities.Authentication;
@@ -32,6 +33,7 @@ namespace ResourceFlow.Application.Mappings
             CreateMap<Feedback, FeedbackResponseDto>().ReverseMap();
 
             CreateMap<CompanyFloor, CreateFloorDto>().ReverseMap();
+            CreateMap<Resource, CreateResourceDto>().ReverseMap();
         }
     }
 }

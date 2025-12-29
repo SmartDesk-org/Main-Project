@@ -15,6 +15,7 @@ namespace ResourceFlow.Application.DTOs.Resources
         public int Width { get; set; }
         public int Height { get; set; }
         public int Rotation { get; set; }
+        public bool IsAvailable { get; set; }
         public string MetadataJson { get; set; } = "{}";
     }
 }

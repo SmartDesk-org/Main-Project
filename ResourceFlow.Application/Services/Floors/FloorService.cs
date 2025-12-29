@@ -41,7 +41,8 @@ namespace ResourceFlow.Application.Services.Floors
                 SubscriptionAction.Create
                 );
             var floor = _mapper.Map<CompanyFloor>(dto);
-            ar newFloor=await _floorRepo.AddAsync(floor);
+            floor.IsActive = true;
+            var newFloor=await _floorRepo.AddAsync(floor);
             return new  Response<CompanyFloor>(201, "Floor Added succseesfully", newFloor);
         }
         public async Task<Response<IEnumerable<FloorDto>>> GetFloorsAsync(int companyId)
