@@ -127,7 +127,11 @@ namespace ResourceFlow.Application.Services.Company
                         EndDate = endDate,
                         IsActive = false,
                         Status = SubscriptionStatus.Pending,
-                        AmoutToBePaid = totalAmount
+                        AmoutToBePaid = totalAmount,
+                        MaxDesks=subPlan.MaxDesks,
+                        MaxEmployees=subPlan.MaxEmployees,
+                        MaxFloors=subPlan.MaxFloors,
+                        MaxMeetingRooms=subPlan.MaxMeetingRooms
                     }
                 );
 

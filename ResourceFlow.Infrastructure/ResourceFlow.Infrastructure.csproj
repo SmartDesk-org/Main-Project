@@ -11,6 +11,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Content Include="Persistence\StoredProcedures\12_CompanyOverview.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Include="Persistence\StoredProcedures\11_FeedBack - Copy.sql">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>

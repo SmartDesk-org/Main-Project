@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using ResourceFlow.Application.DTOs.Company;
 using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
@@ -132,6 +133,35 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
 
             return result;
         }
+
+        public async Task<CompanyOverviewDto?> GetCompanyOverview(int companyId)
+        {
+            CompanyOverviewDto? result = null;
+
+            await _spLogger.ExecuteAsync(
+                "[dbo].[GetCompanyOverview]",
+                async () =>
+                {
+                    try
+                    {
+                        await using var conn = new SqlConnection(_connectionString);
+
+                        result = await conn.QueryFirstOrDefaultAsync<CompanyOverviewDto>(
+                            "[dbo].[GetCompanyOverview]",
+                            new { CompanyId = companyId },
+                            commandType: CommandType.StoredProcedure
+                        );
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new StoredProcedureException(
+                            "Error executing GetCompanyOverview", ex);
+                    }
+                });
+
+            return result;
+        }
+
 
     }
 }

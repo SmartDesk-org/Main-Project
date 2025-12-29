@@ -16,6 +16,11 @@ namespace ResourceFlow.Domain.Entities.SubscriptionModels
         public DateTime EndDate { get; set; }
         public double AmoutToBePaid { get; set; }
         public bool IsActive { get; set; }
+
+        public int MaxEmployees { get; set; }
+        public int MaxFloors { get; set; }
+        public int MaxDesks { get; set; }
+        public int MaxMeetingRooms { get; set; }
         public SubscriptionStatus Status { get; set; }
 
 
