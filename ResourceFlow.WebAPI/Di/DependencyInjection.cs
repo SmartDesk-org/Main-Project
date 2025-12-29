@@ -47,7 +47,6 @@ namespace ResourceFlow.WebAPI.DI
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            // DbContext
             services.AddDbContext<AppDbContext>(options =>
 
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
@@ -92,6 +91,7 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IPermissionService, PermissionService>();
             services.AddScoped<ICompanySubscriptionDapperRepository, CompanySubscriptionDapperRepository>();
             services.AddScoped<ISubscriptionValidationService, SubscriptionValidator>();
+
             services.AddScoped<IStoredProcedureInstaller,StoredProcedureInstaller> ();
 
 

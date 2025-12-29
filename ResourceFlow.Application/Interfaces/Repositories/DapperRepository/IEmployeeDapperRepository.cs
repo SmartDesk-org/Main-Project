@@ -11,5 +11,7 @@ namespace ResourceFlow.Application.Interfaces.Repositories.DapperRepository
     {
         Task<IEnumerable<Employees>> GetEmployeeByCompanyId(int companyId);
         Task<IEnumerable<Employees>> GetAllEmployeesAsync();
+        // Task<(IEnumerable<Employees> Data, int TotalCount)>GetEmployeesPagedAsync(int companyId, int skip, int take);
+
     }
 }

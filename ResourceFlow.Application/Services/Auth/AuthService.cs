@@ -67,10 +67,6 @@ namespace ResourceFlow.Application.Services
 
                 var user = _mapper.Map<User>(dto);
                 user.PassWord = BCrypt.Net.BCrypt.HashPassword(dto.Password);
-
-
-
-
                 await _userRepo.AddAsync(user);
 
                 _logger.LogInformation("User registered successfully. Email: {Email}", dto.Email);
@@ -80,8 +76,7 @@ namespace ResourceFlow.Application.Services
             catch (StoredProcedureException ex)
             {
                 _logger.LogError(ex, "SP execution failed during password reset.");
-                return new Response<object>(500, "Database error occurred. Please try again later.");
-
+                return new Response<object>(500, "Database error occurred. Please try again later.",ex.Message);
             }
             catch (Exception ex)
             {
@@ -121,7 +116,7 @@ namespace ResourceFlow.Application.Services
 
                     return new Response<AuthTokensDto>(
                         423,
-                        "Account locked. Try again after 24 hours."
+                        "Login locked.Try again after 24 hours."
                     );
                 }
 
@@ -141,7 +136,7 @@ namespace ResourceFlow.Application.Services
                     }
 
                     await _authRepo.SaveAsync();
-                    return new Response<AuthTokensDto>(401, "Invalid credentials");
+                    return new Response<AuthTokensDto>(401, "invalid email or password");
                 }
 
                 if (!trackedUser.IsActive || trackedUser.IsBlocked)

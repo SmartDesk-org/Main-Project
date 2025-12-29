@@ -16,16 +16,10 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
     {
         private readonly IHttpContextAccessor _accessor;
 
-        public AppDbContext(DbContextOptions<AppDbContext> options,
-                            IHttpContextAccessor accessor)
-            : base(options)
+        public AppDbContext(DbContextOptions<AppDbContext> options,IHttpContextAccessor accessor): base(options)
         {
             _accessor = accessor;
         }
-
-   
-
-     
         public DbSet<Roles> Roles { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Employees> Employees { get; set; }
@@ -34,21 +28,16 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
         public DbSet<Billing> Billing { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Resource> Resources { get; set; }
-
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<CompanySubscription> CompanySubscriptions { get; set; }
         public DbSet<CompanyFloor> CompanyFloors { get; set; }
         public DbSet<AppModule> Modules { get; set; }
-   
         public DbSet<RolePermission> RolePermissions { get; set; }
-
-       
         public DbSet<CompanyDesk>CompanyDesks { get; set; }
         public DbSet<CompanyMeetingRoom> CompanyMeetingRooms { get; set; }
         public DbSet<CompanyFloor> Floors { get; set; }
         public DbSet<ClientMessage> ClientMessages { get; set; }
         public DbSet<SubscriptionType> SubscriptionTypes { get; set; }
-
         public DbSet<SubscriptionHistory> Histories { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
 
@@ -59,7 +48,6 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
             int.TryParse(_accessor.HttpContext?.User?.FindFirst("userId")?.Value, out int id)
                 ? id
                 : null;
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
           
@@ -84,7 +72,6 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
 
             base.OnModelCreating(modelBuilder);
         }
-
 
         //Add logs automatically
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -119,8 +106,5 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
             return base.SaveChangesAsync(cancellationToken);
         }
 
-        // DbSets
-        
-        
     }
 }

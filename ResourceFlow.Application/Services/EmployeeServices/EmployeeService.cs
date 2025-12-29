@@ -11,7 +11,7 @@ using ResourceFlow.Domain.Entities.SubscriptionModels;
 using ResourceFlow.Domain.Enums;
 using OfficeOpenXml;
 using System.Collections.Concurrent;
-using Microsoft.Extensions.DependencyInjection; 
+using Microsoft.Extensions.DependencyInjection;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 
 public class EmployeeService : IEmployeeService
@@ -39,7 +39,7 @@ public class EmployeeService : IEmployeeService
         IGenericRepository<Employees> employeeRepo,
         IGenericRepository<CompanyDetails> companyRepo,
         IGenericRepository<Subscription> subscriptionRepo,
-        IGenericRepository<CompanyFloor>companyFloor ,
+        IGenericRepository<CompanyFloor> companyFloor,
         IExcelReader excelReader,
         IEmployeeImportValidator validator,
         IUnitOfWork uow,
@@ -120,7 +120,7 @@ public class EmployeeService : IEmployeeService
             return new ApiResponse<BulkUploadResponse>(400,
                 $"Limit Exceeded. Plan allows {subscription.MaxEmployees}. You have {currentCount}.");
         }
-        
+
         int chunkSize = 50;
         var chunks = validRows.Chunk(chunkSize).ToList();
 
@@ -237,24 +237,41 @@ public class EmployeeService : IEmployeeService
     public byte[] GenerateEmployeeUploadTemplate()
     {
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
         using var package = new ExcelPackage();
         var sheet = package.Workbook.Worksheets.Add("Employees");
 
+        // Headers
         sheet.Cells[1, 1].Value = "EmployeeName";
         sheet.Cells[1, 2].Value = "Email";
         sheet.Cells[1, 3].Value = "Department";
         sheet.Cells[1, 4].Value = "DefaultFloorId";
 
+        // Sample row
         sheet.Cells[2, 1].Value = "John Doe";
         sheet.Cells[2, 2].Value = "john@company.com";
         sheet.Cells[2, 3].Value = "IT";
         sheet.Cells[2, 4].Value = 1;
 
+        // Style header
         sheet.Cells[1, 1, 1, 4].Style.Font.Bold = true;
+
+        // 🔒 Lock header row
+        sheet.Cells[1, 1, 1, 4].Style.Locked = true;
+
+        // 🔓 Unlock data rows
+        sheet.Cells[2, 1, sheet.Dimension.End.Row, 4].Style.Locked = false;
+
+        // Protect worksheet
+        sheet.Protection.IsProtected = true;
+        sheet.Protection.AllowSelectLockedCells = false;
+        sheet.Protection.AllowSelectUnlockedCells = true;
+
         sheet.Cells.AutoFitColumns();
 
         return package.GetAsByteArray();
     }
+
     public async Task<ApiResponse<object>> CreateEmployeeAsync(EmployeeImportDto dto, int companyId)
     {
         if (dto == null)
