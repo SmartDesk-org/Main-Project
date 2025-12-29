@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     /// <inheritdoc />
-    public partial class roleupdated : Migration
+    public partial class EditedResourcepart : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -116,6 +116,30 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ResourceTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Icon = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DefaultWidth = table.Column<int>(type: "int", nullable: false),
+                    DefaultHeight = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ResourceTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
@@ -204,10 +228,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 {
                     FloorId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    CompanyId = table.Column<int>(type: "int", nullable: false),
                     FloorName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     FloorNumber = table.Column<int>(type: "int", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false),
-                    Map = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Width = table.Column<int>(type: "int", nullable: false),
+                    Height = table.Column<int>(type: "int", nullable: false),
+                    Scale = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
@@ -222,6 +248,35 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     table.PrimaryKey("PK_CompanyFloors", x => x.FloorId);
                     table.ForeignKey(
                         name: "FK_CompanyFloors_CompanyDetails_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "CompanyDetails",
+                        principalColumn: "CompanyId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Feedbacks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CompanyId = table.Column<int>(type: "int", nullable: false),
+                    IsPublished = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Feedbacks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Feedbacks_CompanyDetails_CompanyId",
                         column: x => x.CompanyId,
                         principalTable: "CompanyDetails",
                         principalColumn: "CompanyId",
@@ -253,34 +308,6 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     table.PrimaryKey("PK_Payments", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Payments_CompanyDetails_CompanyId",
-                        column: x => x.CompanyId,
-                        principalTable: "CompanyDetails",
-                        principalColumn: "CompanyId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Resources",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ResourceName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    CompanyId = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<int>(type: "int", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Resources", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Resources_CompanyDetails_CompanyId",
                         column: x => x.CompanyId,
                         principalTable: "CompanyDetails",
                         principalColumn: "CompanyId",
@@ -328,11 +355,14 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     PassWord = table.Column<string>(type: "nvarchar(260)", maxLength: 260, nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: false),
                     RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RefreshTokenExpiry = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RefreshTokenExpiry = table.Column<DateTime>(type: "datetime2", nullable: true),
                     PasswordResetToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PasswordResetExpiry = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsBlocked = table.Column<bool>(type: "bit", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    FailedLoginAttempts = table.Column<int>(type: "int", nullable: false),
+                    LockoutEnd = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastFailedLogin = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -395,18 +425,22 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CompanyDesks",
+                name: "Resources",
                 columns: table => new
                 {
-                    DeskId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    ResourceName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     CompanyId = table.Column<int>(type: "int", nullable: false),
                     FloorId = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    XPosition = table.Column<float>(type: "real", nullable: false),
-                    YPosition = table.Column<float>(type: "real", nullable: false),
-                    SpecificationsJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ResourceTypeId = table.Column<int>(type: "int", nullable: false),
+                    X = table.Column<int>(type: "int", nullable: false),
+                    Y = table.Column<int>(type: "int", nullable: false),
+                    Width = table.Column<int>(type: "int", nullable: false),
+                    Height = table.Column<int>(type: "int", nullable: false),
+                    Rotation = table.Column<int>(type: "int", nullable: false),
+                    MetadataJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -417,58 +451,24 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CompanyDesks", x => x.DeskId);
+                    table.PrimaryKey("PK_Resources", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CompanyDesks_CompanyDetails_CompanyId",
+                        name: "FK_Resources_CompanyDetails_CompanyId",
                         column: x => x.CompanyId,
                         principalTable: "CompanyDetails",
                         principalColumn: "CompanyId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_CompanyDesks_CompanyFloors_FloorId",
+                        name: "FK_Resources_CompanyFloors_FloorId",
                         column: x => x.FloorId,
                         principalTable: "CompanyFloors",
                         principalColumn: "FloorId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CompanyMeetingRooms",
-                columns: table => new
-                {
-                    RoomId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CompanyId = table.Column<int>(type: "int", nullable: false),
-                    FloorId = table.Column<int>(type: "int", nullable: false),
-                    RoomName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Capacity = table.Column<int>(type: "int", nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    XPosition = table.Column<float>(type: "real", nullable: false),
-                    YPosition = table.Column<float>(type: "real", nullable: false),
-                    SpecificationsJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<int>(type: "int", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CompanyMeetingRooms", x => x.RoomId);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CompanyMeetingRooms_CompanyDetails_CompanyId",
-                        column: x => x.CompanyId,
-                        principalTable: "CompanyDetails",
-                        principalColumn: "CompanyId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_CompanyMeetingRooms_CompanyFloors_FloorId",
-                        column: x => x.FloorId,
-                        principalTable: "CompanyFloors",
-                        principalColumn: "FloorId",
-                        onDelete: ReferentialAction.Restrict);
+                        name: "FK_Resources_ResourceTypes_ResourceTypeId",
+                        column: x => x.ResourceTypeId,
+                        principalTable: "ResourceTypes",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -602,13 +602,13 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 columns: new[] { "Id", "Code", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "Name", "ParentId" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6579), null, null, null, false, null, null, "User Management", null },
-                    { 2, 3, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6586), null, null, null, false, null, null, "Company Details", null },
-                    { 6, 7, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6594), null, null, null, false, null, null, "Employee Management", null },
-                    { 7, 8, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6595), null, null, null, false, null, null, "Subscription Plans", null },
-                    { 14, 15, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6620), null, null, null, false, null, null, "Notifications", null },
-                    { 15, 16, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6622), null, null, null, false, null, null, "Client Messages", null },
-                    { 16, 2, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6623), null, null, null, false, null, null, "Roles", null }
+                    { 1, 1, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7605), null, null, null, false, null, null, "User Management", null },
+                    { 2, 3, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7613), null, null, null, false, null, null, "Company Details", null },
+                    { 6, 7, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7621), null, null, null, false, null, null, "Employee Management", null },
+                    { 7, 8, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7622), null, null, null, false, null, null, "Subscription Plans", null },
+                    { 14, 15, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7634), null, null, null, false, null, null, "Notifications", null },
+                    { 15, 16, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7636), null, null, null, false, null, null, "Client Messages", null },
+                    { 16, 2, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7645), null, null, null, false, null, null, "Roles", null }
                 });
 
             migrationBuilder.InsertData(
@@ -616,9 +616,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "RoleName" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7493), null, null, null, false, null, null, "SuperAdmin" },
-                    { 2, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7496), null, null, null, false, null, null, "CompanyAdmin" },
-                    { 3, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7498), null, null, null, false, null, null, "Employee" }
+                    { 1, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8863), null, null, null, false, null, null, "SuperAdmin" },
+                    { 2, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8872), null, null, null, false, null, null, "CompanyAdmin" },
+                    { 3, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8873), null, null, null, false, null, null, "Employee" }
                 });
 
             migrationBuilder.InsertData(
@@ -626,9 +626,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "TypeName" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(9686), null, null, null, false, null, null, "Basic" },
-                    { 2, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(9689), null, null, null, false, null, null, "Upgrade" },
-                    { 3, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(9690), null, null, null, false, null, null, "Renewal" }
+                    { 1, new DateTime(2025, 12, 29, 7, 13, 24, 472, DateTimeKind.Utc).AddTicks(637), null, null, null, false, null, null, "Basic" },
+                    { 2, new DateTime(2025, 12, 29, 7, 13, 24, 472, DateTimeKind.Utc).AddTicks(641), null, null, null, false, null, null, "Upgrade" },
+                    { 3, new DateTime(2025, 12, 29, 7, 13, 24, 472, DateTimeKind.Utc).AddTicks(642), null, null, null, false, null, null, "Renewal" }
                 });
 
             migrationBuilder.InsertData(
@@ -636,12 +636,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 columns: new[] { "Id", "Code", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "Name", "ParentId" },
                 values: new object[,]
                 {
-                    { 3, 4, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6588), null, null, null, false, null, null, "Company Floor", 2 },
-                    { 4, 5, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6590), null, null, null, false, null, null, "Company Desk", 2 },
-                    { 5, 6, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6592), null, null, null, false, null, null, "Company Meeting Room", 2 },
-                    { 8, 9, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6596), null, null, null, false, null, null, "Resource Management", 7 },
-                    { 9, 10, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6598), null, null, null, false, null, null, "Subscription Types", 7 },
-                    { 10, 11, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6600), null, null, null, false, null, null, "Company Subscriptions", 7 }
+                    { 3, 4, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7614), null, null, null, false, null, null, "Company Floor", 2 },
+                    { 4, 5, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7617), null, null, null, false, null, null, "Company Desk", 2 },
+                    { 5, 6, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7619), null, null, null, false, null, null, "Company Meeting Room", 2 },
+                    { 8, 9, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7624), null, null, null, false, null, null, "Resource Management", 7 },
+                    { 9, 10, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7625), null, null, null, false, null, null, "Subscription Types", 7 },
+                    { 10, 11, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7627), null, null, null, false, null, null, "Company Subscriptions", 7 }
                 });
 
             migrationBuilder.InsertData(
@@ -649,69 +649,69 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 columns: new[] { "ModuleCode", "RoleId", "Add", "CreatedAt", "CreatedBy", "Delete", "DeletedAt", "DeletedBy", "Edit", "IsDeleted", "ModifiedAt", "ModifiedBy", "View" },
                 values: new object[,]
                 {
-                    { 1, 1, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7102), null, true, null, null, true, false, null, null, true },
-                    { 2, 1, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7091), null, true, null, null, true, false, null, null, true },
-                    { 3, 1, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7095), null, true, null, null, true, false, null, null, true },
-                    { 4, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7105), null, false, null, null, false, false, null, null, true },
-                    { 5, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7104), null, false, null, null, false, false, null, null, true },
-                    { 6, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7107), null, false, null, null, false, false, null, null, true },
-                    { 7, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7098), null, false, null, null, false, false, null, null, true },
-                    { 8, 1, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7070), null, true, null, null, true, false, null, null, true },
-                    { 9, 1, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7113), null, true, null, null, true, false, null, null, true },
-                    { 10, 1, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7112), null, true, null, null, true, false, null, null, true },
-                    { 11, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7096), null, true, null, null, true, false, null, null, true },
-                    { 12, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7101), null, false, null, null, false, false, null, null, true },
-                    { 13, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7099), null, false, null, null, false, false, null, null, true },
-                    { 14, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7110), null, false, null, null, false, false, null, null, true },
-                    { 15, 1, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7093), null, true, null, null, true, false, null, null, true },
-                    { 16, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7108), null, true, null, null, true, false, null, null, true },
-                    { 1, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7124), null, false, null, null, true, false, null, null, true },
-                    { 2, 2, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7131), null, false, null, null, false, false, null, null, false },
-                    { 3, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7116), null, true, null, null, true, false, null, null, true },
-                    { 4, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7127), null, true, null, null, true, false, null, null, true },
-                    { 5, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7125), null, true, null, null, true, false, null, null, true },
-                    { 6, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7129), null, true, null, null, true, false, null, null, true },
-                    { 7, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7119), null, true, null, null, true, false, null, null, true },
-                    { 8, 2, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7115), null, false, null, null, false, false, null, null, true },
-                    { 9, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7138), null, true, null, null, true, false, null, null, true },
-                    { 10, 2, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7136), null, false, null, null, false, false, null, null, true },
-                    { 11, 2, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7118), null, false, null, null, false, false, null, null, true },
-                    { 12, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7122), null, false, null, null, false, false, null, null, true },
-                    { 13, 2, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7121), null, false, null, null, false, false, null, null, true },
-                    { 14, 2, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7134), null, false, null, null, false, false, null, null, true },
-                    { 15, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7130), null, true, null, null, true, false, null, null, true },
-                    { 16, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7133), null, false, null, null, false, false, null, null, true },
-                    { 1, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7148), null, false, null, null, true, false, null, null, true },
-                    { 2, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7157), null, false, null, null, false, false, null, null, false },
-                    { 3, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7141), null, false, null, null, false, false, null, null, true },
-                    { 4, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7151), null, false, null, null, false, false, null, null, true },
-                    { 5, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7150), null, false, null, null, false, false, null, null, true },
-                    { 6, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7154), null, false, null, null, false, false, null, null, true },
-                    { 7, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7144), null, false, null, null, true, false, null, null, true },
-                    { 8, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7139), null, false, null, null, false, false, null, null, true },
-                    { 9, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7163), null, false, null, null, false, false, null, null, false },
-                    { 10, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7161), null, false, null, null, false, false, null, null, false },
-                    { 11, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7142), null, false, null, null, false, false, null, null, false },
-                    { 12, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7147), null, false, null, null, false, false, null, null, false },
-                    { 13, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7145), null, false, null, null, false, false, null, null, false },
-                    { 14, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7160), null, false, null, null, false, false, null, null, false },
-                    { 15, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7155), null, false, null, null, false, false, null, null, true },
-                    { 16, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7158), null, false, null, null, false, false, null, null, false }
+                    { 1, 1, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8414), null, true, null, null, true, false, null, null, true },
+                    { 2, 1, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8380), null, true, null, null, true, false, null, null, true },
+                    { 3, 1, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8405), null, true, null, null, true, false, null, null, true },
+                    { 4, 1, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8419), null, false, null, null, false, false, null, null, true },
+                    { 5, 1, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8418), null, false, null, null, false, false, null, null, true },
+                    { 6, 1, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8421), null, false, null, null, false, false, null, null, true },
+                    { 7, 1, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8408), null, false, null, null, false, false, null, null, true },
+                    { 8, 1, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8374), null, true, null, null, true, false, null, null, true },
+                    { 9, 1, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8426), null, true, null, null, true, false, null, null, true },
+                    { 10, 1, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8425), null, true, null, null, true, false, null, null, true },
+                    { 11, 1, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8406), null, true, null, null, true, false, null, null, true },
+                    { 12, 1, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8412), null, false, null, null, false, false, null, null, true },
+                    { 13, 1, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8411), null, false, null, null, false, false, null, null, true },
+                    { 14, 1, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8423), null, false, null, null, false, false, null, null, true },
+                    { 15, 1, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8403), null, true, null, null, true, false, null, null, true },
+                    { 16, 1, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8422), null, true, null, null, true, false, null, null, true },
+                    { 1, 2, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8437), null, false, null, null, true, false, null, null, true },
+                    { 2, 2, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8444), null, false, null, null, false, false, null, null, false },
+                    { 3, 2, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8429), null, true, null, null, true, false, null, null, true },
+                    { 4, 2, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8440), null, true, null, null, true, false, null, null, true },
+                    { 5, 2, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8438), null, true, null, null, true, false, null, null, true },
+                    { 6, 2, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8442), null, true, null, null, true, false, null, null, true },
+                    { 7, 2, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8432), null, true, null, null, true, false, null, null, true },
+                    { 8, 2, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8427), null, false, null, null, false, false, null, null, true },
+                    { 9, 2, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8450), null, true, null, null, true, false, null, null, true },
+                    { 10, 2, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8448), null, false, null, null, false, false, null, null, true },
+                    { 11, 2, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8431), null, false, null, null, false, false, null, null, true },
+                    { 12, 2, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8435), null, false, null, null, false, false, null, null, true },
+                    { 13, 2, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8434), null, false, null, null, false, false, null, null, true },
+                    { 14, 2, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8447), null, false, null, null, false, false, null, null, true },
+                    { 15, 2, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8443), null, true, null, null, true, false, null, null, true },
+                    { 16, 2, true, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8446), null, false, null, null, false, false, null, null, true },
+                    { 1, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8458), null, false, null, null, true, false, null, null, true },
+                    { 2, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8466), null, false, null, null, false, false, null, null, false },
+                    { 3, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8452), null, false, null, null, false, false, null, null, true },
+                    { 4, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8461), null, false, null, null, false, false, null, null, true },
+                    { 5, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8460), null, false, null, null, false, false, null, null, true },
+                    { 6, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8463), null, false, null, null, false, false, null, null, true },
+                    { 7, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8455), null, false, null, null, true, false, null, null, true },
+                    { 8, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8451), null, false, null, null, false, false, null, null, true },
+                    { 9, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8472), null, false, null, null, false, false, null, null, false },
+                    { 10, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8471), null, false, null, null, false, false, null, null, false },
+                    { 11, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8453), null, false, null, null, false, false, null, null, false },
+                    { 12, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8457), null, false, null, null, false, false, null, null, false },
+                    { 13, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8456), null, false, null, null, false, false, null, null, false },
+                    { 14, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8469), null, false, null, null, false, false, null, null, false },
+                    { 15, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8465), null, false, null, null, false, false, null, null, true },
+                    { 16, 3, false, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(8468), null, false, null, null, false, false, null, null, false }
                 });
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "UserId", "CompanyId", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "Email", "IsActive", "IsBlocked", "IsDeleted", "ModifiedAt", "ModifiedBy", "PassWord", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiry", "RoleId", "UserName" },
-                values: new object[] { 1, null, new DateTime(2025, 12, 24, 6, 31, 27, 947, DateTimeKind.Utc).AddTicks(9663), null, null, null, "suhailpalakkal1@gmail.com", true, false, false, null, null, "$2a$11$0CGC5zkN0qhFXosIAj.8XucWrDdke4m0HE7791.DYMiZV/UuwA4LO", null, null, "", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Suhail" });
+                columns: new[] { "UserId", "CompanyId", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "Email", "FailedLoginAttempts", "IsActive", "IsBlocked", "IsDeleted", "LastFailedLogin", "LockoutEnd", "ModifiedAt", "ModifiedBy", "PassWord", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiry", "RoleId", "UserName" },
+                values: new object[] { 1, null, new DateTime(2025, 12, 29, 7, 13, 24, 845, DateTimeKind.Utc).AddTicks(1085), null, null, null, "suhailpalakkal1@gmail.com", 0, true, false, false, null, null, null, null, "$2a$11$7q70J4o.IJZIMIlXSeIoF.CjgsjC7N.sWAYRzTqrqHQ.SwBmXPLj6", null, null, "", null, 1, "Suhail" });
 
             migrationBuilder.InsertData(
                 table: "AppModules",
                 columns: new[] { "Id", "Code", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "Name", "ParentId" },
                 values: new object[,]
                 {
-                    { 11, 12, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6602), null, null, null, false, null, null, "Payment", 10 },
-                    { 12, 13, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6617), null, null, null, false, null, null, "Billing", 10 },
-                    { 13, 14, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6618), null, null, null, false, null, null, "Subscription History", 10 }
+                    { 11, 12, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7629), null, null, null, false, null, null, "Payment", 10 },
+                    { 12, 13, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7631), null, null, null, false, null, null, "Billing", 10 },
+                    { 13, 14, new DateTime(2025, 12, 29, 7, 13, 24, 471, DateTimeKind.Utc).AddTicks(7633), null, null, null, false, null, null, "Subscription History", 10 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -725,29 +725,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CompanyDesks_CompanyId_Status",
-                table: "CompanyDesks",
-                columns: new[] { "CompanyId", "Status" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CompanyDesks_FloorId",
-                table: "CompanyDesks",
-                column: "FloorId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_CompanyFloors_CompanyId_IsActive",
                 table: "CompanyFloors",
                 columns: new[] { "CompanyId", "IsActive" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CompanyMeetingRooms_CompanyId_Status",
-                table: "CompanyMeetingRooms",
-                columns: new[] { "CompanyId", "Status" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CompanyMeetingRooms_FloorId",
-                table: "CompanyMeetingRooms",
-                column: "FloorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CompanySubscription_CompanyId",
@@ -772,6 +752,11 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Feedbacks_CompanyId",
+                table: "Feedbacks",
+                column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Notifications_CompanyId",
                 table: "Notifications",
                 column: "CompanyId");
@@ -792,9 +777,24 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Resources_CompanyId",
+                name: "IX_Resources_CompanyId_FloorId",
                 table: "Resources",
-                column: "CompanyId");
+                columns: new[] { "CompanyId", "FloorId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resources_CompanyId_ResourceTypeId",
+                table: "Resources",
+                columns: new[] { "CompanyId", "ResourceTypeId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resources_FloorId",
+                table: "Resources",
+                column: "FloorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resources_ResourceTypeId",
+                table: "Resources",
+                column: "ResourceTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Subscriptions_TypeId",
@@ -825,16 +825,13 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 name: "ClientMessages");
 
             migrationBuilder.DropTable(
-                name: "CompanyDesks");
-
-            migrationBuilder.DropTable(
-                name: "CompanyMeetingRooms");
-
-            migrationBuilder.DropTable(
                 name: "CompanySubscription");
 
             migrationBuilder.DropTable(
                 name: "Employees");
+
+            migrationBuilder.DropTable(
+                name: "Feedbacks");
 
             migrationBuilder.DropTable(
                 name: "Histories");
@@ -852,22 +849,25 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 name: "RolePermissions");
 
             migrationBuilder.DropTable(
-                name: "CompanyFloors");
-
-            migrationBuilder.DropTable(
                 name: "Subscriptions");
 
             migrationBuilder.DropTable(
                 name: "Users");
 
             migrationBuilder.DropTable(
+                name: "CompanyFloors");
+
+            migrationBuilder.DropTable(
+                name: "ResourceTypes");
+
+            migrationBuilder.DropTable(
                 name: "SubscriptionTypes");
 
             migrationBuilder.DropTable(
-                name: "CompanyDetails");
+                name: "Roles");
 
             migrationBuilder.DropTable(
-                name: "Roles");
+                name: "CompanyDetails");
         }
     }
 }

@@ -1,23 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <None Remove="Persistence\StoredProcedures\11_FeedBack.sql" />
-	</ItemGroup>
+	<!-- Remove specific SQL from None -->
 
-	<ItemGroup>
-	  <Content Include="Persistence\StoredProcedures\11_FeedBack - Copy.sql">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Persistence\StoredProcedures\11_FeedBack.sql">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  
-	<!-- SQL File Copy - Single clean entry -->
+	<!-- SQL files copied to output -->
 	<ItemGroup>
 		<Content Include="Persistence\StoredProcedures\*.sql">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -37,9 +28,11 @@
 		<PackageReference Include="Dapper" Version="2.1.66" />
 		<PackageReference Include="FluentValidation" Version="12.1.1" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+
 		<!-- JWT -->
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
-		<!-- EF Core (Unified Version 8.0.2) -->
+
+		<!-- EF Core -->
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
@@ -48,13 +41,15 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.2">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
+
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
 		<PackageReference Include="QuestPDF" Version="2025.12.0" />
-		<!-- FIXED Stripe Package Name -->
 		<PackageReference Include="Stripe.net" Version="50.0.0" />
 	</ItemGroup>
 
+	<!-- EF Migrations folder -->
 	<ItemGroup>
 		<Folder Include="Persistence\EF\Migrations\" />
 	</ItemGroup>
+
 </Project>
