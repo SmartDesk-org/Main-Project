@@ -36,6 +36,8 @@ namespace ResourceFlow.Domain.Entities.SubscriptionModels
 
         public bool IsValid(DateTime now)
             => now >= StartDate && now <= EndDate;
+
+
     }
 }
 

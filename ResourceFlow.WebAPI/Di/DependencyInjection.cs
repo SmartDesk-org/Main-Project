@@ -10,6 +10,7 @@ using ResourceFlow.Application.Interfaces.Authorization;
 using ResourceFlow.Application.Interfaces.ClientMessages;
 using ResourceFlow.Application.Interfaces.Company;
 using ResourceFlow.Application.Interfaces.Feedbacks;
+using ResourceFlow.Application.Interfaces.Floors;
 using ResourceFlow.Application.Interfaces.History;
 using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Payments;
@@ -23,6 +24,7 @@ using ResourceFlow.Application.Services.Authorization;
 using ResourceFlow.Application.Services.ClientMessages;
 using ResourceFlow.Application.Services.Company;
 using ResourceFlow.Application.Services.Feedbacks;
+using ResourceFlow.Application.Services.Floors;
 using ResourceFlow.Application.Services.Payments;
 using ResourceFlow.Application.Services.Subscriptions;
 using ResourceFlow.Application.Validators.Employee;
@@ -75,6 +77,7 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IPdfService, PdfService>();
             services.AddScoped<IHistoryService, HistoryService>();
             services.AddScoped<IFeedbackservice, FeedbackService>();
+            services.AddScoped<IFloorService, FloorService>();
 
            
 
@@ -91,6 +94,8 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IPermissionService, PermissionService>();
             services.AddScoped<ICompanySubscriptionDapperRepository, CompanySubscriptionDapperRepository>();
             services.AddScoped<ISubscriptionValidationService, SubscriptionValidator>();
+            services.AddScoped<IResourceUsageDapperRepository, ResourceUsageDapperRepository>();
+            services.AddScoped<IFloorDapperRepository, FloorDapperRepository>();
 
             services.AddScoped<IStoredProcedureInstaller,StoredProcedureInstaller> ();
 
