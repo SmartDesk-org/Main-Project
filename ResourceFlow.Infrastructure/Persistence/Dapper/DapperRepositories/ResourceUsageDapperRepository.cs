@@ -21,28 +21,28 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
         {
             return feature switch
             {
-                SubscriptionFeature.Employee=>
+                SubscriptionFeature.Employee =>
                     await _db.ExecuteScalarAsync<int>(
                         "SELECT COUNT(*) FROM Employees WHERE CompanyId=@CompanyId AND IsDeleted=0",
-                        new {CompanyId=companyId}
+                        new { CompanyId = companyId }
                         ),
-                SubscriptionFeature.Floor=>
+                SubscriptionFeature.Floor =>
                 await _db.ExecuteScalarAsync<int>(
                     "SELECT COUNT(*) FROM CompanyFloors WHERE CompanyId=@CompanyId AND IsDeleted=0",
-                    new {CompanyId=companyId}
+                    new { CompanyId = companyId }
                     ),
-                SubscriptionFeature.Desk=>
+                SubscriptionFeature.Desk =>
                 await _db.ExecuteScalarAsync<int>(
                     "SELECT COUNT(*) FROM Resources  WHERE CompanyId=@CompanyId AND ResourceTypeId=1 AND IsDeleted=0",
                     new { CompanyId = companyId }
                     ),
-                SubscriptionFeature.MeetingRoom=>
+                SubscriptionFeature.MeetingRoom =>
                 await _db.ExecuteScalarAsync<int>(
                     "SELECT COUNT(*) FROM Resources  WHERE CompanyId=@CompanyId AND ResourceTypeId=2 AND IsDeleted=0",
                     new { CompanyId = companyId }
                     ),
-                _ =>0
-            }
+                _ => 0
+            };
                 
         }
     }

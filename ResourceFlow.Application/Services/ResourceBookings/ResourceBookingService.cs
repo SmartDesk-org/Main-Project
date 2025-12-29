@@ -1,6 +1,7 @@
 ﻿using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Booking;
 using ResourceFlow.Application.Interfaces.Booking;
+using ResourceFlow.Application.Interfaces.QRCode;
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Domain.Entities.Authentication;
@@ -22,10 +23,11 @@ namespace ResourceFlow.Application.Services.ResourceBookings
         private readonly IGenericRepository<Employees> _employeeRepo;
         private readonly ISubscriptionValidationService _subscriptionValidator;
         private readonly IGenericRepository<User> _userRepo;
+        private readonly IQRCodeService _qrCodeService;
 
         public ResourceBookingService(IGenericRepository<Resource> resourceRepo,IGenericRepository<ResourceBooking> bookingRepo, 
                                        IGenericRepository<CompanyResourceBookingPermission> permissionRepo,IGenericRepository<Employees> employeeRepo,ISubscriptionValidationService subscriptionValidator,
-                                       IGenericRepository<User> userRepo)
+                                       IGenericRepository<User> userRepo,IQRCodeService qRCodeService)
                     {
                         _resourceRepo = resourceRepo;
                         _bookingRepo = bookingRepo;
@@ -33,6 +35,7 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                         _employeeRepo= employeeRepo;
                         _subscriptionValidator = subscriptionValidator;
                         _userRepo = userRepo;
+                        _qrCodeService = qRCodeService;
                     }
 
         public async Task<Response<string>> CreateBookingAsync( ResourceBookingDTO dto,int resourceId,int userId)
@@ -116,6 +119,12 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                         409,
                         "Resource already booked for this time slot");
 
+
+                // 🔹 8️⃣ Generate QR token & expiry
+                var qrValue = $"BOOKING:{Guid.NewGuid()}";
+                var qrExpiry = dto.StartTime.UtcDateTime.AddMinutes(10); // ⏱ 10 minutes late allowed
+
+
                 // 8️⃣ Save booking
                 var booking = new ResourceBooking
                 {
@@ -126,12 +135,17 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                     StartTime = dto.StartTime.UtcDateTime,
                     EndTime = dto.EndTime.UtcDateTime,
                     Status = BookingStatus.Confirmed,
+                    QRCodeValue = qrValue,
+                    QrExpiresAt = qrExpiry,
+                    IsCheckedIn = false,
                     CreatedAt = DateTime.UtcNow
                 };
 
                 await _bookingRepo.AddAsync(booking);
 
-                return new Response<string>(200,"Resource booked successfully");
+                var qrBase64 = _qrCodeService.GenerateQrBase64(qrValue);
+
+                return new Response<string>(200,"Resource booked successfully", qrBase64);
             }
             catch (SubscriptionException ex)
             {
@@ -142,6 +156,43 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                 return new Response<string>(500, ex.Message);
             }
         }
+
+
+        public async Task<Response<string>> ScanQRCodeAsync(string qrValue, int userId)
+        {
+            // 1️⃣ Find booking by QR
+            var booking = await _bookingRepo.SingleOrDefaultAsync(x => x.QRCodeValue == qrValue);
+
+            if (booking == null)
+                return new Response<string>(404, "Invalid QR code");
+
+            // 2️⃣ Verify that the booking belongs to the user (optional, if multi-user system)
+            if (booking.BookedByUserId != userId)
+                return new Response<string>(403, "You are not authorized to check in for this booking");
+
+            var now = DateTime.UtcNow;
+
+            // 3️⃣ Check if QR is expired
+            if (now > booking.QrExpiresAt)
+            {
+                booking.Status = BookingStatus.Expired;
+                await _bookingRepo.UpdateAsync(booking);
+                return new Response<string>(400, "Booking expired. QR no longer valid.");
+            }
+
+            // 4️⃣ Check-in only
+            if (!booking.IsCheckedIn)
+            {
+                booking.IsCheckedIn = true;
+                booking.CheckInTime = now;
+                await _bookingRepo.UpdateAsync(booking);
+                return new Response<string>(200, "Checked in successfully.");
+            }
+
+            // 5️⃣ Already checked in
+            return new Response<string>(400, "Booking already checked in.");
+        }
+
 
 
         public async Task<Response<string>> CancelBookingAsync(int bookingId, int userId)

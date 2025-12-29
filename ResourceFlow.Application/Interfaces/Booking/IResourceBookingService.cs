@@ -24,6 +24,8 @@ namespace ResourceFlow.Application.Interfaces.Booking
         Task<Response<List<ResourceBookingResponseDTO>>> GetBookingsOfCurrentUserAsync(int userId);
         Task<Response<List<ResourceBookingResponseDTO>>> GetAllBookingsOfCompanyAsync(int userId);
 
+        Task<Response<string>> ScanQRCodeAsync(string qrValue, int userId);
+
     }
 }
 

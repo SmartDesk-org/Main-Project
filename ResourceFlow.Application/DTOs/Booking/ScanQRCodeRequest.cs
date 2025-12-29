@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Application.DTOs.Booking
 {
-    internal class ScanQRCodeRequest
+    public class ScanQRCodeRequest
     {
+        public string QrValue { get; set; } = null!;
     }
 }

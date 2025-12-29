@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Application.Interfaces.QRCode
 {
-    internal interface IQRCodeService
+    public interface IQRCodeService
     {
+        string GenerateQrBase64(string value);
     }
 }

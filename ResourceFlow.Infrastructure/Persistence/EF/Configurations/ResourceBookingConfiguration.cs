@@ -12,6 +12,10 @@ public class ResourceBookingConfiguration
         builder.Property(x => x.StartTime).IsRequired();
         builder.Property(x => x.EndTime).IsRequired();
         builder.Property(x => x.Status).IsRequired();
+        builder.Property(x => x.QRCodeValue).IsRequired();
+        builder.HasIndex(x => x.QRCodeValue).IsUnique();
+        builder.Property(x => x.QrExpiresAt).IsRequired();
+
 
         builder.HasOne(x => x.Resource)
                .WithMany()

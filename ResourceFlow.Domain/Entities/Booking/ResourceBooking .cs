@@ -32,7 +32,14 @@ namespace ResourceFlow.Domain.Entities.Booking
         public BookingStatus Status { get; set; }
 
         // Optional usage tracking
-     
+
+        public bool IsCheckedIn { get; set; } = false;
+        public DateTime? CheckInTime { get; set; }
+        public DateTime? CheckOutTime { get; set; }
+
+        public string QRCodeValue { get; set; } = null!;
+        public DateTime QrExpiresAt { get; set; }
+
 
         // Navigation
         public Resource Resource { get; set; } = null!;

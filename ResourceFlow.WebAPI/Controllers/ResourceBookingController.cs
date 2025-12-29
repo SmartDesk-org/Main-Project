@@ -67,6 +67,19 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        [AllowAnonymous]
+        [HttpPost("checkin")]
+        public async Task<IActionResult> CheckIn([FromBody] ScanQRCodeRequest request)
+        {
+            // Extract userId from JWT or session
+            var userId = User.GetUserId();
+
+            var result = await _resouBookService.ScanQRCodeAsync(request.QrValue, userId);
+
+            return StatusCode(result.StatusCode, result.Message);
+        }
+
+
         [ModuleAuthorize(ModuleCode.RBT, PermissionAction.View)]
         [HttpGet("my-bookings")]
         public async Task<IActionResult> GetMyBookings()
@@ -76,6 +89,7 @@ namespace ResourceFlow.WebAPI.Controllers
             var result = await _resouBookService.GetBookingsOfCurrentUserAsync(userId);
             return StatusCode(result.StatusCode, result);
         }
+
 
         [ModuleAuthorize(ModuleCode.RBT,PermissionAction.View)]
         [HttpGet("company-bookings")]       
