@@ -39,19 +39,16 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
                     try
                     {
                         using var conn = new SqlConnection(_connectionString);
-
                         res = await conn.QueryAsync<SubscrptionResponseDto>(
                            "[dbo].[SP_SUBSCRIPTION]",
                            new { FLAG = "GETALL" },
                            commandType: CommandType.StoredProcedure
                        );
-
                     }
                     catch (SqlException ex)
                     {
                         throw new StoredProcedureException("Error executing SP_SUBSCRIPTION", ex);
                     }
-                   
                 }
                 );
             return res;

@@ -699,105 +699,105 @@ GO
   Description : Added typeName in GETALL joining subscrptioType table 
 }*/
 
-CREATE  PROCEDURE [dbo].[SP_SUBSCRIPTION] 
-    @FLAG           VARCHAR(40),
-    @SUBSCRIPTIONID INT              = NULL,
-    @SUBSCRIPTIONNAME NVARCHAR(200)  = NULL,
-    @ISACTIVE       BIT              = NULL,
-    @CREATEAT       DATETIME2        = NULL,
-    @CREATEDBY      INT              = NULL,
-    @MODIFIEDAT     DATETIME2        = NULL,
-    @MODIFIEDBY     INT              = NULL,
-    @DELETEDAT      DATETIME2        = NULL,
-    @DELETEDBY      INT              = NULL,
-    @ISDELETED       BIT              = NULL
-AS
-BEGIN
-    BEGIN TRY
+    CREATE  PROCEDURE [dbo].[SP_SUBSCRIPTION] 
+        @FLAG           VARCHAR(40),
+        @SUBSCRIPTIONID INT              = NULL,
+        @SUBSCRIPTIONNAME NVARCHAR(200)  = NULL,
+        @ISACTIVE       BIT              = NULL,
+        @CREATEAT       DATETIME2        = NULL,
+        @CREATEDBY      INT              = NULL,
+        @MODIFIEDAT     DATETIME2        = NULL,
+        @MODIFIEDBY     INT              = NULL,
+        @DELETEDAT      DATETIME2        = NULL,
+        @DELETEDBY      INT              = NULL,
+        @ISDELETED       BIT              = NULL
+    AS
+    BEGIN
+        BEGIN TRY
 
-        IF @FLAG = 'GETALL'
-        BEGIN
-            SELECT 
-                s.Id,
-        s.SubscriptionName,
-        s.MaxEmployees,
-        s.MaxFloors,
-        s.MaxDesks,
-        s.MaxMeetingRooms,
-        s.PriceMonthly,
-        s.PriceYearly,
-        s.Description,
-        s.IsActive,
-        t.TypeName
-            FROM Subscriptions s
-            JOIN SubscriptionTypes t ON s.TypeId =t.Id
-            WHERE IsDeleted = 0;
-            RETURN;
-        END
-       
-        IF @FLAG = 'GETBYID'
-        BEGIN
-            IF @SUBSCRIPTIONID IS NULL
+            IF @FLAG = 'GETALL'
             BEGIN
-                RAISERROR('SUBSCRIPTIONID is required for GETBYID', 16, 1);
+                SELECT 
+                    s.Id,
+            s.SubscriptionName,
+            s.MaxEmployees,
+            s.MaxFloors,
+            s.MaxDesks,
+            s.MaxMeetingRooms,
+            s.PriceMonthly,
+            s.PriceYearly,
+            s.Description,
+            s.IsActive,
+            t.TypeName
+                FROM Subscriptions s
+                JOIN SubscriptionTypes t ON s.TypeId =t.Id
+                WHERE IsDeleted = 0;
+                RETURN;
+            END
+        
+            IF @FLAG = 'GETBYID'
+            BEGIN
+                IF @SUBSCRIPTIONID IS NULL
+                BEGIN
+                    RAISERROR('SUBSCRIPTIONID is required for GETBYID', 16, 1);
+                    RETURN;
+                END
+
+
+                SELECT 
+                    Id, SubscriptionName, PriceMonthly, PriceYearly, Description,IsActive
+                FROM Subscriptions
+                WHERE Id = @SUBSCRIPTIONID AND IsDeleted = 0;
                 RETURN;
             END
 
-
-            SELECT 
-                Id, SubscriptionName, PriceMonthly, PriceYearly, Description,IsActive
-            FROM Subscriptions
-            WHERE Id = @SUBSCRIPTIONID AND IsDeleted = 0;
-            RETURN;
-        END
-
-        IF @FLAG = 'GETBYNAME'
-        BEGIN
-            IF @SUBSCRIPTIONNAME IS NULL
+            IF @FLAG = 'GETBYNAME'
             BEGIN
-                RAISERROR('SUBSCRIPTIONNAME is required for GETBYNAME', 16, 1);
+                IF @SUBSCRIPTIONNAME IS NULL
+                BEGIN
+                    RAISERROR('SUBSCRIPTIONNAME is required for GETBYNAME', 16, 1);
+                    RETURN;
+                END
+
+                SELECT 
+                    Id, SubscriptionName, PriceMonthly, PriceYearly, Description,IsActive
+                FROM Subscriptions
+                WHERE SubscriptionName = @SUBSCRIPTIONNAME AND IsDeleted = 0;
+                RETURN;
+            END
+            IF @FLAG = 'GETBYACTIVE'
+            BEGIN
+                IF @ISACTIVE IS NULL
+                BEGIN
+                    RAISERROR('ISACTIVE is required for GETBYACTIVE', 16, 1);
+                    RETURN;
+                END
+
+                SELECT 
+                    Id, SubscriptionName,  PriceMonthly, PriceYearly, Description,IsActive
+                FROM Subscriptions
+                WHERE IsActive = @ISACTIVE AND IsDeleted = 0;
                 RETURN;
             END
 
-            SELECT 
-                Id, SubscriptionName, PriceMonthly, PriceYearly, Description,IsActive
-            FROM Subscriptions
-            WHERE SubscriptionName = @SUBSCRIPTIONNAME AND IsDeleted = 0;
+        
+            RAISERROR('INVALID INPUT FLAG', 16, 1);
             RETURN;
-        END
-        IF @FLAG = 'GETBYACTIVE'
-        BEGIN
-            IF @ISACTIVE IS NULL
-            BEGIN
-                RAISERROR('ISACTIVE is required for GETBYACTIVE', 16, 1);
-                RETURN;
-            END
 
-            SELECT 
-                Id, SubscriptionName,  PriceMonthly, PriceYearly, Description,IsActive
-            FROM Subscriptions
-            WHERE IsActive = @ISACTIVE AND IsDeleted = 0;
-            RETURN;
-        END
+        END TRY
 
-      
-        RAISERROR('INVALID INPUT FLAG', 16, 1);
-        RETURN;
+        BEGIN CATCH
+            DECLARE @ERRMSG VARCHAR(MAX), @ERRSEVERITY INT, @ERRSTATE INT;
 
-    END TRY
+            SELECT  
+                @ERRMSG      = ERROR_MESSAGE(),
+                @ERRSEVERITY = ERROR_SEVERITY(),
+                @ERRSTATE    = ERROR_STATE();
 
-    BEGIN CATCH
-        DECLARE @ERRMSG VARCHAR(MAX), @ERRSEVERITY INT, @ERRSTATE INT;
-
-        SELECT  
-            @ERRMSG      = ERROR_MESSAGE(),
-            @ERRSEVERITY = ERROR_SEVERITY(),
-            @ERRSTATE    = ERROR_STATE();
-
-        RAISERROR(@ERRMSG, @ERRSEVERITY, @ERRSTATE);
-    END CATCH
-END
-GO
+            RAISERROR(@ERRMSG, @ERRSEVERITY, @ERRSTATE);
+        END CATCH
+    END
+    GO
 
 
 -------------------------------------------------------------------------------------------------------------------------------------

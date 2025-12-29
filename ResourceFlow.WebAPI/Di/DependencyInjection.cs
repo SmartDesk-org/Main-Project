@@ -86,8 +86,6 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IPermissionService, PermissionService>();
             services.AddScoped<ICompanySubscriptionDapperRepository, CompanySubscriptionDapperRepository>();
             services.AddScoped<ISubscriptionValidationService, SubscriptionValidator>();
-
-            
             services.AddScoped<IDbConnection>(sp =>
                 new SqlConnection(
                     sp.GetRequiredService<IConfiguration>()
