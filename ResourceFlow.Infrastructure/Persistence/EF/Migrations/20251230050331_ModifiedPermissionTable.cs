@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     /// <inheritdoc />
-    public partial class roleupdated : Migration
+    public partial class ModifiedPermissionTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -288,35 +288,6 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RolePermissions",
-                columns: table => new
-                {
-                    RoleId = table.Column<int>(type: "int", nullable: false),
-                    ModuleCode = table.Column<int>(type: "int", nullable: false),
-                    View = table.Column<bool>(type: "bit", nullable: false),
-                    Add = table.Column<bool>(type: "bit", nullable: false),
-                    Edit = table.Column<bool>(type: "bit", nullable: false),
-                    Delete = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<int>(type: "int", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RolePermissions", x => new { x.RoleId, x.ModuleCode });
-                    table.ForeignKey(
-                        name: "FK_RolePermissions_Roles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Roles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -328,11 +299,14 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                     PassWord = table.Column<string>(type: "nvarchar(260)", maxLength: 260, nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: false),
                     RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RefreshTokenExpiry = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RefreshTokenExpiry = table.Column<DateTime>(type: "datetime2", nullable: true),
                     PasswordResetToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PasswordResetExpiry = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsBlocked = table.Column<bool>(type: "bit", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    FailedLoginAttempts = table.Column<int>(type: "int", nullable: false),
+                    LockoutEnd = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastFailedLogin = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -560,6 +534,45 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RolePermissions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RoleId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: true),
+                    ModuleCode = table.Column<int>(type: "int", nullable: false),
+                    Scope = table.Column<int>(type: "int", nullable: false),
+                    View = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    Add = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    Edit = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    Delete = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RolePermissions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RolePermissions_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RolePermissions_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CompanySubscription",
                 columns: table => new
                 {
@@ -602,13 +615,13 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 columns: new[] { "Id", "Code", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "Name", "ParentId" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6579), null, null, null, false, null, null, "User Management", null },
-                    { 2, 3, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6586), null, null, null, false, null, null, "Company Details", null },
-                    { 6, 7, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6594), null, null, null, false, null, null, "Employee Management", null },
-                    { 7, 8, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6595), null, null, null, false, null, null, "Subscription Plans", null },
-                    { 14, 15, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6620), null, null, null, false, null, null, "Notifications", null },
-                    { 15, 16, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6622), null, null, null, false, null, null, "Client Messages", null },
-                    { 16, 2, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6623), null, null, null, false, null, null, "Roles", null }
+                    { 1, 1, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2419), null, null, null, false, null, null, "User Management", null },
+                    { 2, 3, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2422), null, null, null, false, null, null, "Company Details", null },
+                    { 6, 7, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2428), null, null, null, false, null, null, "Employee Management", null },
+                    { 7, 8, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2429), null, null, null, false, null, null, "Subscription Plans", null },
+                    { 14, 15, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2438), null, null, null, false, null, null, "Notifications", null },
+                    { 15, 16, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2520), null, null, null, false, null, null, "Client Messages", null },
+                    { 16, 2, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2521), null, null, null, false, null, null, "Roles", null }
                 });
 
             migrationBuilder.InsertData(
@@ -616,9 +629,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "RoleName" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7493), null, null, null, false, null, null, "SuperAdmin" },
-                    { 2, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7496), null, null, null, false, null, null, "CompanyAdmin" },
-                    { 3, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7498), null, null, null, false, null, null, "Employee" }
+                    { 1, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3347), null, null, null, false, null, null, "SuperAdmin" },
+                    { 2, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3349), null, null, null, false, null, null, "CompanyAdmin" },
+                    { 3, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3350), null, null, null, false, null, null, "Employee" }
                 });
 
             migrationBuilder.InsertData(
@@ -626,9 +639,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "TypeName" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(9686), null, null, null, false, null, null, "Basic" },
-                    { 2, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(9689), null, null, null, false, null, null, "Upgrade" },
-                    { 3, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(9690), null, null, null, false, null, null, "Renewal" }
+                    { 1, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(7352), null, null, null, false, null, null, "Basic" },
+                    { 2, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(7358), null, null, null, false, null, null, "Upgrade" },
+                    { 3, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(7360), null, null, null, false, null, null, "Renewal" }
                 });
 
             migrationBuilder.InsertData(
@@ -636,82 +649,126 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 columns: new[] { "Id", "Code", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "Name", "ParentId" },
                 values: new object[,]
                 {
-                    { 3, 4, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6588), null, null, null, false, null, null, "Company Floor", 2 },
-                    { 4, 5, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6590), null, null, null, false, null, null, "Company Desk", 2 },
-                    { 5, 6, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6592), null, null, null, false, null, null, "Company Meeting Room", 2 },
-                    { 8, 9, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6596), null, null, null, false, null, null, "Resource Management", 7 },
-                    { 9, 10, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6598), null, null, null, false, null, null, "Subscription Types", 7 },
-                    { 10, 11, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6600), null, null, null, false, null, null, "Company Subscriptions", 7 }
+                    { 3, 4, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2423), null, null, null, false, null, null, "Company Floor", 2 },
+                    { 4, 5, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2424), null, null, null, false, null, null, "Company Desk", 2 },
+                    { 5, 6, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2427), null, null, null, false, null, null, "Company Meeting Room", 2 },
+                    { 8, 9, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2430), null, null, null, false, null, null, "Resource Management", 7 },
+                    { 9, 10, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2432), null, null, null, false, null, null, "Subscription Types", 7 },
+                    { 10, 11, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2433), null, null, null, false, null, null, "Company Subscriptions", 7 }
                 });
 
             migrationBuilder.InsertData(
                 table: "RolePermissions",
-                columns: new[] { "ModuleCode", "RoleId", "Add", "CreatedAt", "CreatedBy", "Delete", "DeletedAt", "DeletedBy", "Edit", "IsDeleted", "ModifiedAt", "ModifiedBy", "View" },
+                columns: new[] { "Id", "Add", "CreatedAt", "CreatedBy", "Delete", "DeletedAt", "DeletedBy", "Edit", "IsDeleted", "ModifiedAt", "ModifiedBy", "ModuleCode", "RoleId", "Scope", "UserId", "View" },
                 values: new object[,]
                 {
-                    { 1, 1, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7102), null, true, null, null, true, false, null, null, true },
-                    { 2, 1, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7091), null, true, null, null, true, false, null, null, true },
-                    { 3, 1, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7095), null, true, null, null, true, false, null, null, true },
-                    { 4, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7105), null, false, null, null, false, false, null, null, true },
-                    { 5, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7104), null, false, null, null, false, false, null, null, true },
-                    { 6, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7107), null, false, null, null, false, false, null, null, true },
-                    { 7, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7098), null, false, null, null, false, false, null, null, true },
-                    { 8, 1, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7070), null, true, null, null, true, false, null, null, true },
-                    { 9, 1, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7113), null, true, null, null, true, false, null, null, true },
-                    { 10, 1, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7112), null, true, null, null, true, false, null, null, true },
-                    { 11, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7096), null, true, null, null, true, false, null, null, true },
-                    { 12, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7101), null, false, null, null, false, false, null, null, true },
-                    { 13, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7099), null, false, null, null, false, false, null, null, true },
-                    { 14, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7110), null, false, null, null, false, false, null, null, true },
-                    { 15, 1, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7093), null, true, null, null, true, false, null, null, true },
-                    { 16, 1, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7108), null, true, null, null, true, false, null, null, true },
-                    { 1, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7124), null, false, null, null, true, false, null, null, true },
-                    { 2, 2, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7131), null, false, null, null, false, false, null, null, false },
-                    { 3, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7116), null, true, null, null, true, false, null, null, true },
-                    { 4, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7127), null, true, null, null, true, false, null, null, true },
-                    { 5, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7125), null, true, null, null, true, false, null, null, true },
-                    { 6, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7129), null, true, null, null, true, false, null, null, true },
-                    { 7, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7119), null, true, null, null, true, false, null, null, true },
-                    { 8, 2, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7115), null, false, null, null, false, false, null, null, true },
-                    { 9, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7138), null, true, null, null, true, false, null, null, true },
-                    { 10, 2, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7136), null, false, null, null, false, false, null, null, true },
-                    { 11, 2, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7118), null, false, null, null, false, false, null, null, true },
-                    { 12, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7122), null, false, null, null, false, false, null, null, true },
-                    { 13, 2, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7121), null, false, null, null, false, false, null, null, true },
-                    { 14, 2, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7134), null, false, null, null, false, false, null, null, true },
-                    { 15, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7130), null, true, null, null, true, false, null, null, true },
-                    { 16, 2, true, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7133), null, false, null, null, false, false, null, null, true },
-                    { 1, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7148), null, false, null, null, true, false, null, null, true },
-                    { 2, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7157), null, false, null, null, false, false, null, null, false },
-                    { 3, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7141), null, false, null, null, false, false, null, null, true },
-                    { 4, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7151), null, false, null, null, false, false, null, null, true },
-                    { 5, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7150), null, false, null, null, false, false, null, null, true },
-                    { 6, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7154), null, false, null, null, false, false, null, null, true },
-                    { 7, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7144), null, false, null, null, true, false, null, null, true },
-                    { 8, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7139), null, false, null, null, false, false, null, null, true },
-                    { 9, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7163), null, false, null, null, false, false, null, null, false },
-                    { 10, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7161), null, false, null, null, false, false, null, null, false },
-                    { 11, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7142), null, false, null, null, false, false, null, null, false },
-                    { 12, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7147), null, false, null, null, false, false, null, null, false },
-                    { 13, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7145), null, false, null, null, false, false, null, null, false },
-                    { 14, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7160), null, false, null, null, false, false, null, null, false },
-                    { 15, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7155), null, false, null, null, false, false, null, null, true },
-                    { 16, 3, false, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(7158), null, false, null, null, false, false, null, null, false }
+                    { 1, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3029), null, true, null, null, true, false, null, null, 8, 1, 0, null, true },
+                    { 2, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3048), null, true, null, null, true, false, null, null, 2, 1, 0, null, true },
+                    { 3, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3050), null, true, null, null, true, false, null, null, 15, 1, 0, null, true },
+                    { 4, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3051), null, true, null, null, true, false, null, null, 3, 1, 0, null, true },
+                    { 5, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3053), null, true, null, null, true, false, null, null, 10, 1, 0, null, true },
+                    { 6, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3054), null, true, null, null, true, false, null, null, 9, 1, 0, null, true },
+                    { 7, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3056), null, true, null, null, true, false, null, null, 1, 1, 0, null, true }
+                });
+
+            migrationBuilder.InsertData(
+                table: "RolePermissions",
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "Delete", "DeletedAt", "DeletedBy", "Edit", "IsDeleted", "ModifiedAt", "ModifiedBy", "ModuleCode", "RoleId", "Scope", "UserId", "View" },
+                values: new object[,]
+                {
+                    { 8, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3057), null, true, null, null, true, false, null, null, 16, 1, 0, null, true },
+                    { 9, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3058), null, true, null, null, true, false, null, null, 11, 1, 0, null, true }
+                });
+
+            migrationBuilder.InsertData(
+                table: "RolePermissions",
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "ModuleCode", "RoleId", "Scope", "UserId", "View" },
+                values: new object[,]
+                {
+                    { 10, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3060), null, null, null, false, null, null, 7, 1, 0, null, true },
+                    { 11, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3061), null, null, null, false, null, null, 13, 1, 0, null, true },
+                    { 12, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3062), null, null, null, false, null, null, 12, 1, 0, null, true },
+                    { 13, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3063), null, null, null, false, null, null, 5, 1, 0, null, true },
+                    { 14, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3064), null, null, null, false, null, null, 4, 1, 0, null, true },
+                    { 15, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3065), null, null, null, false, null, null, 6, 1, 0, null, true },
+                    { 16, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3066), null, null, null, false, null, null, 14, 1, 0, null, true }
+                });
+
+            migrationBuilder.InsertData(
+                table: "RolePermissions",
+                columns: new[] { "Id", "Add", "CreatedAt", "CreatedBy", "Delete", "DeletedAt", "DeletedBy", "Edit", "IsDeleted", "ModifiedAt", "ModifiedBy", "ModuleCode", "RoleId", "Scope", "UserId", "View" },
+                values: new object[,]
+                {
+                    { 17, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3068), null, true, null, null, true, false, null, null, 3, 2, 1, null, true },
+                    { 18, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3069), null, true, null, null, true, false, null, null, 5, 2, 1, null, true },
+                    { 19, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3071), null, true, null, null, true, false, null, null, 4, 2, 1, null, true },
+                    { 20, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3072), null, true, null, null, true, false, null, null, 6, 2, 1, null, true },
+                    { 21, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3074), null, true, null, null, true, false, null, null, 15, 2, 1, null, true },
+                    { 22, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3075), null, true, null, null, true, false, null, null, 7, 2, 1, null, true }
+                });
+
+            migrationBuilder.InsertData(
+                table: "RolePermissions",
+                columns: new[] { "Id", "Add", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "Edit", "IsDeleted", "ModifiedAt", "ModifiedBy", "ModuleCode", "RoleId", "Scope", "UserId", "View" },
+                values: new object[,]
+                {
+                    { 23, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3077), null, null, null, true, false, null, null, 12, 2, 1, null, true },
+                    { 24, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3078), null, null, null, true, false, null, null, 1, 2, 1, null, true }
+                });
+
+            migrationBuilder.InsertData(
+                table: "RolePermissions",
+                columns: new[] { "Id", "Add", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "ModuleCode", "RoleId", "Scope", "UserId", "View" },
+                values: new object[] { 25, true, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3080), null, null, null, false, null, null, 16, 2, 1, null, true });
+
+            migrationBuilder.InsertData(
+                table: "RolePermissions",
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "ModuleCode", "RoleId", "Scope", "UserId", "View" },
+                values: new object[,]
+                {
+                    { 26, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3081), null, null, null, false, null, null, 14, 2, 1, null, true },
+                    { 27, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3082), null, null, null, false, null, null, 11, 2, 1, null, true },
+                    { 28, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3084), null, null, null, false, null, null, 13, 2, 1, null, true },
+                    { 29, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3085), null, null, null, false, null, null, 8, 2, 0, null, true },
+                    { 30, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3086), null, null, null, false, null, null, 10, 2, 0, null, true },
+                    { 31, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3087), null, null, null, false, null, null, 8, 3, 0, null, true }
+                });
+
+            migrationBuilder.InsertData(
+                table: "RolePermissions",
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "Edit", "IsDeleted", "ModifiedAt", "ModifiedBy", "ModuleCode", "RoleId", "Scope", "UserId", "View" },
+                values: new object[,]
+                {
+                    { 32, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3089), null, null, null, true, false, null, null, 7, 3, 1, null, true },
+                    { 33, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3090), null, null, null, true, false, null, null, 1, 3, 1, null, true }
+                });
+
+            migrationBuilder.InsertData(
+                table: "RolePermissions",
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "ModuleCode", "RoleId", "Scope", "UserId", "View" },
+                values: new object[,]
+                {
+                    { 34, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3091), null, null, null, false, null, null, 3, 3, 1, null, true },
+                    { 35, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3093), null, null, null, false, null, null, 11, 3, 1, null, true },
+                    { 36, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3094), null, null, null, false, null, null, 5, 3, 1, null, true },
+                    { 37, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3095), null, null, null, false, null, null, 4, 3, 1, null, true },
+                    { 38, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3096), null, null, null, false, null, null, 6, 3, 1, null, true },
+                    { 39, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(3098), null, null, null, false, null, null, 15, 3, 1, null, true }
                 });
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "UserId", "CompanyId", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "Email", "IsActive", "IsBlocked", "IsDeleted", "ModifiedAt", "ModifiedBy", "PassWord", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiry", "RoleId", "UserName" },
-                values: new object[] { 1, null, new DateTime(2025, 12, 24, 6, 31, 27, 947, DateTimeKind.Utc).AddTicks(9663), null, null, null, "suhailpalakkal1@gmail.com", true, false, false, null, null, "$2a$11$0CGC5zkN0qhFXosIAj.8XucWrDdke4m0HE7791.DYMiZV/UuwA4LO", null, null, "", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Suhail" });
+                columns: new[] { "UserId", "CompanyId", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "Email", "FailedLoginAttempts", "IsActive", "IsBlocked", "IsDeleted", "LastFailedLogin", "LockoutEnd", "ModifiedAt", "ModifiedBy", "PassWord", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiry", "RoleId", "UserName" },
+                values: new object[] { 1, null, new DateTime(2025, 12, 30, 5, 3, 29, 813, DateTimeKind.Utc).AddTicks(4805), null, null, null, "suhailpalakkal1@gmail.com", 0, true, false, false, null, null, null, null, "$2a$11$YQUJPaQdISZnUIedSZlF0u3AZ4MyKuaEdEp3kwOOdGmsPRW2PKrDK", null, null, "", null, 1, "Suhail" });
 
             migrationBuilder.InsertData(
                 table: "AppModules",
                 columns: new[] { "Id", "Code", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "IsDeleted", "ModifiedAt", "ModifiedBy", "Name", "ParentId" },
                 values: new object[,]
                 {
-                    { 11, 12, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6602), null, null, null, false, null, null, "Payment", 10 },
-                    { 12, 13, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6617), null, null, null, false, null, null, "Billing", 10 },
-                    { 13, 14, new DateTime(2025, 12, 24, 6, 31, 27, 781, DateTimeKind.Utc).AddTicks(6618), null, null, null, false, null, null, "Subscription History", 10 }
+                    { 11, 12, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2434), null, null, null, false, null, null, "Payment", 10 },
+                    { 12, 13, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2435), null, null, null, false, null, null, "Billing", 10 },
+                    { 13, 14, new DateTime(2025, 12, 30, 5, 3, 29, 441, DateTimeKind.Utc).AddTicks(2437), null, null, null, false, null, null, "Subscription History", 10 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -795,6 +852,25 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                 name: "IX_Resources_CompanyId",
                 table: "Resources",
                 column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RolePermissions_RoleId_ModuleCode",
+                table: "RolePermissions",
+                columns: new[] { "RoleId", "ModuleCode" },
+                unique: true,
+                filter: "[UserId] IS NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RolePermissions_RoleId_ModuleCode_UserId",
+                table: "RolePermissions",
+                columns: new[] { "RoleId", "ModuleCode", "UserId" },
+                unique: true,
+                filter: "[UserId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RolePermissions_UserId",
+                table: "RolePermissions",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Subscriptions_TypeId",

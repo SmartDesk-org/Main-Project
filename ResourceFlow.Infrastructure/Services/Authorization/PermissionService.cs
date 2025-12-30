@@ -52,6 +52,35 @@ namespace ResourceFlow.Application.Services.Authorization
             };
         }
 
+        public async Task<bool> HasScopePermission(int userId, ModuleCode module, PermissionAction action, int? targetId = null, PermissionScope scope = PermissionScope.ALL)
+        {
+            // 1. Basic permission check first
+            if (!await HasPermission(userId, module, action))
+                return false;
+
+            // 2. Skip granularity for non-EMP/View cases (or extend for others later)
+            if (module != ModuleCode.EMP || action != PermissionAction.View)
+                return true;
+
+            // 3. EMP View-specific logic
+            var user = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null) return false;
+
+            var userRoleId = user.RoleId;
+
+            return scope switch
+            {
+                PermissionScope.ALL => userRoleId != 3, // Deny Employees (RoleId=3); allow Super (1) / Company Admin (2)
+                PermissionScope.OWN => targetId.HasValue && userId == targetId.Value, // Self-only check
+                _ => false
+            };
+
+        }
+
+
         // Optional: check parent module permissions (if you have hierarchical modules)
         public async Task<bool> HasPermissionWithParent(int userId, ModuleCode module, PermissionAction action)
         {
@@ -103,5 +132,9 @@ namespace ResourceFlow.Application.Services.Authorization
             }
             return modules;
         }
+
+
+  
+
     }
 }

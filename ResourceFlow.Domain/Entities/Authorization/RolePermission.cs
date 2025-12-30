@@ -16,16 +16,19 @@ namespace ResourceFlow.Domain.Entities.Authorization
 {
     public class RolePermission:BaseEntity
     {
+        public int Id { get; set; }
 
         public int RoleId { get; set; }
-        public Roles Role { get; set; }
-
+        public Roles? Role { get; set; }
+        public int? UserId { get; set; }
+        public User? User { get; set; }
         public ModuleCode ModuleCode { get; set; }
+        public PermissionScope Scope { get; set; }
 
         public bool View { get; set; }
         public bool Add { get; set; }
         public bool Edit { get; set; }
         public bool Delete { get; set; }
     }
-
+    
 }

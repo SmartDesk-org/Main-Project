@@ -62,10 +62,7 @@ namespace ResourceFlow.WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var roleId = User.GetUserRole();
-            if (roleId == 3)
-                return Forbid();
-
+            
             var response = await _employeeService.GetAllEmployees();
             return Ok(response);
         }
