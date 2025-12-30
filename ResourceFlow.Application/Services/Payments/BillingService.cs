@@ -41,10 +41,11 @@ namespace ResourceFlow.Application.Services.Payments
         {
             var company =await  _companyDapperRepo.GetCompanyByCompanyId(companyId);
 
-            Console.WriteLine("from billing company {0}, {1}", company.CompanyId, company.CompanySubscriptionId);
+            Console.WriteLine("_________________"); Console.WriteLine("from billing service ,company:"); Console.WriteLine(company.CompanySubscriptionId);
             var compSub = await _companySubRepo.GetByIdAsync(company.CompanySubscriptionId);
+            Console.WriteLine("_________________"); Console.WriteLine("from billing service ,compSub:"); Console.WriteLine(compSub.Id);
             var user = await _userRepo.SingleOrDefaultAsync(x => x.UserName == company.Name);
-            Console.WriteLine("_________________"); Console.WriteLine("from billing service ,user:"); Console.WriteLine(user);
+            Console.WriteLine("_________________"); Console.WriteLine("from billing service ,user:"); Console.WriteLine(user.UserId);
 
             var totalAmount = Convert.ToDecimal(compSub?.AmoutToBePaid);
             var withoutTax = totalAmount-((totalAmount/100)*18);

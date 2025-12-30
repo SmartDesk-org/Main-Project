@@ -33,5 +33,13 @@ namespace ResourceFlow.WebAPI.Controllers
             var res = await _service.NewCompany(dto);
             return StatusCode(res.StatusCode, res);
         }
+
+
+        [HttpGet("CompanyOverview")]
+        public async Task<IActionResult> CompanyOverview(int companyId)
+        {
+            var res = await _service.GetCompanyOverview(companyId);
+            return StatusCode(res.StatusCode, res);
+        }
     }
 }
