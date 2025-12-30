@@ -13,7 +13,7 @@ namespace ResourceFlow.Domain.Entities.Authorization
         public int Id { get; set; }
 
         // Friendly name for UI (can be dynamic)
-        [Required, MaxLength(100)]
+        [Required, MaxLength(100)] 
         public string Name { get; set; }
 
         // Enum stored as INT in DB for performance and type safety

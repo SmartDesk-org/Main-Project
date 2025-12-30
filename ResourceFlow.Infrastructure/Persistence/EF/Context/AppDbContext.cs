@@ -32,9 +32,6 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
         public DbSet<CompanyFloor> CompanyFloors { get; set; }
         public DbSet<AppModule> Modules { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
-        public DbSet<CompanyDesk>CompanyDesks { get; set; }
-        public DbSet<CompanyMeetingRoom> CompanyMeetingRooms { get; set; }
-        public DbSet<CompanyFloor> Floors { get; set; }
         public DbSet<ClientMessage> ClientMessages { get; set; }
         public DbSet<SubscriptionType> SubscriptionTypes { get; set; }
         public DbSet<SubscriptionHistory> Histories { get; set; }
