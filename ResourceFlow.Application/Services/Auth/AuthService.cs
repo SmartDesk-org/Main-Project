@@ -72,7 +72,7 @@ namespace ResourceFlow.Application.Services
             catch (StoredProcedureException ex)
             {
                 _logger.LogError(ex, "SP execution failed during password reset.");
-                return new Response<object>(500, "Database error occurred. Please try again later.",ex.Message);
+                return new Response<object>(500, "Database error occurred. Please try again later.", ex.Message);
             }
             catch (Exception ex)
             {
@@ -90,6 +90,7 @@ namespace ResourceFlow.Application.Services
                 dto.Email = dto.Email.Trim().ToLower();
                 dto.Password = dto.Password.Trim();
 
+                // 1️⃣ Fetch user (read model)
                 var user = await _userDapperRepository.GetByEmailAsync(dto.Email);
                 if (user == null)
                 {
@@ -97,10 +98,12 @@ namespace ResourceFlow.Application.Services
                     return new Response<AuthTokensDto>(401, "Invalid email or password");
                 }
 
+                // 2️⃣ Fetch tracked user (write model)
                 var trackedUser = await _authRepo.GetByIdAsync(user.UserId);
                 if (trackedUser == null)
                     return new Response<AuthTokensDto>(401, "Invalid email or password");
 
+                // 3️⃣ If currently locked → block
                 if (trackedUser.LockoutEnd.HasValue &&
                     trackedUser.LockoutEnd > DateTime.UtcNow)
                 {
@@ -111,10 +114,20 @@ namespace ResourceFlow.Application.Services
 
                     return new Response<AuthTokensDto>(
                         423,
-                        "Login locked.Try again after 24 hours."
+                        "Login locked. Try again after 24 hours."
                     );
                 }
 
+                // 4️⃣ RESET lock if lockout period is over
+                if (trackedUser.LockoutEnd.HasValue &&
+                    trackedUser.LockoutEnd <= DateTime.UtcNow)
+                {
+                    trackedUser.FailedLoginAttempts = 0;
+                    trackedUser.LockoutEnd = null;
+                    trackedUser.LastFailedLogin = null;
+                }
+
+                // 5️⃣ Password verification
                 if (!BCrypt.Net.BCrypt.Verify(dto.Password, trackedUser.PassWord))
                 {
                     trackedUser.FailedLoginAttempts++;
@@ -131,19 +144,22 @@ namespace ResourceFlow.Application.Services
                     }
 
                     await _authRepo.SaveAsync();
-                    return new Response<AuthTokensDto>(401, "invalid email or password");
+                    return new Response<AuthTokensDto>(401, "Invalid email or password");
                 }
 
+                // 6️⃣ Account status check
                 if (!trackedUser.IsActive || trackedUser.IsBlocked)
                 {
                     _logger.LogWarning("Login blocked for UserId {UserId}", trackedUser.UserId);
                     return new Response<AuthTokensDto>(403, "Account inactive or blocked");
                 }
 
+                // 7️⃣ Successful login → reset security counters
                 trackedUser.FailedLoginAttempts = 0;
                 trackedUser.LockoutEnd = null;
                 trackedUser.LastFailedLogin = null;
 
+                // 8️⃣ Generate tokens
                 var (accessToken, exp) = _jwtService.GenerateAccessToken(user);
                 var refreshToken = _jwtService.GenerateRefreshToken();
 
@@ -153,7 +169,6 @@ namespace ResourceFlow.Application.Services
                 await _authRepo.SaveAsync();
 
                 _logger.LogInformation("Login successful for UserId {UserId}", trackedUser.UserId);
-
 
                 return new Response<AuthTokensDto>(
                     200,
@@ -165,7 +180,6 @@ namespace ResourceFlow.Application.Services
                         Role = user.RoleId
                     }
                 );
-
             }
             catch (Exception ex)
             {
