@@ -19,7 +19,6 @@ public class CompanyDetails : BaseEntity
     public virtual ICollection<User> Users { get; set; }
 
     public ICollection<CompanyFloor> CompanyFloors { get; set; } = new List<CompanyFloor>();
-    public ICollection<CompanyDesk> Desks { get; set; } = new List<CompanyDesk>();
-    public ICollection<CompanyMeetingRoom> MeetingRooms { get; set; } = new List<CompanyMeetingRoom>();
+   
 
 }

@@ -27,6 +27,19 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
                    .WithMany(s => s.Resources)
                    .HasForeignKey(s => s.CompanyId)
                    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(r => r.Floor)
+                .WithMany(f => f.Resources)
+                .HasForeignKey(r => r.FloorId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(r => r.ResourceType)
+                .WithMany(t => t.Resources)
+                .HasForeignKey(r => r.ResourceTypeId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasIndex(x => new { x.CompanyId, x.FloorId });
+            builder.HasIndex(x => new { x.CompanyId, x.ResourceTypeId });
         }
     }
 }

@@ -10,12 +10,17 @@ namespace ResourceFlow.Application.DTOs.Subscription
     {
         public string SubscriptionName { get; set; } = null!;
 
-        public int EmployeeLimit { get; set; }
-        public int FloorLimit { get; set; }
-        public int DeskLimit { get; set; }
-        public int MeetingRoomLimit { get; set; }
+        public int MaxEmployees { get; set; }
+        public int MaxFloors { get; set; }
+        public int MaxDesks { get; set; }
+        public int MaxMeetingRooms { get; set; }
         public double PriceMonthly { get; set; }
         public double PriceYearly { get; set; }
         public string Description { get; set; } = string.Empty;
+        public int TypeId { get; set; }
+
+
+      
+       
     }
 }

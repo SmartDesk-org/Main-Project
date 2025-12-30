@@ -17,9 +17,9 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Validations
                 .NotEmpty().WithMessage("Floor name is required")
                 .MaximumLength(100).WithMessage("Floor name cannot exceed 100 characters");
 
-            RuleFor(f => f.Map)
-                .NotEmpty().WithMessage("Layout JSON is required")
-                .Must(BeValidJson).WithMessage("LayoutJson must be valid JSON");
+            //RuleFor(f => f.Map)
+            //    .NotEmpty().WithMessage("Layout JSON is required")
+            //    .Must(BeValidJson).WithMessage("LayoutJson must be valid JSON");
 
             RuleFor(f => f.FloorNumber)
                 .GreaterThan(0).WithMessage("Floor number must be positive");
