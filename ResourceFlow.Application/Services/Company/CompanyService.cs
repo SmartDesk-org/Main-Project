@@ -173,7 +173,10 @@ namespace ResourceFlow.Application.Services.Company
                 FloorName = "Default Floor",
                 CompanyId = company.CompanyId,
                 FloorNumber = 1,
-                Map="just test"
+                Width=1200,
+                Height=800,
+                Scale=1,
+                IsActive=true
             };
 
             var history = new SubscriptionHistory

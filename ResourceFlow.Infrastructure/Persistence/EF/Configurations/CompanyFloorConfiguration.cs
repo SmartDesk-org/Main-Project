@@ -21,9 +21,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
                      builder.Property(x => x.FloorNumber)
                             .IsRequired();
 
-                     builder.Property(x => x.Map)
-                            .HasColumnType("nvarchar(max)")  
-                            .IsRequired();
+                    
 
                      builder.Property(x => x.IsActive)
                             .HasDefaultValue(true);
