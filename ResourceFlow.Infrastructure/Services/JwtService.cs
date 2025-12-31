@@ -30,6 +30,7 @@ namespace ResourceFlow.Infrastructure.Services
                 new Claim("UserEmail", user.Email),
                 new Claim("userId", user.UserId.ToString()),
                 new Claim("roleId", user.RoleId.ToString()),
+                new Claim(ClaimTypes.Role,user.RoleId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

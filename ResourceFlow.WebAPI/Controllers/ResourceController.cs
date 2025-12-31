@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ResourceFlow.Application.DTOs.Resources;
+using ResourceFlow.Application.Interfaces.Resources;
 using ResourceFlow.Application.Services.Resources;
 
 namespace ResourceFlow.WebAPI.Controllers
@@ -10,11 +11,11 @@ namespace ResourceFlow.WebAPI.Controllers
     [ApiController]
     public class ResourceController : ControllerBase
     {
-        private readonly ResourcesService _resourceService;
+        private readonly IResourcesService _resourceService;
         private readonly ILogger<ResourceController> _logger;
 
         public ResourceController(
-            ResourcesService resourceService,
+            IResourcesService resourceService,
             ILogger<ResourceController> logger)
         {
             _resourceService = resourceService;

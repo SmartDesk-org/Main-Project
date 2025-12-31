@@ -14,7 +14,7 @@ namespace ResourceFlow.Application.Interfaces.Repositories.DapperRepository
         Task<User> GetByPasswordResetTokenAsync(string token);
         Task<User> GetByRefreshToken(string RefreshToken);
         Task<User> GetByUserIdAsync(int id);
-        Task<int?> GetCompanyId(int userId);
+        Task<int> GetCompanyId(int userId);
 
     }
 }

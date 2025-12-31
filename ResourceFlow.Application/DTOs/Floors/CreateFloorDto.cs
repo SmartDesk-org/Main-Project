@@ -8,7 +8,6 @@ namespace ResourceFlow.Application.DTOs.Floors
 {
     public class CreateFloorDto
     {
-        public int CompanyId { get; set; }
         public string FloorName { get; set; } = null!;
         public int FloorNumber { get; set; }
 
