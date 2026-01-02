@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ResourceFlow.Application.DTOs.Resources;
 using ResourceFlow.Application.Interfaces.Resources;
 using ResourceFlow.Application.Services.Resources;
+using ResourceFlow.Domain.Enums;
+using ResourceFlow.Infrastructure.Extensions;
 
 namespace ResourceFlow.WebAPI.Controllers
 {
@@ -23,6 +26,7 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
         // 🔒 Admin – Create desk / meeting room
+        [Authorize(Roles =RoleNames.CompanyAdmin)]
         [HttpPost]
         public async Task<IActionResult> CreateResource([FromBody] CreateResourceDto dto)
         {
@@ -34,7 +38,8 @@ namespace ResourceFlow.WebAPI.Controllers
 
             try
             {
-                var resourceId = await _resourceService.CreateResourceAsync(dto);
+                int userId = User.GetUserId();
+                var resourceId = await _resourceService.CreateResourceAsync(dto,userId);
 
                 _logger.LogInformation(
                     "Resource created successfully. ResourceId: {ResourceId}, FloorId: {FloorId}",

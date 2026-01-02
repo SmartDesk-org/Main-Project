@@ -18,7 +18,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
 {
     public class CompanySubscriptionDapperRepository:ICompanySubscriptionDapperRepository
     {
-        private readonly string _connectionString;
+        private readonly string? _connectionString;
         private readonly IStoredProcedureLogger _spLogger;
         public CompanySubscriptionDapperRepository(IConfiguration config,IStoredProcedureLogger spLogger)
         {
@@ -41,7 +41,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
                             "[dbo].[SP_COMPANYSUBSCRIPTION]",
                             new
                             {
-                                FLAG = "GETACTIVEBYCOMPANYID",
+                                FLAG = "GETACTIVE_BYCOMPANYID",
                                 COMPANYID = companyId
                             },
                             commandType: CommandType.StoredProcedure

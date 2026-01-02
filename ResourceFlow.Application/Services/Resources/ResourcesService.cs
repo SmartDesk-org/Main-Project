@@ -22,13 +22,17 @@ namespace ResourceFlow.Application.Services.Resources
         private readonly ISubscriptionValidationService _validator;
         private readonly IMapper _mapper;
         private readonly ILogger<ResourcesService> _logger;
+        private readonly IUserDapperRepository _userDapperRepo;
+        private readonly ICompanyDapperRepository _companyDapperRepository;
 
         public ResourcesService(
             IGenericRepository<Resource> resourceRepo,
             IResourceDapperRepository resourceDapperRepo,
             ISubscriptionValidationService validator,
             IMapper mapper,
-            ILogger<ResourcesService> logger
+            ILogger<ResourcesService> logger,
+            IUserDapperRepository userDapperRepo,
+            ICompanyDapperRepository companyDapperRepo
         )
         {
             _resourceRepo = resourceRepo;
@@ -36,38 +40,46 @@ namespace ResourceFlow.Application.Services.Resources
             _validator = validator;
             _mapper = mapper;
             _logger = logger;
+            _userDapperRepo = userDapperRepo;
+            _companyDapperRepository = companyDapperRepo;
         }
 
-        public async Task<Response<CreateResourceDto>> CreateResourceAsync(CreateResourceDto dto)
+        public async Task<Response<CreateResourceDto>> CreateResourceAsync(CreateResourceDto dto,int userId)
         {
-            _logger.LogInformation(
-                "CreateResourceAsync started. CompanyId: {CompanyId}, FloorId: {FloorId}, ResourceTypeId: {ResourceTypeId}",
-                dto.CompanyId,
-                dto.FloorId,
-                dto.ResourceTypeId
-            );
+
+            
 
             try
             {
+                int companyId = await _userDapperRepo.GetCompanyId(userId);
+                _logger.LogInformation(
+                    "CreateResourceAsync started. CompanyId: {CompanyId}, FloorId: {FloorId}, ResourceTypeId: {ResourceTypeId}",
+                    companyId,
+                    dto.FloorId,
+                    dto.ResourceTypeId
+                );
+
+                bool isAdmin = await _companyDapperRepository.IsUserCompanyAdminAsync(userId,companyId);
+
                 var feature = dto.ResourceTypeId == 1
                     ? SubscriptionFeature.Desk
                     : SubscriptionFeature.MeetingRoom;
 
                 _logger.LogInformation(
                     "Validating subscription for resource creation. CompanyId: {CompanyId}, Feature: {Feature}",
-                    dto.CompanyId,
+                    companyId,
                     feature
                 );
 
                 await _validator.ValidateAsync(
-                    dto.CompanyId,
+                    companyId,
                     feature,
                     SubscriptionAction.Create
                 );
 
                 var resource = _mapper.Map<Resource>(dto);
                 resource.IsActive = true;
-
+                resource.CompanyId = companyId;
                 await _resourceRepo.AddAsync(resource);
 
                 _logger.LogInformation(
@@ -86,8 +98,7 @@ namespace ResourceFlow.Application.Services.Resources
             {
                 _logger.LogError(
                     ex,
-                    "Error occurred while creating resource. CompanyId: {CompanyId}, FloorId: {FloorId}",
-                    dto.CompanyId,
+                    "Error occurred while creating resource. CompanyId: , FloorId: {FloorId}",
                     dto.FloorId
                 );
                 throw;

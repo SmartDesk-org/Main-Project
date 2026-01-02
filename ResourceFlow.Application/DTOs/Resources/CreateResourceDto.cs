@@ -8,7 +8,6 @@ namespace ResourceFlow.Application.DTOs.Resources
 {
     public  class CreateResourceDto
     {
-        public int CompanyId { get; set; }
         public int FloorId { get; set; }
         public int ResourceTypeId { get; set; } // 1=Desk, 2=MeetingRoom
 

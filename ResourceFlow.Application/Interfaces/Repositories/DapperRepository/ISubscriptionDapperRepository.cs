@@ -1,4 +1,5 @@
-﻿using ResourceFlow.Domain.Entities.SubscriptionModels;
+﻿using ResourceFlow.Application.DTOs.Subscription;
+using ResourceFlow.Domain.Entities.SubscriptionModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace ResourceFlow.Application.Interfaces.Repositories.DapperRepository
 {
     public interface ISubscriptionDapperRepository
     {
-        Task<Subscription?> GetByIdAsync(int subscriptionId);
+        Task<IEnumerable<SubscriptionResponseDto>> GetAllAsync();
+        Task<Subscription> GetByIdAsync(int subscriptionId);
     }
 }
