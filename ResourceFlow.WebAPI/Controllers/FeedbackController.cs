@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ResourceFlow.Application.DTOs.Feedback;
 using ResourceFlow.Application.Interfaces.Feedbacks;
+using ResourceFlow.Domain.Enums;
 using ResourceFlow.Infrastructure.Extensions;
 
 namespace ResourceFlow.WebAPI.Controllers
@@ -73,12 +74,13 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        [Authorize]
-        [HttpGet("{ID}/GetAll")]
+        
+        [Authorize(Roles =RoleNames.CompanyAdmin)]
+        [HttpGet("GetAllForCompany")]
         public async Task<IActionResult> GetAllForCompany(int id)
         {
             var userId = User.GetUserId();
-            var res = await _service.GetAllForCompany(id, userId);
+            var res = await _service.GetAllForCompany( userId);
             return StatusCode(res.StatusCode, res);
         }
     }

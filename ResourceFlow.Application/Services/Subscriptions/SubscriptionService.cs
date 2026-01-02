@@ -139,7 +139,9 @@ namespace ResourceFlow.Application.Services.Subscriptions
             var item = await _repo.GetByIdAsync(id);
             if (item == null)
                 return new ApiResponse<bool>(400, "Plan doesnt exist");
-            await _repo.DeleteAsync(item);
+            //await _repo.DeleteAsync(item);
+            item.IsDeleted = true;
+            await _repo.UpdateAsync(item);
             return new ApiResponse<bool>(200, "Plan deleted ");
         }
 
