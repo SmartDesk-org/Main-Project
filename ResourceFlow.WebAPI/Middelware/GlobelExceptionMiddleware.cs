@@ -30,7 +30,7 @@ namespace ResourceFlow.WebAPI.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unhandled exception occurred");
+                _logger.LogError(ex, "Unhandled exception occurred from middleware");
                 await HandleExceptionAsync(context, ex);
             }
         }

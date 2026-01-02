@@ -36,28 +36,18 @@ namespace ResourceFlow.WebAPI.Controllers
                 dto.ResourceTypeId
             );
 
-            try
-            {
-                int userId = User.GetUserId();
-                var resourceId = await _resourceService.CreateResourceAsync(dto,userId);
 
-                _logger.LogInformation(
-                    "Resource created successfully. ResourceId: {ResourceId}, FloorId: {FloorId}",
-                    resourceId,
-                    dto.FloorId
-                );
+            int userId = User.GetUserId();
+            var res = await _resourceService.CreateResourceAsync(dto, userId);
 
-                return Ok(new { ResourceId = resourceId });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Error occurred while creating resource. FloorId: {FloorId}",
-                    dto.FloorId
-                );
-                throw;
-            }
+            _logger.LogInformation(
+                "Resource created successfully. ResourceId: {ResourceId}, FloorId: {FloorId}",
+                res,
+                dto.FloorId
+            );
+
+            return StatusCode(res.StatusCode, res);
+            
         }
 
         // 🔒 Admin – Drag & drop update
@@ -71,26 +61,15 @@ namespace ResourceFlow.WebAPI.Controllers
                 dto.Y
             );
 
-            try
-            {
-                await _resourceService.UpdatePositionAsync(dto);
+            var res=await _resourceService.UpdatePositionAsync(dto);
 
-                _logger.LogInformation(
-                    "Resource position updated successfully. ResourceId: {ResourceId}",
-                    dto.ResourceId
-                );
+            _logger.LogInformation(
+                "Resource position updated successfully. ResourceId: {ResourceId}",
+                dto.ResourceId
+            );
 
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Error occurred while updating resource position. ResourceId: {ResourceId}",
-                    dto.ResourceId
-                );
-                throw;
-            }
+            return StatusCode(res.StatusCode, res);
+            
         }
 
         // 👀 Admin + Employee – View layout
@@ -102,27 +81,16 @@ namespace ResourceFlow.WebAPI.Controllers
                 floorId
             );
 
-            try
-            {
-                var resources = await _resourceService.GetByFloorAsync(floorId);
+            var res = await _resourceService.GetByFloorAsync(floorId);
 
-                _logger.LogInformation(
-                    "GetResourcesByFloor request completed. FloorId: {FloorId}, ResourceCount: {Count}",
-                    floorId,1
-                    //resources?.Count() ?? 0
-                );
+            _logger.LogInformation(
+                "GetResourcesByFloor request completed. FloorId: {FloorId}, ResourceCount: {Count}",
+                floorId, 1
+            //resources?.Count() ?? 0
+            );
 
-                return Ok(resources);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Error occurred while fetching resources for floor. FloorId: {FloorId}",
-                    floorId
-                );
-                throw;
-            }
+            return StatusCode(res.StatusCode, res);
+           
         }
 
         // 🔒 Admin – Delete resource
@@ -134,26 +102,16 @@ namespace ResourceFlow.WebAPI.Controllers
                 resourceId
             );
 
-            try
-            {
-                await _resourceService.DeleteAsync(resourceId);
 
-                _logger.LogInformation(
-                    "Resource deleted successfully. ResourceId: {ResourceId}",
-                    resourceId
-                );
+            var res=await _resourceService.DeleteAsync(resourceId);
 
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Error occurred while deleting resource. ResourceId: {ResourceId}",
-                    resourceId
-                );
-                throw;
-            }
+            _logger.LogInformation(
+                "Resource deleted successfully. ResourceId: {ResourceId}",
+                resourceId
+            );
+
+            return StatusCode(res.StatusCode, res);
+            
         }
     }
 }

@@ -36,27 +36,15 @@ namespace ResourceFlow.WebAPI.Controllers
                 "CreateFloor request started. CompanyId: "
                 
             );
+            var userId = User.GetUserId();
+            var res = await _floorService.CreateFloorAsync(dto, userId);
 
-            try
-            {
-                var userId = User.GetUserId();
-                var floorId = await _floorService.CreateFloorAsync(dto,userId);
+            _logger.LogInformation(
+                "Floor created successfully. FloorId: {FloorId}, CompanyId: ",res
+            );
 
-                _logger.LogInformation(
-                    "Floor created successfully. FloorId: {FloorId}, CompanyId: ",
-                    floorId
-                );
-
-                return Ok(new { FloorId = floorId });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Error occurred while creating floor. CompanyId: "
-                );
-                throw;
-            }
+            return StatusCode(res.StatusCode, res);
+           
         }
 
         [HttpGet]
@@ -67,28 +55,17 @@ namespace ResourceFlow.WebAPI.Controllers
 
             );
 
-            try
-            {
-                var userId = User.GetUserId();
-                var res = await _floorService.GetFloorsAsync(userId);
+            var userId = User.GetUserId();
+            var res = await _floorService.GetFloorsAsync(userId);
 
-                _logger.LogInformation(
-                    "GetFloors request completed. CompanyId: {userId}, FloorsCount: {Count}",
-                    userId, 
-                    res.Data?.Count() ?? 0
-                );
+            _logger.LogInformation(
+                "GetFloors request completed. CompanyId: {userId}, FloorsCount: {Count}",
+                userId,
+                res.Data?.Count() ?? 0
+            );
 
-                return StatusCode(res.StatusCode, res);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Error occurred while fetching floors. userId: "
-                    
-                );
-                throw;
-            }
+            return StatusCode(res.StatusCode, res);
+            
         }
     }
 }
