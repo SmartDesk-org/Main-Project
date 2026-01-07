@@ -3,6 +3,7 @@ using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Feedback;
 using ResourceFlow.Application.Interfaces.Feedbacks;
 using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.Feedbacks;
 using ResourceFlow.Domain.Enums;
@@ -15,16 +16,21 @@ namespace ResourceFlow.Application.Services.Feedbacks
         IFeedbackDapperRepository _feedbackDapperRepo;
         private readonly IGenericRepository<User> _userRepo;
         private readonly IMapper _mapper;
-
+        private readonly IUserDapperRepository _userDapperRepo;
+        private readonly ICompanyDapperRepository _companyDapperRepo;
         public FeedbackService(
             IGenericRepository<Feedback> feedbackRepo,
             IFeedbackDapperRepository feedbackDapperRepo,
             IGenericRepository<User> userRepo,
+            IUserDapperRepository userDapperRepo,
+            ICompanyDapperRepository companyDapperRepo,
             IMapper mapper)
         {
             _feedbackRepo = feedbackRepo;
             _feedbackDapperRepo = feedbackDapperRepo;
             _userRepo = userRepo;
+            _userDapperRepo = userDapperRepo;
+            _companyDapperRepo = companyDapperRepo;
             _mapper = mapper;
         }
 
@@ -106,12 +112,17 @@ namespace ResourceFlow.Application.Services.Feedbacks
             return new Response<bool>(200, "Feedback deleted successfully", true);
         }
 
-        public async Task<Response<IEnumerable<FeedbackResponseDto>>> GetAllForCompany(int companyId, int userId)
+        public async Task<Response<IEnumerable<FeedbackResponseDto>>> GetAllForCompany( int userId)
         {
-            var user =await  _userRepo.FindAsync(u =>u.UserId==userId && u.CompanyId == companyId && u.RoleEnum == RoleEnum.CompanyAdmin && u.IsDeleted == false && u.IsActive == true);
+            int companyId = await _userDapperRepo.GetCompanyId(userId);
 
-            if (user == null)
-                return new Response<IEnumerable<FeedbackResponseDto>>(401, "Only company admin can see feedbacks");
+            var isCompanyAdmin = await _companyDapperRepo
+                     .IsUserCompanyAdminAsync(userId, companyId);
+
+            if (!isCompanyAdmin)
+                throw new UnauthorizedAccessException(
+                    "User is not admin of this company"
+                );
 
             var feedbacks =await  _feedbackDapperRepo.GetByCompanyAsync(companyId);
             if (!feedbacks.Any())

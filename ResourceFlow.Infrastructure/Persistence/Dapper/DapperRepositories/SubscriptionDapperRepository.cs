@@ -3,10 +3,9 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using ResourceFlow.Application.DTOs.Subscription;
 using ResourceFlow.Application.Interfaces.Logging;
-using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
 using ResourceFlow.Domain.Exceptions;
-using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -17,10 +16,10 @@ using System.Threading.Tasks;
 namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
 {
 
-    public  class SubscriptionDapperRepository:ISubscriptionPlanDapperRepository
+    public  class SubscriptionDapperRepository:ISubscriptionDapperRepository
 
     {
-        private readonly string _connectionString;
+        private readonly string? _connectionString;
         private readonly IStoredProcedureLogger _spLogger;
         public SubscriptionDapperRepository(IConfiguration config, IStoredProcedureLogger spLogger)
         {
@@ -28,9 +27,9 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
             _spLogger = spLogger;
         }
 
-        public async Task<IEnumerable<SubscrptionResponseDto>> GetAllAsync()
+        public async Task<IEnumerable<SubscriptionResponseDto>> GetAllAsync()
         {
-            IEnumerable<SubscrptionResponseDto> res= Enumerable.Empty<SubscrptionResponseDto>();
+            IEnumerable<SubscriptionResponseDto> res= Enumerable.Empty<SubscriptionResponseDto>();
 
             await _spLogger.ExecuteAsync(
                 "[dbo].[SP_SUBSCRIPTION]",
@@ -39,7 +38,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
                     try
                     {
                         using var conn = new SqlConnection(_connectionString);
-                        res = await conn.QueryAsync<SubscrptionResponseDto>(
+                        res = await conn.QueryAsync<SubscriptionResponseDto>(
                            "[dbo].[SP_SUBSCRIPTION]",
                            new { FLAG = "GETALL" },
                            commandType: CommandType.StoredProcedure
@@ -52,6 +51,38 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
                 }
                 );
             return res;
+        }
+
+        public async Task<Subscription> GetByIdAsync(int subscriptionId)
+        {
+            Subscription? result = null;
+
+            await _spLogger.ExecuteAsync(
+                "[dbo].[SP_SUBSCRIPTION]",
+                async () =>
+                {
+                    try
+                    {
+                        using var conn = new SqlConnection(_connectionString);
+
+                        result = await conn.QueryFirstOrDefaultAsync<Subscription>(
+                            "[dbo].[SP_SUBSCRIPTION]",
+                            new
+                            {
+                                FLAG = "GETBYID",
+                                SUBSCRIPTIONID = subscriptionId
+                            },
+                            commandType: CommandType.StoredProcedure
+                        );
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new StoredProcedureException(
+                            "Error executing SP_SUBSCRIPTION GETBYID", ex);
+                    }
+                });
+
+            return result;
         }
 
     }

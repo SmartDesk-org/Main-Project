@@ -13,7 +13,7 @@ namespace ResourceFlow.Application.Interfaces.Feedbacks
     {
         Task<Response<IEnumerable<FeedbackResponseDto>>> GetAllAsync();
         Task<Response<IEnumerable<FeedbackResponseDto>>> GetPublishedAsync();
-        Task<Response<IEnumerable<FeedbackResponseDto>>> GetAllForCompany(int companyId, int  userId);
+        Task<Response<IEnumerable<FeedbackResponseDto>>> GetAllForCompany( int  userId);
         Task<Response<Feedback>> CreateAsync(NewFeedbackDto dto, int userId);
         Task<Response<bool>> TogglePublishAsync(int feedbackId);
         Task<Response<bool>> DeleteAsync(int feedbackId);

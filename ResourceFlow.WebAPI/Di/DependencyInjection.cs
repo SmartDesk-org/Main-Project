@@ -10,12 +10,14 @@ using ResourceFlow.Application.Interfaces.Authorization;
 using ResourceFlow.Application.Interfaces.ClientMessages;
 using ResourceFlow.Application.Interfaces.Company;
 using ResourceFlow.Application.Interfaces.Feedbacks;
+using ResourceFlow.Application.Interfaces.Floors;
 using ResourceFlow.Application.Interfaces.History;
 using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Payments;
 using ResourceFlow.Application.Interfaces.Persistence;
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
+using ResourceFlow.Application.Interfaces.Resources;
 using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Application.Interfaces.Subscriptions;
 using ResourceFlow.Application.Services;
@@ -23,7 +25,9 @@ using ResourceFlow.Application.Services.Authorization;
 using ResourceFlow.Application.Services.ClientMessages;
 using ResourceFlow.Application.Services.Company;
 using ResourceFlow.Application.Services.Feedbacks;
+using ResourceFlow.Application.Services.Floors;
 using ResourceFlow.Application.Services.Payments;
+using ResourceFlow.Application.Services.Resources;
 using ResourceFlow.Application.Services.Subscriptions;
 using ResourceFlow.Application.Validators.Employee;
 using ResourceFlow.Infrastructure.Ef.Repositories;
@@ -34,6 +38,7 @@ using ResourceFlow.Infrastructure.Persistence.Dapper.Repositories;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 using ResourceFlow.Infrastructure.Persistence.Installers;
 using ResourceFlow.Infrastructure.Services;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Text.Json.Serialization;
 
@@ -75,6 +80,8 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IPdfService, PdfService>();
             services.AddScoped<IHistoryService, HistoryService>();
             services.AddScoped<IFeedbackservice, FeedbackService>();
+            services.AddScoped<IFloorService, FloorService>();
+            services.AddScoped<IResourcesService, ResourcesService>();
 
            
 
@@ -82,15 +89,18 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IEmailService, EmailService>();
             services.AddSingleton<DapperContext>();
             services.AddScoped<IUserDapperRepository, UserDapperRepository>();
-            services.AddScoped<ISubscriptionPlanDapperRepository, SubscriptionDapperRepository>();
             services.AddScoped<IHistoryDapperRepository, HistoryDapperRepository>();
             services.AddScoped<IFeedbackDapperRepository, FeedbackDapperRepository>();
+            services.AddScoped<ISubscriptionDapperRepository, SubscriptionDapperRepository>();
 
             services.AddScoped<ICompanyDapperRepository, CompanyDapperRepository>();
             services.AddScoped<IEmployeeDapperRepository, EmployeeDapperRepository>();
             services.AddScoped<IPermissionService, PermissionService>();
             services.AddScoped<ICompanySubscriptionDapperRepository, CompanySubscriptionDapperRepository>();
             services.AddScoped<ISubscriptionValidationService, SubscriptionValidator>();
+            services.AddScoped<IResourceUsageDapperRepository, ResourceUsageDapperRepository>();
+            services.AddScoped<IFloorDapperRepository, FloorDapperRepository>();
+            services.AddScoped<IResourceDapperRepository, ResourceDapperRepository>();
 
             services.AddScoped<IStoredProcedureInstaller,StoredProcedureInstaller> ();
 
