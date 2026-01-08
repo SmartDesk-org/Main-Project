@@ -262,5 +262,124 @@ namespace ResourceFlow.Application.Services.Company
                 overview
             );
         }
+
+
+        public async Task<Response<CompanyOverview>> GetSingleCompanyOverviewAsync(int userId)
+        {
+            _logger.LogInformation(
+                "GetCompanyOverviewAsync started. userId: {userId}",
+                userId
+            );
+            var user = await _userRepo.GetByIdAsync(userId);
+            var company = await _companyDapperRepo.GetCompanyByCompanyId(user?.CompanyId??0);
+
+            var overview = await _companyDapperRepo.GetCompanyOverviewAsync(company.CompanyId);
+
+            if (overview == null)
+            {
+                _logger.LogWarning(
+                    "Company overview not found. CompanyId: {CompanyId}",
+                    company.CompanyId
+                );
+
+                return new Response<CompanyOverview>(
+                    404,
+                    "Company overview not found"
+                );
+            }
+
+            _logger.LogInformation(
+                "Company overview fetched successfully. CompanyId: {CompanyId}",
+                overview.EmployeesLimit
+            );
+
+            return new Response<CompanyOverview>(
+                200,
+                "Company overview fetched successfully",
+                overview
+            );
+        }
+        public async Task<Response<CompanySubscription>> RenewSubscription(int userId,RenewelDto dto)
+        {
+            var user =await  _userRepo.GetByIdAsync(userId);
+
+            var company =await  _companyDapperRepo.GetCompanyByCompanyId(user?.CompanyId ?? 0);
+            if (company == null )
+                return new Response<CompanySubscription>(400, "Company not found ");
+
+            bool isAdmin = await _companyDapperRepo.IsUserCompanyAdminAsync(userId, company.CompanyId);
+            if (!isAdmin)
+                return new Response<CompanySubscription>(403, "Only companyadmin can renew the subscription ");
+
+            var existingComSub =await _compSubRepo.SingleOrDefaultAsync(x => x.CompanyId == company.CompanyId && x.IsDeleted==false && x.IsActive==true);
+            if (existingComSub == null)
+                return new Response<CompanySubscription>(400, "No subscription found for this company");
+
+            
+
+            var subPlan =await  _subRepo.SingleOrDefaultAsync(x => x.Id == existingComSub.SubscriptionId && x.IsActive == true && x.IsDeleted == false);
+
+            var startDate = existingComSub.EndDate;
+            var endDate = startDate;
+            double?  amountToBePaid = 0;
+            if (dto.ExpirationYear==1)
+            {
+                 endDate = startDate.AddYears(1);
+                amountToBePaid = subPlan?.PriceYearly ;
+            }
+            else
+            {
+                endDate = startDate.AddMonths(dto.ExpirationMonth);
+                 amountToBePaid = subPlan?.PriceMonthly*dto.ExpirationMonth;
+            }
+
+            try
+            {
+               await  _unitOfWork.BeginTransactionAsync();
+
+                var newComSub = await _compSubRepo.AddAsync(new CompanySubscription
+                {
+                    CompanyId = company.CompanyId,
+                    SubscriptionId = existingComSub.SubscriptionId,
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    AmoutToBePaid = amountToBePaid ?? 0,
+
+                    IsActive = false,
+                    Status = SubscriptionStatus.Pending,
+
+                    EmployeesLimit = subPlan.MaxEmployees,
+                    DesksLimit = subPlan.MaxDesks,
+                    MeetingRoomsLimit = subPlan.MaxMeetingRooms,
+                    FloorsLimit = subPlan.MaxFloors
+
+                });
+
+
+                if (existingComSub.EndDate < DateTime.UtcNow)
+                {
+                    existingComSub.Status = SubscriptionStatus.Expired;
+                    newComSub.Status = SubscriptionStatus.Active;
+                }
+                else
+                {
+                    existingComSub.UpcomingComSubId = newComSub.Id;
+                }
+
+               await  _compSubRepo.UpdateAsync(existingComSub);
+
+
+               await  _unitOfWork.CommitAsync();
+
+                return new Response<CompanySubscription>(200, "renewd", newComSub);
+            }
+            catch(Exception e)
+            {
+                await _unitOfWork.RollbackAsync();
+                return new Response<CompanySubscription>(200, "renewd");
+            }
+            
+           
+        }
     }
 }

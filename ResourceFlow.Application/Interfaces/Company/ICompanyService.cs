@@ -1,5 +1,6 @@
 ﻿using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Company;
+using ResourceFlow.Domain.Entities.SubscriptionModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,7 @@ namespace ResourceFlow.Application.Interfaces.Company
         Task<Response<Object>> NewCompany(NewCompanyDto dto);
         Task ActivateCompanyAsync(int companyId);
         Task<Response<CompanyOverview>> GetCompanyOverviewAsync(int companyId);
+        Task<Response<CompanyOverview>> GetSingleCompanyOverviewAsync(int userId);
+        Task<Response<CompanySubscription>> RenewSubscription(int userId, RenewelDto dto);
     }
 }
