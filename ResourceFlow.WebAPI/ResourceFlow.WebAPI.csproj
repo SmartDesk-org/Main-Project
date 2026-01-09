@@ -33,8 +33,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-
-		<ProjectReference Include="..\ResourceFlow.Application\ResourceFlow.Application.csproj" />
 		<ProjectReference Include="..\ResourceFlow.Infrastructure\ResourceFlow.Infrastructure.csproj" />
 	</ItemGroup>
 

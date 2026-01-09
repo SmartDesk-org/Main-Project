@@ -23,7 +23,7 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
 
-        // [ModuleAuthorize(ModuleCode.EMP,PermissionAction.Add)]
+         [ModuleAuthorize(ModuleCode.EMP,PermissionAction.Add)]
         [HttpPost("bulk-upload")]
         public async Task<IActionResult> BulkUpload([FromForm] EmployeeUploadRequest request)
         {
@@ -35,7 +35,7 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
 
-        // [ModuleAuthorize(ModuleCode.EMP, PermissionAction.Add)]
+        [ModuleAuthorize(ModuleCode.EMP, PermissionAction.Add)]
         [HttpGet("upload-template")]
         public IActionResult DownloadTemplate()
         {

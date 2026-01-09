@@ -21,7 +21,7 @@ namespace ResourceFlow.WebAPI.Controllers
             _logger = logger;
         }
 
-
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto dto)
         {
@@ -40,7 +40,7 @@ namespace ResourceFlow.WebAPI.Controllers
             }
         }
 
-
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
@@ -64,6 +64,7 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
+        [AllowAnonymous]
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh()
         {
@@ -100,7 +101,7 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
@@ -122,11 +123,7 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
 
-
-
-
-
-
+        [AllowAnonymous]
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
@@ -140,6 +137,7 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
 
+        [AllowAnonymous]
         [EnableRateLimiting("Fixed")]
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
@@ -157,5 +155,6 @@ namespace ResourceFlow.WebAPI.Controllers
             var result2 = await _auth.ResetPasswordAsync(dto, userId);
             return StatusCode(result2.StatusCode, result2);
         }
+
     }
  }

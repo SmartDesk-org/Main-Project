@@ -14,18 +14,19 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations.SeedData
 {
     internal class AppModelSeed : IEntityTypeConfiguration<AppModule>
     {
-         
-    
+
+
         public void Configure(EntityTypeBuilder<AppModule> builder)
-        {                          
-                                   builder.HasData(
+        {
+            builder.HasData(
+
                 new AppModule { Id = 1, Name = "User Management", Code = ModuleCode.USR },
 
                 new AppModule { Id = 2, Name = "Company Details", Code = ModuleCode.CDS },
 
                 new AppModule { Id = 3, Name = "Company Floor", Code = ModuleCode.FLR, ParentId = 2 },
-                new AppModule { Id = 4, Name = "Company Desk", Code = ModuleCode.DSK, ParentId = 2 },
-                new AppModule { Id = 5, Name = "Company Meeting Room", Code = ModuleCode.MRM, ParentId = 2 },
+                new AppModule { Id = 4, Name = "Resource Type", Code = ModuleCode.RTY },
+                new AppModule { Id = 5, Name = "FeedBack", Code = ModuleCode.FBK },
 
                 new AppModule { Id = 6, Name = "Employee Management", Code = ModuleCode.EMP },
 
@@ -43,8 +44,15 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations.SeedData
 
                 new AppModule { Id = 15, Name = "Client Messages", Code = ModuleCode.CLM },
 
-                new AppModule { Id=16,Name="Roles",Code=ModuleCode.RLS}
-                );
+                new AppModule { Id = 16, Name = "Roles", Code = ModuleCode.RLS },
+
+                new AppModule { Id = 17, Name = "AppModules", Code = ModuleCode.APM },
+                new AppModule { Id = 18, Name = "Role Permission", Code = ModuleCode.RPM, ParentId = 17 },
+
+                new AppModule { Id = 19, Name = "Resource Booking Permission", Code = ModuleCode.RBP },
+                new AppModule { Id = 20, Name = "Resource Booking", Code = ModuleCode.RBT }
+
+);
 
 
         }

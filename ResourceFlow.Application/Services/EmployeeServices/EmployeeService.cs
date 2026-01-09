@@ -182,6 +182,7 @@ public class EmployeeService : IEmployeeService
         {
             await _uow.RollbackAsync();
             return new ApiResponse<BulkUploadResponse>(500, $"DB Error: {ex.Message}");
+            
         }
         _ = ProcessEmailBackground(usersToSendEmailsTo, passwordMap);
 

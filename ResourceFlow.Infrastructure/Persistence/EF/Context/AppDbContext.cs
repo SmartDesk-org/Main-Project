@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using ResourceFlow.Domain.Entities;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.Authorization;
+using ResourceFlow.Domain.Entities.Booking;
 using ResourceFlow.Domain.Entities.CompanyModels;
+using ResourceFlow.Domain.Entities.Feedbacks;
 using ResourceFlow.Domain.Entities.Finance;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
 using System.Linq.Expressions;
@@ -26,18 +28,29 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Billing> Billing { get; set; }
         public DbSet<Notification> Notifications { get; set; }
-        public DbSet<Resource> Resources { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<CompanySubscription> CompanySubscriptions { get; set; }
         public DbSet<CompanyFloor> CompanyFloors { get; set; }
-        public DbSet<AppModule> Modules { get; set; }
+        public DbSet<AppModule> AppModules { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
-        public DbSet<CompanyDesk>CompanyDesks { get; set; }
-        public DbSet<CompanyMeetingRoom> CompanyMeetingRooms { get; set; }
-        public DbSet<CompanyFloor> Floors { get; set; }
+
+        public DbSet<ResourceType> ResourceTypes { get; set; }
+        public DbSet<Resource> Resources { get; set; }
+
+
         public DbSet<ClientMessage> ClientMessages { get; set; }
         public DbSet<SubscriptionType> SubscriptionTypes { get; set; }
         public DbSet<SubscriptionHistory> Histories { get; set; }
+        public DbSet<Feedback> Feedbacks { get; set; }
+
+
+        public DbSet<CompanyResourceBookingPermission> companyResourceBookingPermissions { get; set; }
+        public DbSet<ResourceBooking> resourceBookings { get; set; }
+
+
+
+
+        // Extract UserId from JWT
         private int? CurrentUserId =>
             int.TryParse(_accessor.HttpContext?.User?.FindFirst("userId")?.Value, out int id)
                 ? id

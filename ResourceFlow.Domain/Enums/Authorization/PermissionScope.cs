@@ -9,8 +9,8 @@ namespace ResourceFlow.Domain.Enums.Authorization
     public enum PermissionScope
     {
         
-        OWN = 1,
-        ALL = 2
+        OWN = 0,
+        ALL = 1
     }
 }
 

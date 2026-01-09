@@ -38,9 +38,27 @@ namespace ResourceFlow.Application.Services.Subscriptions
                 return new ApiResponse<Subscription>(400, "Plan already exists");
 
             var plan = _mapper.Map<Subscription>(dto);
-            var existType = _typeRepo.SingleOrDefaultAsync(u => u.Id == plan.TypeId);
+            var existType =await  _typeRepo.SingleOrDefaultAsync(u => u.Id == plan.TypeId);
             if (existType == null)
                 throw new Exception("Invalid plan type");
+
+            var similarPlanExists = await _repo.SingleOrDefaultAsync(x =>
+                                     x.TypeId == dto.TypeId &&
+                                     x.MaxEmployees == dto.MaxEmployees &&
+                                    x.MaxFloors == dto.MaxFloors &&
+                                    x.MaxDesks == dto.MaxDesks &&
+                                    x.MaxMeetingRooms == dto.MaxMeetingRooms &&
+                                    x.PriceMonthly == dto.PriceMonthly &&
+                                    x.PriceYearly == dto.PriceYearly &&
+                                    x.IsDeleted == false
+                                                 );
+
+            if (similarPlanExists != null)
+                return new ApiResponse<Subscription>(
+                    400,
+                    "A similar subscription plan already exists"
+                );
+
             await _repo.AddAsync(plan);
             return new ApiResponse<Subscription>(200, "Plan created succesfully", plan);
         }
@@ -50,11 +68,11 @@ namespace ResourceFlow.Application.Services.Subscriptions
             try
             {
                 var sub = await _dapperRepo.GetAllAsync();
-                _logger.LogInformation("sub {data}", sub.First().Description);
+               
                 if (sub == null || !sub.Any())
                     return new ApiResponse<IEnumerable<SubscrptionResponseDto>>(404, "Subscription plans not configured");
                 //var res = _mapper.Map<IEnumerable<SubscrptionResponseDto>>(sub);
-
+                _logger.LogInformation("sub {data}", sub.First().Description);
                 return new ApiResponse<IEnumerable<SubscrptionResponseDto>>(200, "Plans fetched succesfully", sub);
 
             }
@@ -82,7 +100,24 @@ namespace ResourceFlow.Application.Services.Subscriptions
             if (duplicate != null)
                 return new Response<Object>(409, "Alredy there is a plan with this name");
 
-             _mapper.Map(dto,existing);
+            var similarPlanExists = await _repo.SingleOrDefaultAsync(x =>
+                                            x.Id != planId &&
+                                            x.TypeId == dto.TypeId &&
+                                            x.MaxEmployees == dto.MaxEmployees &&
+                                            x.MaxFloors == dto.MaxFloors &&
+                                            x.MaxDesks == dto.MaxDesks &&
+                                            x.MaxMeetingRooms == dto.MaxMeetingRooms &&
+                                            x.PriceMonthly == dto.PriceMonthly &&
+                                            x.PriceYearly == dto.PriceYearly &&
+                                            x.IsDeleted == false
+                                                 );
+
+            if (similarPlanExists != null)
+                return new Response<object>(
+                    409,
+                    "Another subscription plan with the same configuration already exists"
+                );
+            _mapper.Map(dto,existing);
             Console.WriteLine("________________________________");
             Console.WriteLine("from update");
             Console.WriteLine(existing.MaxEmployees);

@@ -18,6 +18,7 @@ namespace ResourceFlow.WebAPI.Controllers
         {
             _service = service;
         }
+
         [ModuleAuthorize(ModuleCode.CDS,PermissionAction.View)]
         [HttpGet("GetAll")]
         public async Task<ActionResult> GetAll()
@@ -25,7 +26,7 @@ namespace ResourceFlow.WebAPI.Controllers
             var res =await  _service.GetAllAsync();
             return StatusCode(res.StatusCode, res);
         }
-
+        [AllowAnonymous]
         [HttpPost("NewCompany")]
         public async Task<ActionResult> NewCompany([FromBody]NewCompanyDto dto)
         {

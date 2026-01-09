@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ResourceFlow.Application.DTOs.Payments;
 using ResourceFlow.Application.Interfaces.Company;
@@ -19,14 +20,14 @@ namespace ResourceFlow.WebAPI.Controllers
             _paymentService = paymentService;
             _companyService = companyService;
         }
-
+        [AllowAnonymous]
         [HttpPost("create-intent")]
         public async Task<IActionResult> CreateIntent([FromBody] CreatePaymentIntentRequestDto dto)
         {
             var res = await _paymentService.CreatePaymentIntent(dto.CompanyId);
             return Ok(res);
         }
-
+        [AllowAnonymous]
         [HttpPost("confirm")]
         public async Task<IActionResult> Confirm([FromBody] ConfirmPaymentRequestDto dto)
         {

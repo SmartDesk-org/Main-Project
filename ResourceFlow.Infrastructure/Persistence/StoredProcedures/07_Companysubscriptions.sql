@@ -226,3 +226,72 @@ END
 END
 
 -------------------------------------------------------------------------------------------------------------------------------------
+/*{
+  Title       : [dbo].[SP_ACTIVE_SUBSCRIPTION_BYCOMPANY]
+  Description : Get full details of active company subscription, including grace period validation
+  CreatedOn and Owner : { 03/01/2026 : Ganga Suresh V }
+  
+  Execution Statements:
+
+  -- Get Active Subscription By CompanyId
+  EXEC dbo.SP_ACTIVE_SUBSCRIPTION_BYCOMPANY @COMPANYID = 1;
+}*/
+
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[SP_ACTIVE_SUBSCRIPTION_BYCOMPANY]
+    @COMPANYID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        
+        IF @COMPANYID IS NULL
+        BEGIN
+            RAISERROR('COMPANYID is required.', 16, 1);
+            RETURN;
+        END
+
+        
+        SELECT 
+            cs.Id AS CompanySubscriptionId,
+            cs.CompanyId,
+            cs.SubscriptionId AS CompanySubscription_SubscriptionId,
+            cs.StartDate,
+            cs.EndDate,
+            cs.IsActive,
+            cs.Status AS CompanySubscription_Status,
+            s.Id AS SubscriptionId,
+            s.SubscriptionName AS SubscriptionName,
+            s.GracePeriodDays
+        FROM dbo.CompanySubscription AS cs
+        INNER JOIN dbo.Subscriptions AS s
+            ON cs.SubscriptionId = s.Id
+        WHERE 
+            cs.CompanyId = @COMPANYID
+            AND cs.IsActive = 1
+            AND cs.IsDeleted = 0
+            AND (
+                GETUTCDATE() BETWEEN cs.StartDate AND cs.EndDate
+                OR GETUTCDATE() <= DATEADD(DAY, s.GracePeriodDays, cs.EndDate)
+            );
+
+        
+        IF @@ROWCOUNT = 0
+        BEGIN
+            RAISERROR('No active subscription found for company ''%d''.', 16, 1, @COMPANYID);
+        END
+    END TRY
+    BEGIN CATCH
+        DECLARE @ERR_MSG NVARCHAR(MAX), @ERR_SEVERITY INT, @ERR_STATE INT;
+
+        SELECT  
+            @ERR_MSG = ERROR_MESSAGE(),
+            @ERR_SEVERITY = ERROR_SEVERITY(),
+            @ERR_STATE = ERROR_STATE();
+
+        RAISERROR(@ERR_MSG, @ERR_SEVERITY, @ERR_STATE);
+    END CATCH
+END
+GO

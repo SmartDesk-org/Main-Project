@@ -1,8 +1,4 @@
 ﻿using AutoMapper;
-using DocumentFormat.OpenXml.InkML;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ResourceFlow.Application.Common;
@@ -12,8 +8,8 @@ using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Exceptions;
-using System.Security.Claims;
 using System.Security.Cryptography;
+
 
 
 namespace ResourceFlow.Application.Services
@@ -84,7 +80,6 @@ namespace ResourceFlow.Application.Services
                 return new Response<object>(500, ex.InnerException?.Message ?? ex.Message);
             }
         }
-
 
         public async Task<Response<AuthTokensDto>> LoginAsync(LoginRequestDto dto)
         {

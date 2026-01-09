@@ -52,33 +52,48 @@ namespace ResourceFlow.Application.Services.Authorization
             };
         }
 
-        public async Task<bool> HasScopePermission(int userId, ModuleCode module, PermissionAction action, int? targetId = null, PermissionScope scope = PermissionScope.ALL)
+        public async Task<bool> HasScopePermission(int userId, ModuleCode module, PermissionAction action, int? targetOwnerId = null)
         {
-            // 1. Basic permission check first
-            if (!await HasPermission(userId, module, action))
-                return false;
-
-            // 2. Skip granularity for non-EMP/View cases (or extend for others later)
-            if (module != ModuleCode.EMP || action != PermissionAction.View)
-                return true;
-
-            // 3. EMP View-specific logic
-            var user = await _context.Users
-                .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.UserId == userId);
-
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserId == userId);
             if (user == null) return false;
 
-            var userRoleId = user.RoleId;
+            var permission = await _context.RolePermissions
+                .Where(rp => rp.RoleId == user.RoleId && rp.ModuleCode == module)
+                .Select(rp => new { rp.View, rp.Add, rp.Edit, rp.Delete, rp.Scope })
+                .FirstOrDefaultAsync();
 
-            return scope switch
+            if (permission == null) return false;
+
+            bool actionAllowed = action switch
             {
-                PermissionScope.ALL => userRoleId != 3, // Deny Employees (RoleId=3); allow Super (1) / Company Admin (2)
-                PermissionScope.OWN => targetId.HasValue && userId == targetId.Value, // Self-only check
+                PermissionAction.View => permission.View,
+                PermissionAction.Add => permission.Add,
+                PermissionAction.Edit => permission.Edit,
+                PermissionAction.Delete => permission.Delete,
                 _ => false
             };
 
+            if (!actionAllowed) return false;
+
+            // 🔑 CREATE / BULK CREATE → scope does NOT apply
+            if (action == PermissionAction.Add)
+                return true;
+
+            // Scope enforcement for other actions
+            return permission.Scope switch
+            {
+                PermissionScope.ALL => true,
+
+                PermissionScope.OWN =>
+                    !targetOwnerId.HasValue || targetOwnerId.Value == userId,
+
+                _ => false
+            };
+
+
         }
+
+
 
 
         // Optional: check parent module permissions (if you have hierarchical modules)
@@ -91,7 +106,7 @@ namespace ResourceFlow.Application.Services.Authorization
             if (user == null) return false;
 
             // Get the module and all its parents
-            var modulesToCheck = await _context.Modules
+            var modulesToCheck = await _context.AppModules
                 .Where(m => m.Code == module)
                 .SelectMany(m => GetModuleAndParents(m))
                 .ToListAsync();
@@ -124,10 +139,10 @@ namespace ResourceFlow.Application.Services.Authorization
         // Helper: recursively get module and all its parents
         private IQueryable<AppModule> GetModuleAndParents(AppModule module)
         {
-            var modules = _context.Modules.Where(m => m.Id == module.Id);
+            var modules = _context.AppModules.Where(m => m.Id == module.Id);
             if (module.ParentId.HasValue)
             {
-                var parent = _context.Modules.Where(m => m.Id == module.ParentId.Value);
+                var parent = _context.AppModules.Where(m => m.Id == module.ParentId.Value);
                 modules = modules.Concat(GetModuleAndParents(parent.FirstOrDefault()));
             }
             return modules;
