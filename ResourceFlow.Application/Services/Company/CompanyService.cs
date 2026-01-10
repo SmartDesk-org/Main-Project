@@ -76,7 +76,7 @@ namespace ResourceFlow.Application.Services.Company
                 var existing = await _companyRepo
                     .SingleOrDefaultAsync(x => x.Name == dto.Name && !x.IsDeleted);
 
-                if (existing != null)
+                if (existing != null && existing.IsActive==true)
                     return new Response<object>(409, "Company with same name already exists");
 
                 var existingUser = await _userRepo
@@ -274,7 +274,7 @@ namespace ResourceFlow.Application.Services.Company
             var company = await _companyDapperRepo.GetCompanyByCompanyId(user?.CompanyId??0);
 
             var overview = await _companyDapperRepo.GetCompanyOverviewAsync(company.CompanyId);
-
+            Console.WriteLine("___________"); Console.WriteLine("From comp service"); 
             if (overview == null)
             {
                 _logger.LogWarning(
@@ -351,7 +351,8 @@ namespace ResourceFlow.Application.Services.Company
                     EmployeesLimit = subPlan.MaxEmployees,
                     DesksLimit = subPlan.MaxDesks,
                     MeetingRoomsLimit = subPlan.MaxMeetingRooms,
-                    FloorsLimit = subPlan.MaxFloors
+                    FloorsLimit = subPlan.MaxFloors,
+                    UpcomingComSubId=0
 
                 });
 
@@ -360,6 +361,7 @@ namespace ResourceFlow.Application.Services.Company
                 {
                     existingComSub.Status = SubscriptionStatus.Expired;
                     newComSub.Status = SubscriptionStatus.Active;
+                    newComSub.IsActive = true;
                 }
                 else
                 {
@@ -367,9 +369,10 @@ namespace ResourceFlow.Application.Services.Company
                 }
 
                await  _compSubRepo.UpdateAsync(existingComSub);
+                await _compSubRepo.UpdateAsync(newComSub);
 
 
-               await  _unitOfWork.CommitAsync();
+                await  _unitOfWork.CommitAsync();
 
                 return new Response<CompanySubscription>(200, "renewd", newComSub);
             }
@@ -380,6 +383,61 @@ namespace ResourceFlow.Application.Services.Company
             }
             
            
+        }
+
+        public async Task<Response<CompanySubscription>> ActivateRenewelAsync(int userId)
+        {
+            var user = await _userRepo.GetByIdAsync(userId);
+
+            var company = await _companyDapperRepo.GetCompanyByCompanyId(user?.CompanyId ?? 0);
+            if (company == null)
+                return new Response<CompanySubscription>(400, "Company not found ");
+
+            bool isAdmin = await _companyDapperRepo.IsUserCompanyAdminAsync(userId, company.CompanyId);
+            if (!isAdmin)
+                return new Response<CompanySubscription>(403, "Only companyadmin can renew the subscription ");
+
+            var existingComSub = await _compSubRepo.GetByIdAsync(company.CompanySubscriptionId);
+            if (existingComSub == null)
+                return new Response<CompanySubscription>(400, "No subscription found for this company");
+
+            var upcoming = await _compSubRepo.GetByIdAsync(existingComSub.UpcomingComSubId);
+            if (upcoming == null)
+                return new Response<CompanySubscription>(400, "No subscription found for this company");
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+
+                upcoming.IsActive = true;
+                await _compSubRepo.UpdateAsync(upcoming);
+
+                var history=await _historyRepo.AddAsync(new SubscriptionHistory
+                {
+                    CompanyId = company.CompanyId,
+                    SubscriptionId = upcoming.SubscriptionId,
+                    CompanySubscriptionId = upcoming.Id,
+
+                    StartDate = upcoming.StartDate,
+                    EndDate = upcoming.EndDate,
+
+                    AmountPaid = upcoming.AmoutToBePaid,
+                    Currency = "INR",
+
+                    StatusEnum = SubscriptionStatus.Renewed,
+                    ChangeReasonEnum = HistoryChangeReasonEnum.Renewal
+                });
+
+                await _unitOfWork.CommitAsync();
+
+                return new Response<CompanySubscription>(200, "Renewel completed", upcoming);
+
+                
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                return new Response<CompanySubscription>(200, "Renewel completed");
+            }
         }
     }
 }

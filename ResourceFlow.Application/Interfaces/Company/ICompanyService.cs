@@ -17,5 +17,6 @@ namespace ResourceFlow.Application.Interfaces.Company
         Task<Response<CompanyOverview>> GetCompanyOverviewAsync(int companyId);
         Task<Response<CompanyOverview>> GetSingleCompanyOverviewAsync(int userId);
         Task<Response<CompanySubscription>> RenewSubscription(int userId, RenewelDto dto);
+        Task<Response<CompanySubscription>> ActivateRenewelAsync(int userId);
     }
 }

@@ -42,7 +42,7 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        [HttpGet("CompanySingleOverview")]
+        [HttpGet("SingleCompanyOverview")]
         public async Task<IActionResult> CompanyOverview()
         {
             int userId = User.GetUserId();
