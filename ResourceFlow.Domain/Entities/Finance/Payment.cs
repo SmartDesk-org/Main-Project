@@ -1,4 +1,5 @@
 using ResourceFlow.Domain.Entities;
+using ResourceFlow.Domain.Entities.CompanyModels;
 
 namespace ResourceFlow.Domain.Entities.Finance
 {

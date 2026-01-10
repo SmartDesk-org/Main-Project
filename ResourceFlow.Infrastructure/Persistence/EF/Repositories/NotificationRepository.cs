@@ -78,94 +78,6 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Repositories
             }
         }
 
-        public async Task<List<Notification>> GetUserNotificationsAsync(int userId, bool unreadOnly = false, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                var query = _context.Notifications
-                    .Where(n => n.IsForAllUsers || n.UserId == userId)
-                    .AsNoTracking();
-
-                if (unreadOnly)
-                {
-                    query = query.Where(n => !n.IsRead);
-                }
-
-                return await query
-                    .OrderByDescending(n => n.CreatedAt)
-                    .ToListAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting user notifications for user {UserId}", userId);
-                return new List<Notification>();
-            }
-        }
-
-        public async Task<List<Notification>> GetCompanyNotificationsAsync(int companyId, bool unreadOnly = false, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                var query = _context.Notifications
-                    .Where(n => n.IsForAllUsers || n.CompanyId == companyId)
-                    .AsNoTracking();
-
-                if (unreadOnly)
-                {
-                    query = query.Where(n => !n.IsRead);
-                }
-
-                return await query
-                    .OrderByDescending(n => n.CreatedAt)
-                    .ToListAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting company notifications for company {CompanyId}", companyId);
-                return new List<Notification>();
-            }
-        }
-        public async Task<List<Notification>> GetRoleNotificationsAsync(int roleId, bool unreadOnly = false, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                var query = _context.Notifications
-                    .Where(n => n.IsForAllUsers || n.RoleId == roleId)
-                    .AsNoTracking();
-
-                if (unreadOnly)
-                {
-                    query = query.Where(n => !n.IsRead);
-                }
-
-                return await query
-                    .OrderByDescending(n => n.CreatedAt)
-                    .ToListAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting role notifications for role {RoleId}", roleId);
-                return new List<Notification>();
-            }
-        }
-
-        public async Task<List<Notification>> GetNotificationsByUserAndStatusAsync(int userId, bool isRead, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                return await _context.Notifications
-                    .Where(n => n.UserId == userId && n.IsRead == isRead)
-                    .AsNoTracking()
-                    .OrderByDescending(n => n.CreatedAt)
-                    .ToListAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting notifications by status for user {UserId}", userId);
-                return new List<Notification>(); // ✅ Safe default
-            }
-        }
-
         public async Task<int> GetUnreadCountForUserAsync(int userId, CancellationToken cancellationToken = default)
         {
             try
@@ -227,6 +139,57 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Repositories
             {
                 _logger.LogError(ex, "Error marking all notifications as read for user {UserId}", userId);
                 throw; // ✅ Re-throw for service layer handling
+            }
+        }
+
+        public async Task<int?> GetUserCompanyIdAsync(int userId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                return await _context.Users
+                    .Where(u => u.UserId == userId)
+                    .Select(u => u.CompanyId)
+                    .FirstOrDefaultAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting company ID for user {UserId}", userId);
+                return null;
+            }
+        }
+
+        public async Task<List<Notification>> GetMyNotificationsAsync(
+            int userId,
+            int? roleId,
+            int? companyId,
+            bool unreadOnly,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var query = _context.Notifications.AsQueryable();
+
+                query = query.Where(n =>
+                    n.IsForAllUsers ||
+                    (n.UserId == userId) ||
+                    (roleId.HasValue && n.RoleId == roleId) ||
+                    (companyId.HasValue && n.CompanyId == companyId)
+                );
+
+                if (unreadOnly)
+                {
+                    query = query.Where(n => !n.IsRead);
+                }
+
+                return await query
+                    .OrderByDescending(n => n.CreatedAt)
+                    .AsNoTracking()
+                    .ToListAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting combined notifications for user {UserId}", userId);
+                return new List<Notification>();
             }
         }
     }

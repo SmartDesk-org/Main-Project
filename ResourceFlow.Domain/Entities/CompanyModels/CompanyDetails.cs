@@ -3,8 +3,9 @@ using ResourceFlow.Domain.Entities.Authentication;
 
 using ResourceFlow.Domain.Entities.CompanyModels;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
-using ResourceFlow.Domain.Entities.Authentication;
 
+namespace ResourceFlow.Domain.Entities.CompanyModels 
+{ 
 public class CompanyDetails : BaseEntity
 {
     public int CompanyId { get; set; }
@@ -12,10 +13,14 @@ public class CompanyDetails : BaseEntity
     public string Address { get; set; } = default!;
     public bool IsActive { get; set; } = false;
 
+    // Navigation properties
+    public virtual ICollection<CompanyFloor> CompanyFloors { get; set; } = new List<CompanyFloor>();
+    public virtual ICollection<CompanyDesk> Desks { get; set; } = new List<CompanyDesk>();
+    public virtual ICollection<CompanyMeetingRoom> MeetingRooms { get; set; } = new List<CompanyMeetingRoom>();
 
-    public ICollection<Employees> Employees { get; set; } = new List<Employees>();
+    // Existing navigation properties
+    public virtual ICollection<Employees> Employees { get; set; } = new List<Employees>();
     public virtual ICollection<CompanySubscription> CompanySubscriptions { get; set; } = new List<CompanySubscription>();
-
-
-    public virtual ICollection<User> Users { get; set; }
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
+}
 }

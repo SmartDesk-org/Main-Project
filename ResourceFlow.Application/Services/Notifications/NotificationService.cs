@@ -21,7 +21,7 @@ namespace ResourceFlow.Application.Services
         private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
         private readonly ILogger<NotificationService> _logger;
-        private readonly INotificationHubClientService _hubClientService; // ADD THIS
+        private readonly INotificationHubClientService _hubClientService;
 
         public NotificationService(
             IGenericRepository<Notification> notificationGenericRepository,
@@ -29,7 +29,7 @@ namespace ResourceFlow.Application.Services
             ICurrentUserService currentUserService,
             IMapper mapper,
             ILogger<NotificationService> logger,
-            INotificationHubClientService hubClientService) 
+            INotificationHubClientService hubClientService)
         {
             _notificationGenericRepository = notificationGenericRepository;
             _notificationRepository = notificationRepository;
@@ -38,20 +38,48 @@ namespace ResourceFlow.Application.Services
             _logger = logger;
             _hubClientService = hubClientService;
         }
+
         public async Task<ApiResponse<NotificationDto>> CreateNotificationAsync(CreateNotificationDto createDto)
         {
             try
             {
                 _logger.LogInformation(
-                    "User {UserId} creating notification. Title: {Title}",
+                    "User {UserId} (Role: {RoleId}) creating notification. Title: {Title}",
                     _currentUserService.UserId,
+                    _currentUserService.RoleId,
                     createDto.Title);
+
+               
+                // Only SuperAdmin and CompanyAdmin can create notifications
+                //if (!_currentUserService.IsInRole("SuperAdmin") && !_currentUserService.IsInRole("CompanyAdmin"))
+                //{
+                //    return ApiResponse<NotificationDto>.Error(
+                //        "Only SuperAdmin and CompanyAdmin can create notifications", 403);
+                //}
+
+                // ✅ CompanyAdmin can only create notifications for their own company
+                //if (_currentUserService.IsInRole("CompanyAdmin"))
+                //{
+                //    if (createDto.CompanyId.HasValue && createDto.CompanyId.Value != _currentUserService.CompanyId)
+                //    {
+                //        return ApiResponse<NotificationDto>.Error(
+                //            "CompanyAdmin can only create notifications for their own company", 403);
+                //    }
+
+                    // Force CompanyAdmin notifications to be for their company
+                //    if (!createDto.CompanyId.HasValue || createDto.CompanyId.Value == 0)
+                //    {
+                //        createDto.CompanyId = _currentUserService.CompanyId;
+                //    }
+                //}
+
+                // ✅ SuperAdmin can create for any company
+                // No restrictions for SuperAdmin
 
                 // 🔹 Determine NotificationType
                 NotificationType tempType = createDto.NotificationType;
 
-                // Auto-set based on ReferenceType only if default value (e.g., System) or None
-                if (tempType == 0) // Assuming 0 is default/None
+                if (tempType == 0)
                 {
                     if (createDto.ReferenceType == ReferenceType.DeskBooking ||
                         createDto.ReferenceType == ReferenceType.MeetingBooking)
@@ -74,20 +102,15 @@ namespace ResourceFlow.Application.Services
                 // 🔹 CHECK FOR ALL USERS LOGIC
                 bool isForAllUsers = false;
 
-                // If all target IDs are 0/null, it's for all users
                 if ((createDto.CompanyId == 0 || createDto.CompanyId == null) &&
                     (createDto.UserId == 0 || createDto.UserId == null) &&
                     (createDto.RoleId == 0 || createDto.RoleId == null))
                 {
                     isForAllUsers = true;
-
-                    _logger.LogInformation(
-                        "Sending notification to all users: {Title}",
-                        createDto.Title);
+                    _logger.LogInformation("Sending notification to all users: {Title}", createDto.Title);
                 }
                 else
                 {
-                    // Check if user can receive this type of notification (for user-specific notifications)
                     if (createDto.UserId.HasValue && createDto.UserId.Value > 0)
                     {
                         var canSend = await _notificationRepository.CanSendNotificationAsync(
@@ -101,7 +124,6 @@ namespace ResourceFlow.Application.Services
                         }
                     }
                 }
-
 
                 // 🛡️ XSS protection
                 createDto.Title = WebUtility.HtmlEncode(createDto.Title ?? string.Empty);
@@ -153,13 +175,11 @@ namespace ResourceFlow.Application.Services
                     // 🔹 SEND SIGNALR NOTIFICATION BASED ON TARGET
                     if (notification.IsForAllUsers)
                     {
-                        // Send to all users via SignalR
                         await _hubClientService.SendToAllAsync(notification.Title, notification.Message);
                         _logger.LogInformation("Notification sent to all users via SignalR: {Title}", notification.Title);
                     }
                     else if (notification.UserId.HasValue)
                     {
-                        // Send to specific user
                         await _hubClientService.SendToUserAsync(
                             notification.UserId.Value,
                             notification.Title,
@@ -167,7 +187,6 @@ namespace ResourceFlow.Application.Services
                     }
                     else if (notification.RoleId.HasValue)
                     {
-                        // Send to specific role
                         await _hubClientService.SendToRoleAsync(
                             notification.RoleId.Value,
                             notification.Title,
@@ -175,7 +194,6 @@ namespace ResourceFlow.Application.Services
                     }
                     else if (notification.CompanyId.HasValue)
                     {
-                        // Send to specific company
                         await _hubClientService.SendToCompanyAsync(
                             notification.CompanyId.Value,
                             notification.Title,
@@ -210,7 +228,6 @@ namespace ResourceFlow.Application.Services
                         ?? "Unknown Company";
                 }
 
-                // Set IsForAllUsers in DTO
                 notificationDto.IsForAllUsers = notification.IsForAllUsers;
 
                 return ApiResponse<NotificationDto>.Success(
@@ -239,16 +256,38 @@ namespace ResourceFlow.Application.Services
                     return ApiResponse<NotificationDto>.Error("Notification not found", 404);
                 }
 
-                // ✅ Security: Check if user has permission to view this notification
-                if (notification.UserId.HasValue &&
-                    notification.UserId.Value != _currentUserService.UserId &&
-                    !_currentUserService.IsInRole("Admin") &&
-                    !_currentUserService.IsInRole("Manager"))
-                {
-                    _logger.LogWarning("User {UserId} attempted to access notification {NotificationId} belonging to user {OwnerUserId}",
-                        _currentUserService.UserId, id, notification.UserId.Value);
-                    return ApiResponse<NotificationDto>.Error("You don't have permission to view this notification", 403);
-                }
+               
+                // 1. SuperAdmin can access ANY notification
+                //if (_currentUserService.IsInRole("SuperAdmin"))
+                //{
+                //    // No restrictions - SuperAdmin can access all
+                //}
+                //// 2. CompanyAdmin can access their company notifications
+                //else if (_currentUserService.IsInRole("CompanyAdmin"))
+                //{
+                //    if (notification.CompanyId.HasValue && notification.CompanyId.Value != _currentUserService.CompanyId)
+                //    {
+                //        _logger.LogWarning("CompanyAdmin {UserId} attempted to access notification from different company",
+                //            _currentUserService.UserId);
+                //        return ApiResponse<NotificationDto>.Error("You can only access your own company's notifications", 403);
+                //    }
+                //}
+                //// 3. Employee can access their own notifications or company notifications
+                //else
+                //{
+                //    // Check if notification belongs to user
+                //    if (notification.UserId.HasValue && notification.UserId.Value != _currentUserService.UserId)
+                //    {
+                //        // Check if notification belongs to same company
+                //        if (!notification.CompanyId.HasValue ||
+                //            notification.CompanyId.Value != _currentUserService.CompanyId)
+                //        {
+                //            _logger.LogWarning("Employee {UserId} attempted to access notification {NotificationId}",
+                //                _currentUserService.UserId, id);
+                //            return ApiResponse<NotificationDto>.Error("You don't have permission to view this notification", 403);
+                //        }
+                //    }
+                //}
 
                 var notificationDto = _mapper.Map<NotificationDto>(notification);
 
@@ -274,33 +313,38 @@ namespace ResourceFlow.Application.Services
             }
         }
 
-        public async Task<ApiResponse<IEnumerable<NotificationDto>>> GetUserNotificationsAsync(int userId, bool unreadOnly = false)
+        public async Task<ApiResponse<IEnumerable<NotificationDto>>> GetMyNotificationsAsync(bool unreadOnly = false)
         {
             try
             {
-                if (userId <= 0)
-                    return ApiResponse<IEnumerable<NotificationDto>>.Error("Invalid user ID", 400);
+                var userId = _currentUserService.UserId;
+                var roleId = _currentUserService.RoleId;
+                var companyId = _currentUserService.CompanyId;
 
-             
-                if (userId != _currentUserService.UserId &&
-                    !_currentUserService.IsInRole("Admin") &&
-                    !_currentUserService.IsInRole("Manager"))
-                {
-                    _logger.LogWarning("User {CurrentUserId} attempted to access notifications for user {TargetUserId}",
-                        _currentUserService.UserId, userId);
-                    return ApiResponse<IEnumerable<NotificationDto>>.Error("You don't have permission to view other users' notifications", 403);
-                }
+                //if (userId <= 0)
+                //    return ApiResponse<IEnumerable<NotificationDto>>.Error("User not authenticated", 401);
 
                 var notifications = await _notificationRepository
-                    .GetUserNotificationsAsync(userId, unreadOnly);
+                    .GetMyNotificationsAsync(userId, roleId, companyId, unreadOnly);
 
                 var notificationDtos = _mapper.Map<List<NotificationDto>>(notifications);
 
-                // ✅ Null-safe enrichment
-                foreach (var dto in notificationDtos.Where(d => d.UserId.HasValue))
+                // 🔹 Enrichment
+                foreach (var dto in notificationDtos)
                 {
-                    dto.UserName = await _notificationRepository.GetUserNameAsync(dto.UserId.Value)
-                                   ?? "Unknown User";
+                    if (dto.UserId.HasValue)
+                    {
+                        dto.UserName =
+                            await _notificationRepository.GetUserNameAsync(dto.UserId.Value)
+                            ?? "Unknown User";
+                    }
+
+                    if (dto.CompanyId.HasValue)
+                    {
+                        dto.CompanyName =
+                            await _notificationRepository.GetCompanyNameAsync(dto.CompanyId.Value)
+                            ?? "Unknown Company";
+                    }
                 }
 
                 return ApiResponse<IEnumerable<NotificationDto>>.Success(
@@ -309,78 +353,7 @@ namespace ResourceFlow.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting notifications for user {UserId}", userId);
-                return ApiResponse<IEnumerable<NotificationDto>>.Error(ex.Message, 500);
-            }
-        }
-
-        public async Task<ApiResponse<IEnumerable<NotificationDto>>> GetCompanyNotificationsAsync(int companyId, bool unreadOnly = false)
-        {
-            try
-            {
-                if (companyId <= 0)
-                    return ApiResponse<IEnumerable<NotificationDto>>.Error("Invalid company ID", 400);
-
-                // ✅ Security: Check if user belongs to this company or is admin
-                if (_currentUserService.CompanyId != companyId &&
-                    !_currentUserService.IsInRole("Admin") &&
-                    !_currentUserService.IsInRole("Manager"))
-                {
-                    _logger.LogWarning("User {UserId} attempted to access company {CompanyId} notifications without permission",
-                        _currentUserService.UserId, companyId);
-                    return ApiResponse<IEnumerable<NotificationDto>>.Error("You don't have permission to view this company's notifications", 403);
-                }
-
-                var notifications = await _notificationRepository
-                    .GetCompanyNotificationsAsync(companyId, unreadOnly);
-
-                var notificationDtos = _mapper.Map<List<NotificationDto>>(notifications);
-
-                // ✅ Null-safe enrichment for company name
-                foreach (var dto in notificationDtos.Where(d => d.CompanyId.HasValue))
-                {
-                    dto.CompanyName = await _notificationRepository.GetCompanyNameAsync(dto.CompanyId.Value)
-                                      ?? "Unknown Company";
-                }
-
-                return ApiResponse<IEnumerable<NotificationDto>>.Success(
-                    notificationDtos,
-                    $"Retrieved {notificationDtos.Count} notification(s)");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting notifications for company {CompanyId}", companyId);
-                return ApiResponse<IEnumerable<NotificationDto>>.Error(ex.Message, 500);
-            }
-        }
-
-        public async Task<ApiResponse<IEnumerable<NotificationDto>>> GetRoleNotificationsAsync(int roleId, bool unreadOnly = false)
-        {
-            try
-            {
-                if (roleId <= 0)
-                    return ApiResponse<IEnumerable<NotificationDto>>.Error("Invalid role ID", 400);
-
-                // ✅ Security: Users can only view their own role notifications (or admins)
-                if (roleId != _currentUserService.RoleId && !_currentUserService.IsInRole("Admin"))
-                {
-                    _logger.LogWarning("User {UserId} with role {UserRoleId} attempted to access role {TargetRoleId} notifications",
-                        _currentUserService.UserId, _currentUserService.RoleId, roleId);
-                    return ApiResponse<IEnumerable<NotificationDto>>.Error("You don't have permission to view this role's notifications", 403);
-                }
-
-                var notifications = await _notificationRepository
-                    .GetRoleNotificationsAsync(roleId, unreadOnly);
-
-                var notificationDtos = _mapper.Map<List<NotificationDto>>(notifications);
-
-                return ApiResponse<IEnumerable<NotificationDto>>.Success(
-                    notificationDtos,
-                    $"Retrieved {notificationDtos.Count} notification(s)");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting notifications for role {RoleId}", roleId);
+                _logger.LogError(ex, "Error getting combined notifications for current user");
                 return ApiResponse<IEnumerable<NotificationDto>>.Error(ex.Message, 500);
             }
         }
@@ -400,16 +373,18 @@ namespace ResourceFlow.Application.Services
                     return ApiResponse<bool>.Error("Notification not found", 404);
                 }
 
-                // ✅ Security: Check if notification belongs to current user
-                if (notification.UserId.HasValue &&
-                    notification.UserId.Value != _currentUserService.UserId &&
-                    !_currentUserService.IsInRole("Admin") &&
-                    !_currentUserService.IsInRole("Manager"))
-                {
-                    _logger.LogWarning("User {UserId} attempted to mark notification {NotificationId} as read without permission",
-                        _currentUserService.UserId, notificationId);
-                    return ApiResponse<bool>.Error("You can only mark your own notifications as read", 403);
-                }
+               
+                // Users can mark their own notifications as read
+                //if (notification.UserId.HasValue && notification.UserId.Value != _currentUserService.UserId)
+                //{
+                //    // SuperAdmin and CompanyAdmin can mark any notification as read
+                //    if (!_currentUserService.IsInRole("SuperAdmin") && !_currentUserService.IsInRole("CompanyAdmin"))
+                //    {
+                //        _logger.LogWarning("User {UserId} attempted to mark notification {NotificationId} as read without permission",
+                //            _currentUserService.UserId, notificationId);
+                //        return ApiResponse<bool>.Error("You can only mark your own notifications as read", 403);
+                //    }
+                //}
 
                 if (!notification.IsRead)
                 {
@@ -444,7 +419,6 @@ namespace ResourceFlow.Application.Services
                 if (notificationIds.Any(id => id <= 0))
                     return ApiResponse<int>.Error("Invalid notification ID in list", 400);
 
-                // ✅ FIXED: Get current user ID from authenticated context
                 var currentUserId = _currentUserService.UserId;
 
                 if (currentUserId == 0)
@@ -452,7 +426,7 @@ namespace ResourceFlow.Application.Services
                     return ApiResponse<int>.Error("User must be authenticated to mark notifications as read", 401);
                 }
 
-                // ✅ Security: Repository will only mark notifications belonging to this user
+                // ✅ Repository handles ownership check internally
                 await _notificationRepository.MarkMultipleAsReadAsync(notificationIds, currentUserId);
 
                 _logger.LogInformation("User {UserId} marked {Count} notifications as read",
@@ -474,12 +448,30 @@ namespace ResourceFlow.Application.Services
                 if (userId <= 0)
                     return ApiResponse<bool>.Error("Invalid user ID", 400);
 
-                // ✅ Security: Users can only mark their own notifications as read
+                // Users can mark all their own notifications as read
                 if (userId != _currentUserService.UserId)
                 {
-                    _logger.LogWarning("User {CurrentUserId} attempted to mark all notifications as read for user {TargetUserId}",
-                        _currentUserService.UserId, userId);
-                    return ApiResponse<bool>.Error("You can only mark your own notifications as read", 403);
+                    // SuperAdmin and CompanyAdmin can mark all for users in their company
+                    if (_currentUserService.IsInRole("SuperAdmin"))
+                    {
+                        // SuperAdmin can mark all for any user
+                    }
+                    else if (_currentUserService.IsInRole("CompanyAdmin"))
+                    {
+                        var userCompany = await _notificationRepository.GetUserCompanyIdAsync(userId);
+                        if (userCompany != _currentUserService.CompanyId)
+                        {
+                            _logger.LogWarning("CompanyAdmin {CurrentUserId} attempted to mark all for user {TargetUserId} from different company",
+                                _currentUserService.UserId, userId);
+                            return ApiResponse<bool>.Error("You can only mark notifications for users in your company", 403);
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Employee {CurrentUserId} attempted to mark all notifications as read for user {TargetUserId}",
+                            _currentUserService.UserId, userId);
+                        return ApiResponse<bool>.Error("You can only mark your own notifications as read", 403);
+                    }
                 }
 
                 await _notificationRepository.MarkAllAsReadForUserAsync(userId);
@@ -501,14 +493,33 @@ namespace ResourceFlow.Application.Services
                 if (userId <= 0)
                     return ApiResponse<int>.Error("Invalid user ID", 400);
 
-                // ✅ Security: Users can only get their own unread count
-                if (userId != _currentUserService.UserId &&
-                    !_currentUserService.IsInRole("Admin") &&
-                    !_currentUserService.IsInRole("Manager"))
+                // ✅ INDUSTRY-LEVEL PERMISSION CHECK
+                // Users can get their own unread count
+                if (userId != _currentUserService.UserId)
                 {
-                    _logger.LogWarning("User {CurrentUserId} attempted to get unread count for user {TargetUserId}",
-                        _currentUserService.UserId, userId);
-                    return ApiResponse<int>.Error("You can only get your own unread count", 403);
+                    // SuperAdmin can get any user's unread count
+                    if (_currentUserService.IsInRole("SuperAdmin"))
+                    {
+                        // No restrictions
+                    }
+                    // CompanyAdmin can get unread count for users in their company
+                    else if (_currentUserService.IsInRole("CompanyAdmin"))
+                    {
+                        var userCompany = await _notificationRepository.GetUserCompanyIdAsync(userId);
+                        if (userCompany != _currentUserService.CompanyId)
+                        {
+                            _logger.LogWarning("CompanyAdmin {CurrentUserId} attempted to get unread count for user {TargetUserId}",
+                                _currentUserService.UserId, userId);
+                            return ApiResponse<int>.Error("You can only get unread count for users in your company", 403);
+                        }
+                    }
+                    // Employee cannot get others' unread count
+                    else
+                    {
+                        _logger.LogWarning("Employee {CurrentUserId} attempted to get unread count for user {TargetUserId}",
+                            _currentUserService.UserId, userId);
+                        return ApiResponse<int>.Error("You can only get your own unread count", 403);
+                    }
                 }
 
                 var count = await _notificationRepository.GetUnreadCountForUserAsync(userId);
@@ -518,58 +529,6 @@ namespace ResourceFlow.Application.Services
             {
                 _logger.LogError(ex, "Error getting unread count for user {UserId}", userId);
                 return ApiResponse<int>.Error(ex.Message, 500);
-            }
-        }
-
-        public async Task<ApiResponse<bool>> SendRealTimeNotificationAsync(int userId, string title, string message)
-        {
-            try
-            {
-                if (userId <= 0)
-                    return ApiResponse<bool>.Error("Invalid user ID", 400);
-
-                if (string.IsNullOrWhiteSpace(title))
-                    return ApiResponse<bool>.Error("Title is required", 400);
-
-                if (string.IsNullOrWhiteSpace(message))
-                    return ApiResponse<bool>.Error("Message is required", 400);
-
-                // ✅ Security: Only admins and managers can send real-time notifications
-                if (!_currentUserService.IsInRole("Admin") && !_currentUserService.IsInRole("Manager"))
-                {
-                    _logger.LogWarning("User {UserId} attempted to send real-time notification without permission",
-                        _currentUserService.UserId);
-                    return ApiResponse<bool>.Error("Only admins and managers can send real-time notifications", 403);
-                }
-
-                // ✅ FIXED: Get RoleId from current user context
-                var createDto = new CreateNotificationDto
-                {
-                    UserId = userId,
-                    RoleId = _currentUserService.RoleId, // ✅ Get from current user
-                    Title = WebUtility.HtmlEncode(title),
-                    Message = WebUtility.HtmlEncode(message),
-                    NotificationType = NotificationType.System,
-                    TargetChannel = TargetChannel.InApp,
-                    SendImmediately = true
-                };
-
-                var result = await CreateNotificationAsync(createDto);
-
-                if (result.StatusCode != 200)
-                {
-                    return ApiResponse<bool>.Error(result.Message, result.StatusCode);
-                }
-
-                _logger.LogInformation("User {UserId} sent real-time notification to user {TargetUserId}",
-                    _currentUserService.UserId, userId);
-
-                return ApiResponse<bool>.Success(true, "Real-time notification sent successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending real-time notification to user {UserId}", userId);
-                return ApiResponse<bool>.Error(ex.Message, 500);
             }
         }
 
@@ -588,14 +547,27 @@ namespace ResourceFlow.Application.Services
                     return ApiResponse<bool>.Error("Notification not found", 404);
                 }
 
-                // ✅ Security: Only admins or notification owners can delete
-                if (notification.CreatedBy != _currentUserService.UserId &&
-                    !_currentUserService.IsInRole("Admin"))
-                {
-                    _logger.LogWarning("User {UserId} attempted to delete notification {NotificationId} created by user {CreatorUserId}",
-                        _currentUserService.UserId, notificationId, notification.CreatedBy);
-                    return ApiResponse<bool>.Error("You don't have permission to delete this notification", 403);
-                }
+               
+                // Only SuperAdmin and CompanyAdmin can delete notifications
+                //if (!_currentUserService.IsInRole("SuperAdmin") && !_currentUserService.IsInRole("CompanyAdmin"))
+                //{
+                //    _logger.LogWarning("User {UserId} attempted to delete notification {NotificationId} without permission",
+                //        _currentUserService.UserId, notificationId);
+                //    return ApiResponse<bool>.Error("Only SuperAdmin and CompanyAdmin can delete notifications", 403);
+                //}
+
+                //// ✅ CompanyAdmin can only delete notifications from their company
+                //if (_currentUserService.IsInRole("CompanyAdmin"))
+                //{
+                //    if (!notification.CompanyId.HasValue || notification.CompanyId.Value != _currentUserService.CompanyId)
+                //    {
+                //        _logger.LogWarning("CompanyAdmin {UserId} attempted to delete notification {NotificationId} from different company",
+                //            _currentUserService.UserId, notificationId);
+                //        return ApiResponse<bool>.Error("You can only delete notifications from your own company", 403);
+                //    }
+                //}
+
+                // ✅ SuperAdmin can delete any notification (no restrictions)
 
                 await _notificationGenericRepository.DeleteAsync(notification);
                 await _notificationGenericRepository.SaveChangesAsync();
@@ -616,10 +588,8 @@ namespace ResourceFlow.Application.Services
         {
             try
             {
-                // This is a background job - no user context needed
                 _logger.LogInformation("Starting to process pending notifications");
 
-                // Get IQueryable from repository for efficient filtering
                 var queryable = _notificationGenericRepository.GetQueryable();
 
                 var pendingNotifications = queryable
@@ -627,6 +597,7 @@ namespace ResourceFlow.Application.Services
                                n.TargetChannel != TargetChannel.InApp)
                     .ToList();
 
+                // ✅ FIXED: Add await before ProcessNotifications
                 await ProcessNotifications(pendingNotifications);
 
                 _logger.LogInformation("Processed {Count} pending notifications", pendingNotifications.Count);
@@ -646,7 +617,6 @@ namespace ResourceFlow.Application.Services
             {
                 try
                 {
-                    // Process based on target channel
                     switch (notification.TargetChannel)
                     {
                         case TargetChannel.Email:
@@ -657,6 +627,10 @@ namespace ResourceFlow.Application.Services
                             break;
                         case TargetChannel.Push:
                             await SendPushNotificationAsync(notification);
+                            break;
+                        default:
+                            _logger.LogWarning("Unknown target channel {Channel} for notification {NotificationId}",
+                                notification.TargetChannel, notification.Id);
                             break;
                     }
 
@@ -682,7 +656,6 @@ namespace ResourceFlow.Application.Services
         {
             try
             {
-                // This is a background job - no user context needed
                 _logger.LogInformation("Starting to retry failed notifications");
 
                 var queryable = _notificationGenericRepository.GetQueryable();
@@ -691,6 +664,7 @@ namespace ResourceFlow.Application.Services
                     .Where(n => n.Status == NotificationStatus.Failed && n.RetryCount < 3)
                     .ToList();
 
+                // ✅ FIXED: Add await before RetryNotifications
                 await RetryNotifications(failedNotifications);
 
                 _logger.LogInformation("Retried {Count} failed notifications", failedNotifications.Count);
@@ -704,6 +678,7 @@ namespace ResourceFlow.Application.Services
             }
         }
 
+
         private async Task RetryNotifications(List<Notification> notifications)
         {
             foreach (var notification in notifications)
@@ -715,99 +690,29 @@ namespace ResourceFlow.Application.Services
 
             await _notificationGenericRepository.SaveChangesAsync();
 
-            // Process the retried notifications
+            // ✅ FIXED: Add await before ProcessPendingNotificationsAsync
             await ProcessPendingNotificationsAsync();
         }
 
         private async Task SendEmailNotificationAsync(Notification notification)
         {
             // Implement email sending logic
-            await Task.Delay(100); // Simulate email sending
+            await Task.Delay(100);
             _logger.LogInformation("Email notification sent for notification {NotificationId}", notification.Id);
         }
 
         private async Task SendSmsNotificationAsync(Notification notification)
         {
             // Implement SMS sending logic
-            await Task.Delay(100); // Simulate SMS sending
+            await Task.Delay(100);
             _logger.LogInformation("SMS notification sent for notification {NotificationId}", notification.Id);
         }
 
         private async Task SendPushNotificationAsync(Notification notification)
         {
             // Implement push notification logic
-            await Task.Delay(100); // Simulate push notification
+            await Task.Delay(100);
             _logger.LogInformation("Push notification sent for notification {NotificationId}", notification.Id);
-        }
-
-        public async Task<ApiResponse<bool>> SendRealTimeNotificationToRoleAsync(int roleId, string title, string message)
-        {
-            try
-            {
-                if (roleId <= 0)
-                    return ApiResponse<bool>.Error("Invalid role ID", 400);
-
-                if (string.IsNullOrWhiteSpace(title))
-                    return ApiResponse<bool>.Error("Title is required", 400);
-
-                if (string.IsNullOrWhiteSpace(message))
-                    return ApiResponse<bool>.Error("Message is required", 400);
-
-                // ✅ Security: Only admins can send to roles
-                if (!_currentUserService.IsInRole("Admin"))
-                {
-                    _logger.LogWarning("User {UserId} attempted to send notification to role {RoleId} without permission",
-                        _currentUserService.UserId, roleId);
-                    return ApiResponse<bool>.Error("Only admins can send notifications to roles", 403);
-                }
-
-                // This will be enhanced with SignalR hub
-                _logger.LogInformation("User {UserId} sent real-time notification to role {RoleId}: {Title}",
-                    _currentUserService.UserId, roleId, title);
-
-                return ApiResponse<bool>.Success(true, "Notification sent to role successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending real-time notification to role {RoleId}", roleId);
-                return ApiResponse<bool>.Error(ex.Message, 500);
-            }
-        }
-
-        public async Task<ApiResponse<bool>> SendRealTimeNotificationToCompanyAsync(int companyId, string title, string message)
-        {
-            try
-            {
-                if (companyId <= 0)
-                    return ApiResponse<bool>.Error("Invalid company ID", 400);
-
-                if (string.IsNullOrWhiteSpace(title))
-                    return ApiResponse<bool>.Error("Title is required", 400);
-
-                if (string.IsNullOrWhiteSpace(message))
-                    return ApiResponse<bool>.Error("Message is required", 400);
-
-                // ✅ Security: Only admins and company managers can send to company
-                if (!_currentUserService.IsInRole("Admin") &&
-                    !_currentUserService.IsInRole("Manager") &&
-                    _currentUserService.CompanyId != companyId)
-                {
-                    _logger.LogWarning("User {UserId} attempted to send notification to company {CompanyId} without permission",
-                        _currentUserService.UserId, companyId);
-                    return ApiResponse<bool>.Error("You don't have permission to send notifications to this company", 403);
-                }
-
-                // This will be enhanced with SignalR hub
-                _logger.LogInformation("User {UserId} sent real-time notification to company {CompanyId}: {Title}",
-                    _currentUserService.UserId, companyId, title);
-
-                return ApiResponse<bool>.Success(true, "Notification sent to company successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending real-time notification to company {CompanyId}", companyId);
-                return ApiResponse<bool>.Error(ex.Message, 500);
-            }
         }
     }
 }

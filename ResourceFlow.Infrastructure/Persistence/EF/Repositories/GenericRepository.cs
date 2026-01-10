@@ -9,50 +9,53 @@ namespace ResourceFlow.Infrastructure.Ef.Repositories
     {
         protected readonly AppDbContext _db;
         protected readonly DbSet<T> _dbSet;
+
         public GenericRepository(AppDbContext db)
         {
             _db = db;
             _dbSet = db.Set<T>();
         }
 
-        public async Task<T> AddAsync(T entity)
+        // MAKE ALL THESE METHODS VIRTUAL
+        public virtual async Task<T> AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
             await _db.SaveChangesAsync();
             return entity;
         }
 
-        public async Task DeleteAsync(T entity)
+        public virtual async Task DeleteAsync(T entity)
         {
             _dbSet.Remove(entity);
             await _db.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public virtual async Task<IEnumerable<T>> GetAllAsync()
         {
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<T?> GetByIdAsync(object id)
+        public virtual async Task<T?> GetByIdAsync(object id)
         {
             return await _dbSet.FindAsync(id);
         }
 
-        public async Task<T?> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate)
+        public virtual async Task<T?> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.SingleOrDefaultAsync(predicate);
         }
 
-        public async Task UpdateAsync(T entity)
+        public virtual async Task UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
             await _db.SaveChangesAsync();
         }
 
-        public async Task SaveChangesAsync()
+        public virtual async Task SaveChangesAsync()
         {
             await _db.SaveChangesAsync();
         }
-        public IQueryable<T> GetQueryable() => _dbSet.AsQueryable();
+
+        public virtual IQueryable<T> GetQueryable() => _dbSet.AsQueryable();
     }
 }

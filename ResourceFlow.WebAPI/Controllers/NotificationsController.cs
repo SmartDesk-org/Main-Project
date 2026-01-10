@@ -4,8 +4,6 @@ using Microsoft.Extensions.Logging;
 using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Notifications;
 using ResourceFlow.Application.Interfaces.Services;
-using ResourceFlow.Domain.Enums;
-using ResourceFlow.WebAPI.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,16 +15,13 @@ namespace ResourceFlow.WebAPI.Controllers
     public class NotificationsController : ControllerBase
     {
         private readonly INotificationService _notificationService;
-        private readonly INotificationHubClientService _hubClientService;
         private readonly ILogger<NotificationsController> _logger;
 
         public NotificationsController(
             INotificationService notificationService,
-            INotificationHubClientService hubClientService,
             ILogger<NotificationsController> logger)
         {
             _notificationService = notificationService;
-            _hubClientService = hubClientService;
             _logger = logger;
         }
 
@@ -34,10 +29,10 @@ namespace ResourceFlow.WebAPI.Controllers
         /// Create a new notification
         /// </summary>
         [HttpPost]
+        //[Authorize(Roles = "SuperAdmin,CompanyAdmin")]
         public async Task<IActionResult> CreateNotification(
           [FromBody] CreateNotificationDto createDto)
         {
-            // ✅ Model validation
             if (!ModelState.IsValid)
             {
                 return BadRequest(ApiResponse<NotificationDto>.Error(
@@ -66,49 +61,10 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Send real-time notification to user
-        /// </summary>
-        [HttpPost("realtime/user/{userId}")]
-        [Authorize(Roles = "Admin,Manager")] // ✅ Added role authorization
-        public async Task<IActionResult> SendRealTimeToUser(
-            int userId,
-            [FromBody] CreateNotificationDto createDto)
-        {
-            // ✅ ADDED: Model validation
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<bool>.Error("Invalid request data", 400));
-            }
-
-            try
-            {
-                _logger.LogInformation("Sending real-time notification to user {UserId}", userId);
-
-                // Create and save notification
-                createDto.UserId = userId;
-                var notificationResponse = await _notificationService.CreateNotificationAsync(createDto);
-
-                if (notificationResponse.StatusCode >= 400)
-                {
-                    return StatusCode(notificationResponse.StatusCode, notificationResponse);
-                }
-
-                // Send via SignalR
-                await _hubClientService.SendToUserAsync(userId, createDto.Title, createDto.Message);
-
-                return Ok(ApiResponse<bool>.Success(true, "Real-time notification sent successfully"));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending real-time notification to user {UserId}", userId);
-                return StatusCode(500, ApiResponse<bool>.Error("Internal server error"));
-            }
-        }
-
-        /// <summary>
         /// Get notification by ID
         /// </summary>
         [HttpGet("{id}")]
+        //[Authorize]
         public async Task<IActionResult> GetNotification(int id)
         {
             try
@@ -135,40 +91,46 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Get user notifications
+        /// Get notifications for current user (User + Role + Company + Global)
         /// </summary>
-        [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetUserNotifications(
-            int userId,
+        [HttpGet("my")]
+        //[Authorize]
+        public async Task<IActionResult> GetMyNotifications(
             [FromQuery] bool unreadOnly = false)
         {
             try
             {
-                var response = await _notificationService.GetUserNotificationsAsync(userId, unreadOnly);
+                var response = await _notificationService.GetMyNotificationsAsync(unreadOnly);
 
                 if (response.StatusCode >= 400)
-                {
                     return StatusCode(response.StatusCode, response);
-                }
 
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting notifications for user {UserId}", userId);
-                return StatusCode(500, ApiResponse<IEnumerable<NotificationDto>>.Error("Internal server error"));
+                _logger.LogError(ex, "Error getting current user notifications");
+                return StatusCode(500,
+                    ApiResponse<IEnumerable<NotificationDto>>.Error("Internal server error"));
             }
         }
 
         /// <summary>
-        /// Get unread count for user
+        /// Get unread count for current user
         /// </summary>
-        [HttpGet("user/{userId}/unread-count")]
-        public async Task<IActionResult> GetUnreadCount(int userId)
+        [HttpGet("my/unread-count")]
+        //[Authorize]
+        public async Task<IActionResult> GetMyUnreadCount()
         {
             try
             {
-                var response = await _notificationService.GetUnreadCountAsync(userId);
+                var currentUserId = int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+                if (currentUserId <= 0)
+                {
+                    return Unauthorized(ApiResponse<int>.Error("User not authenticated", 401));
+                }
+
+                var response = await _notificationService.GetUnreadCountAsync(currentUserId);
 
                 if (response.StatusCode >= 400)
                 {
@@ -179,7 +141,7 @@ namespace ResourceFlow.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting unread count for user {UserId}", userId);
+                _logger.LogError(ex, "Error getting unread count for current user");
                 return StatusCode(500, ApiResponse<int>.Error("Internal server error"));
             }
         }
@@ -188,6 +150,7 @@ namespace ResourceFlow.WebAPI.Controllers
         /// Mark notification as read
         /// </summary>
         [HttpPost("mark-read/{notificationId}")]
+        //[Authorize]
         public async Task<IActionResult> MarkAsRead(int notificationId)
         {
             try
@@ -216,42 +179,50 @@ namespace ResourceFlow.WebAPI.Controllers
         /// <summary>
         /// Mark multiple notifications as read
         /// </summary>
-        [HttpPost("mark-multiple-read")]
-        public async Task<IActionResult> MarkMultipleAsRead(
-            [FromBody] MarkMultipleNotificationsDto markDto)
-        {
-            try
-            {
-                if (markDto.NotificationIds == null || markDto.NotificationIds.Count == 0)
-                {
-                    return BadRequest(ApiResponse<int>.Error("At least one notification ID is required", 400));
-                }
+        //[HttpPost("mark-multiple-read")]
+        ////[Authorize]
+        //public async Task<IActionResult> MarkMultipleAsRead(
+        //    [FromBody] MarkMultipleNotificationsDto markDto)
+        //{
+        //    try
+        //    {
+        //        if (markDto.NotificationIds == null || markDto.NotificationIds.Count == 0)
+        //        {
+        //            return BadRequest(ApiResponse<int>.Error("At least one notification ID is required", 400));
+        //        }
 
-                var response = await _notificationService.MarkMultipleAsReadAsync(markDto.NotificationIds);
+        //        var response = await _notificationService.MarkMultipleAsReadAsync(markDto.NotificationIds);
 
-                if (response.StatusCode >= 400)
-                {
-                    return StatusCode(response.StatusCode, response);
-                }
+        //        if (response.StatusCode >= 400)
+        //        {
+        //            return StatusCode(response.StatusCode, response);
+        //        }
 
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error marking multiple notifications as read");
-                return StatusCode(500, ApiResponse<int>.Error("Internal server error"));
-            }
-        }
+        //        return Ok(response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error marking multiple notifications as read");
+        //        return StatusCode(500, ApiResponse<int>.Error("Internal server error"));
+        //    }
+        //}
 
         /// <summary>
-        /// Mark all notifications as read for user
+        /// Mark all notifications as read for current user
         /// </summary>
-        [HttpPost("user/{userId}/mark-all-read")]
-        public async Task<IActionResult> MarkAllAsRead(int userId)
+        [HttpPost("my/mark-all-read")]
+        //[Authorize]
+        public async Task<IActionResult> MarkAllAsRead()
         {
             try
             {
-                var response = await _notificationService.MarkAllAsReadAsync(userId);
+                var currentUserId = int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+                if (currentUserId <= 0)
+                {
+                    return Unauthorized(ApiResponse<bool>.Error("User not authenticated", 401));
+                }
+
+                var response = await _notificationService.MarkAllAsReadAsync(currentUserId);
 
                 if (response.StatusCode >= 400)
                 {
@@ -262,7 +233,7 @@ namespace ResourceFlow.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error marking all notifications as read for user {UserId}", userId);
+                _logger.LogError(ex, "Error marking all notifications as read for current user");
                 return StatusCode(500, ApiResponse<bool>.Error("Internal server error"));
             }
         }
@@ -271,6 +242,7 @@ namespace ResourceFlow.WebAPI.Controllers
         /// Delete notification
         /// </summary>
         [HttpDelete("{notificationId}")]
+        //[Authorize(Roles = "SuperAdmin,CompanyAdmin")]
         public async Task<IActionResult> DeleteNotification(int notificationId)
         {
             try
@@ -297,57 +269,53 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Get company notifications
-        /// </summary>
-        [HttpGet("company/{companyId}")]
-        public async Task<IActionResult> GetCompanyNotifications(
-            int companyId,
-            [FromQuery] bool unreadOnly = false)
-        {
-            try
-            {
-                var response = await _notificationService.GetCompanyNotificationsAsync(companyId, unreadOnly);
+        /// Process pending notifications (Admin only)
+        ///// </summary>
+        //[HttpPost("process-pending")]
+        ////[Authorize(Roles = "SuperAdmin")]
+        //public async Task<IActionResult> ProcessPendingNotifications()
+        //{
+        //    try
+        //    {
+        //        var response = await _notificationService.ProcessPendingNotificationsAsync();
 
-                if (response.StatusCode >= 400)
-                {
-                    return StatusCode(response.StatusCode, response);
-                }
+        //        if (response.StatusCode >= 400)
+        //        {
+        //            return StatusCode(response.StatusCode, response);
+        //        }
 
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting notifications for company {CompanyId}", companyId);
-                return StatusCode(500, ApiResponse<IEnumerable<NotificationDto>>.Error("Internal server error"));
-            }
-        }
+        //        return Ok(response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error processing pending notifications");
+        //        return StatusCode(500, ApiResponse<bool>.Error("Internal server error"));
+        //    }
+        //}
 
         /// <summary>
-        /// Get role notifications
+        /// Retry failed notifications (Admin only)
         /// </summary>
-        [HttpGet("role/{roleId}")]
-        public async Task<IActionResult> GetRoleNotifications(
-            int roleId,
-            [FromQuery] bool unreadOnly = false)
-        {
-            try
-            {
-                var response = await _notificationService.GetRoleNotificationsAsync(roleId, unreadOnly);
+        //[HttpPost("retry-failed")]
+        ////[Authorize(Roles = "SuperAdmin")]
+        //public async Task<IActionResult> RetryFailedNotifications()
+        //{
+        //    try
+        //    {
+        //        var response = await _notificationService.RetryFailedNotificationsAsync();
 
-                if (response.StatusCode >= 400)
-                {
-                    return StatusCode(response.StatusCode, response);
-                }
+        //        if (response.StatusCode >= 400)
+        //        {
+        //            return StatusCode(response.StatusCode, response);
+        //        }
 
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting notifications for role {RoleId}", roleId);
-                return StatusCode(500, ApiResponse<IEnumerable<NotificationDto>>.Error("Internal server error"));
-            }
-        }
-
-      
+        //        return Ok(response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error retrying failed notifications");
+        //        return StatusCode(500, ApiResponse<bool>.Error("Internal server error"));
+        //    }
+        //}
     }
 }

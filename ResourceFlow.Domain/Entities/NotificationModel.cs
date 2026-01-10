@@ -1,7 +1,8 @@
 using ResourceFlow.Domain.Entities;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Enums;
- 
+using ResourceFlow.Domain.Entities.CompanyModels;
+
 namespace ResourceFlow.Domain.Entities
 
 {

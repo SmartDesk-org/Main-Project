@@ -32,6 +32,12 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
         public DbSet<Subscriptions> Subscriptions { get; set; }
         public DbSet<CompanySubscription> companySubscriptions { get; set; }
 
+        public DbSet<CompanyDesk> CompanyDesks { get; set; }
+
+        public DbSet<CompanyFloor> CompanyFloors { get; set; }
+
+        public DbSet<CompanyMeetingRoom> CompanyMeetingRooms { get; set; }
+
 
 
 
@@ -39,5 +45,8 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
+      
+
+
     }
 }

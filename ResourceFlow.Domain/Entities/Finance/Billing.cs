@@ -1,4 +1,5 @@
 using ResourceFlow.Domain.Entities;
+using ResourceFlow.Domain.Entities.CompanyModels;
 
 public class Billing:BaseEntity
 {
