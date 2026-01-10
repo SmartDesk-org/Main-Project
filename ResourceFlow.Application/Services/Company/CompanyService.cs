@@ -311,11 +311,11 @@ namespace ResourceFlow.Application.Services.Company
             if (!isAdmin)
                 return new Response<CompanySubscription>(403, "Only companyadmin can renew the subscription ");
 
-            var existingComSub =await _compSubRepo.SingleOrDefaultAsync(x => x.CompanyId == company.CompanyId && x.IsDeleted==false && x.IsActive==true);
-            if (existingComSub == null)
-                return new Response<CompanySubscription>(400, "No subscription found for this company");
+            var existingComSub =await _compSubRepo.SingleOrDefaultAsync(x => x.CompanyId == company.CompanyId && x.IsDeleted==false && x.IsActive==true );
+                if(existingComSub==null)
+                return new Response<CompanySubscription>(403, "No subscription found for this company ");
 
-            
+
 
             var subPlan =await  _subRepo.SingleOrDefaultAsync(x => x.Id == existingComSub.SubscriptionId && x.IsActive == true && x.IsDeleted == false);
 
@@ -357,11 +357,12 @@ namespace ResourceFlow.Application.Services.Company
                 });
 
 
-                if (existingComSub.EndDate < DateTime.UtcNow)
+                if (existingComSub.EndDate < DateTime.UtcNow || existingComSub.Status==SubscriptionStatus.Expired)
                 {
                     existingComSub.Status = SubscriptionStatus.Expired;
                     newComSub.Status = SubscriptionStatus.Active;
                     newComSub.IsActive = true;
+                    company.CompanySubscriptionId = newComSub.Id;
                 }
                 else
                 {
@@ -370,16 +371,17 @@ namespace ResourceFlow.Application.Services.Company
 
                await  _compSubRepo.UpdateAsync(existingComSub);
                 await _compSubRepo.UpdateAsync(newComSub);
+                await _companyRepo.UpdateAsync(company);
 
 
                 await  _unitOfWork.CommitAsync();
 
-                return new Response<CompanySubscription>(200, "renewd", newComSub);
+                return new Response<CompanySubscription>(200, "renewed", newComSub);
             }
             catch(Exception e)
             {
                 await _unitOfWork.RollbackAsync();
-                return new Response<CompanySubscription>(200, "renewd");
+                return new Response<CompanySubscription>(200, "renewed");
             }
             
            

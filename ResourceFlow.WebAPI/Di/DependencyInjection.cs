@@ -1,6 +1,7 @@
 ﻿
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Hangfire;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -103,7 +104,7 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IResourceDapperRepository, ResourceDapperRepository>();
 
             services.AddScoped<IStoredProcedureInstaller,StoredProcedureInstaller> ();
-
+            services.AddScoped<ISubscriptionJob, SubscriptionJob>();
 
 
             services.AddScoped<IDbConnection>(sp =>
@@ -162,6 +163,12 @@ namespace ResourceFlow.WebAPI.DI
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+
+            services.AddHangfire(config =>
+            config.UseSqlServerStorage(
+                configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddHangfireServer();
 
             return services;
 
