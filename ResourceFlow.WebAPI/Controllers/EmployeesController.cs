@@ -58,7 +58,7 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
 
-        [ModuleAuthorize(ModuleCode.EMP, PermissionAction.View)]
+         [ModuleAuthorize(ModuleCode.EMP, PermissionAction.View)]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

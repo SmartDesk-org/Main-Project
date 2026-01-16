@@ -1,14 +1,8 @@
 ﻿using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.History;
 using ResourceFlow.Application.Interfaces.History;
-using ResourceFlow.Application.Interfaces.Repositories;
-using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
-using ResourceFlow.Domain.Entities.SubscriptionModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+ using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
+
 
 namespace ResourceFlow.Application.Services
 {

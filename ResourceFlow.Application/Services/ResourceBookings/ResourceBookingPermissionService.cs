@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
 using ResourceFlow.Application.Common;
+using ResourceFlow.Application.Common.Helpers;
 using ResourceFlow.Application.DTOs.Booking;
 using ResourceFlow.Application.Interfaces.Booking;
 using ResourceFlow.Application.Interfaces.Repositories;
@@ -25,7 +26,9 @@ namespace ResourceFlow.Application.Services.ResourceBookings
         }
 
         public async Task<Response<string>> CreateBookingPermissionAsync(SetResourceBookingPermissionDto dto, int userId)
-        {
+        {   
+            dto.EmployeeTypes=dto.EmployeeTypes.Trim();
+            var normalizedEmployeeType = EmployeeTypeNormalizer.Normalize(dto.EmployeeTypes);
             var user = await _userRepo.SingleOrDefaultAsync(
                 u => u.UserId == userId && !u.IsDeleted);
 
@@ -38,7 +41,7 @@ namespace ResourceFlow.Application.Services.ResourceBookings
             var existingPermission = await _permissionRepo.SingleOrDefaultAsync(p =>
                 p.CompanyId == user.CompanyId &&
                 p.ResourceTypeId == dto.ResourceTypeId &&
-                p.EmployeeType == dto.EmployeeTypes &&
+                p.EmployeeType == normalizedEmployeeType &&
                 !p.IsDeleted);
 
             if (existingPermission != null)
@@ -48,7 +51,7 @@ namespace ResourceFlow.Application.Services.ResourceBookings
             {
                 CompanyId = user.CompanyId.Value,
                 ResourceTypeId = dto.ResourceTypeId,
-                EmployeeType = dto.EmployeeTypes,
+                EmployeeType = normalizedEmployeeType,
                 CanBook = dto.CanBook,
                 CreatedAt = DateTime.UtcNow
             };
@@ -83,7 +86,7 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                 !x.IsDeleted);
 
             if (permissions == null || !permissions.Any())
-                return new Response<ResourceBookingPermissionResponseDto>( 404, "Permission not found.");
+                return new Response<ResourceBookingPermissionResponseDto>( 200, "No permission settings are available for the specified company.");
 
             var response = new ResourceBookingPermissionResponseDto
             {

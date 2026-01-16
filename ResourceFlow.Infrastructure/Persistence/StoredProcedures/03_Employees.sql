@@ -7,6 +7,11 @@
   CreatedOn   : 2025-12-16
   Owner       : Employee Module
 
+  Modified By :Rinshad
+  Sp :GETALL 
+  Description : When reading getall datas from Employee table included more datas like name, title 
+  Modified On : 30/12/2025 
+
   Execution Statements:
 
   -- Get all employees
@@ -51,14 +56,39 @@ BEGIN
 
 
         IF @FLAG = 'GETALL'
-        BEGIN
-            SELECT 
-                Id, UserId, CompanyId, DefaultFloorId, 
-                Department, Status
-            FROM Employees
-            WHERE IsDeleted = 0;
-            RETURN;
-        END
+    BEGIN
+        SELECT
+            -- Employee
+            E.Id                AS EmployeeId,
+            E.CompanyId,
+            E.UserId,
+            E.DefaultFloorId,
+            E.Department,
+            E.Status,
+
+            -- User
+            U.UserName,
+            U.Email,
+            U.RoleId,
+            U.IsActive,
+            U.IsBlocked,
+            U.FailedLoginAttempts,
+            U.LockoutEnd,
+
+            -- Audit
+            E.CreatedAt,
+            E.CreatedBy,
+            E.ModifiedAt,
+            E.ModifiedBy
+
+        FROM Employees E
+        INNER JOIN Users U ON U.UserId = E.UserId
+        WHERE 
+            E.IsDeleted = 0
+            AND U.IsDeleted = 0;
+
+        RETURN;
+    END
         IF @FLAG = 'GETBYID'
         BEGIN
             IF @ID IS NULL

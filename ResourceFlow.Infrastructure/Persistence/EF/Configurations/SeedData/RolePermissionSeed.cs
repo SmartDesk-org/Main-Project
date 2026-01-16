@@ -56,7 +56,7 @@ new RolePermission { Id = 29, RoleId = 2, UserId = null, ModuleCode = CUS, Scope
 new RolePermission { Id = 30, RoleId = 2, UserId = null, ModuleCode = BIL, Scope = PermissionScope.OWN, View = true },
 new RolePermission { Id = 31, RoleId = 2, UserId = null, ModuleCode = SPS, View = true },
 new RolePermission { Id = 32, RoleId = 2, UserId = null, ModuleCode = STY, View = true },
-new RolePermission { Id = 42, RoleId = 2, UserId = null, ModuleCode = RPM, Scope = PermissionScope.OWN, Add = true, Edit = true, Delete = true, View = true },
+new RolePermission { Id = 42, RoleId = 2, UserId = null, ModuleCode = RBP, Scope = PermissionScope.OWN, Add = true, Edit = true, Delete = true, View = true },
 new RolePermission { Id = 43, RoleId = 2, UserId = null, ModuleCode = RBT, Scope = PermissionScope.OWN, Add = true, Edit = true, Delete = true, View = true },
 
 // ------------------- Employees -------------------

@@ -13,5 +13,6 @@ namespace ResourceFlow.Application.Interfaces.Company
         Task<Response<IEnumerable<CompanyDetails>>> GetAllAsync();
         Task<Response<Object>> NewCompany(NewCompanyDto dto);
         Task ActivateCompanyAsync(int companyId);
+        Task<Response<CompanyOverview>> GetCompanyOverviewAsync(int companyId);
     }
 }

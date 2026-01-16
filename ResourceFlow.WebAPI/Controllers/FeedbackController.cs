@@ -2,7 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using ResourceFlow.Application.DTOs.Feedback;
 using ResourceFlow.Application.Interfaces.Feedbacks;
+using ResourceFlow.Domain.Enums;
+using ResourceFlow.Domain.Enums.Authorization;
 using ResourceFlow.Infrastructure.Extensions;
+using ResourceFlow.Infrastructure.Services.Authorization;
 
 namespace ResourceFlow.WebAPI.Controllers
 {
@@ -20,7 +23,7 @@ namespace ResourceFlow.WebAPI.Controllers
         // ---------------------------------------------
         // GET ALL (Admin)
         // ---------------------------------------------
-        [Authorize]
+        [ModuleAuthorize(ModuleCode.FBK,PermissionAction.View)]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -54,7 +57,7 @@ namespace ResourceFlow.WebAPI.Controllers
         // ---------------------------------------------
         // TOGGLE PUBLISH
         // ---------------------------------------------
-        [Authorize]
+        [ModuleAuthorize(ModuleCode.FBK,PermissionAction.Edit)]
         [HttpPatch("{id}/toggle-publish")]
         public async Task<IActionResult> TogglePublish(int id)
         {
@@ -65,7 +68,7 @@ namespace ResourceFlow.WebAPI.Controllers
         // ---------------------------------------------
         // DELETE
         // ---------------------------------------------
-        [Authorize]
+        [ModuleAuthorize(ModuleCode.FBK,PermissionAction.Delete)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -73,12 +76,13 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        [Authorize]
-        [HttpGet("{ID}/GetAll")]
+        [ModuleAuthorize(ModuleCode.FBK,PermissionAction.View)]
+        //[Authorize(Roles =RoleNames.CompanyAdmin)]
+        [HttpGet("GetAllForCompany")]
         public async Task<IActionResult> GetAllForCompany(int id)
         {
             var userId = User.GetUserId();
-            var res = await _service.GetAllForCompany(id, userId);
+            var res = await _service.GetAllForCompany( userId);
             return StatusCode(res.StatusCode, res);
         }
     }

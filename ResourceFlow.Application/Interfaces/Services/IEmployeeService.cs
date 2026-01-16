@@ -15,7 +15,7 @@ namespace ResourceFlow.Application.Interfaces.Services
         Task<ApiResponse<BulkUploadResponse>> BulkUploadAsync(IFormFile file, int companyId);
         byte[] GenerateEmployeeUploadTemplate();
         Task<ApiResponse<object>> CreateEmployeeAsync(EmployeeImportDto dto, int companyId);
-        Task<Response<IEnumerable<Employees>>> GetAllEmployees();
+        Task<Response<IEnumerable<EmployeeGetAllDto>>> GetAllEmployees();
         Task<ApiResponse<object>> UpdateEmployeeAsync(int employeeId,UpdateEmployeeDto dto,int companyId );
         Task<ApiResponse<object>> DeleteEmployeeAsync( int employeeId,int companyId);
     }
