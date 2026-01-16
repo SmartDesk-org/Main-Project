@@ -80,6 +80,12 @@ namespace ResourceFlow.Application.Services.Floors
                 floor.IsActive = true;
                 floor.CompanyId = companyId;
 
+                var existing = await _floorRepo.SingleOrDefaultAsync(x => x.CompanyId==companyId && x.FloorName.ToLower().Trim() == dto.FloorName.ToLower().Trim() && x.IsActive == true && x.IsDeleted == false);
+                if (existing != null)
+                    return new Response<CompanyFloor>(409, "Already a floor exist with this name ");
+                existing = await _floorRepo.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.FloorNumber == dto.FloorNumber && x.IsActive == true && x.IsDeleted == false);
+                if (existing != null)
+                    return new Response<CompanyFloor>(409, "Already a floor exist with this floor number ");
                 var newFloor = await _floorRepo.AddAsync(floor);
 
                 _logger.LogInformation(
@@ -90,7 +96,7 @@ namespace ResourceFlow.Application.Services.Floors
 
                 return new Response<CompanyFloor>(
                     201,
-                    "Floor Added succseesfully",
+                    "Floor Added succsesfully",
                     newFloor
                 );
             }

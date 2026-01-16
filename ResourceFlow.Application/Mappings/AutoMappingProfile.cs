@@ -34,6 +34,8 @@ namespace ResourceFlow.Application.Mappings
 
             CreateMap<CompanyFloor, CreateFloorDto>().ReverseMap();
             CreateMap<Resource, CreateResourceDto>().ReverseMap();
+
+            CreateMap<ClientComplaint, CreateClientComplaintDto>().ReverseMap(); 
         }
     }
 }

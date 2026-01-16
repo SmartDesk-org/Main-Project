@@ -80,6 +80,11 @@ namespace ResourceFlow.Application.Services.Resources
                 var resource = _mapper.Map<Resource>(dto);
                 resource.IsActive = true;
                 resource.CompanyId = companyId;
+
+                var existing = _resourceRepo.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.FloorId == dto.FloorId && x.ResourceName.ToLower().Trim() == dto.ResourceName.ToLower().Trim()  && x.IsDeleted == false);
+                if (existing != null)
+                    return new Response<CreateResourceDto>(409, "A resource exist in this floor ");
+
                 await _resourceRepo.AddAsync(resource);
 
                 _logger.LogInformation(

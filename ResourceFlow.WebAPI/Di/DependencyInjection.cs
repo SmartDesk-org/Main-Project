@@ -87,6 +87,7 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IFeedbackservice, FeedbackService>();
             services.AddScoped<IFloorService, FloorService>();
             services.AddScoped<IResourcesService, ResourcesService>();
+            //services.AddScoped<IClientComplaintService, ClientComplaintService>();
 
            
 
