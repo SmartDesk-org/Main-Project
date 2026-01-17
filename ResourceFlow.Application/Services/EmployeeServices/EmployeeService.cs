@@ -27,7 +27,7 @@ public class EmployeeService : IEmployeeService
 
     private readonly IExcelReader _excelReader;
     private readonly IEmployeeImportValidator _validator;
-    private readonly ICompanyDapperRepository _DapperercompanyRepo;
+    private readonly ICompanyDapperRepository _DapperCompanyRepo;
     private readonly IUnitOfWork _uow;
 
     // CRITICAL CHANGE: Use ScopeFactory (Singleton) instead of ServiceProvider (Request-Scoped)
@@ -57,7 +57,7 @@ public class EmployeeService : IEmployeeService
         _validator = validator;
         _uow = uow;
         _scopeFactory = scopeFactory;
-        _DapperercompanyRepo = dapperRepository;
+        _DapperCompanyRepo = dapperRepository;
     }
 
     public async Task<ApiResponse<BulkUploadResponse>> BulkUploadAsync(IFormFile file, int companyId)
@@ -82,7 +82,15 @@ public class EmployeeService : IEmployeeService
         response.FailedRecords = errors.Count;
 
         if (!validRows.Any())
-            return new ApiResponse<BulkUploadResponse>(400, "All rows failed validation.", response);
+        {
+            response.SuccessfulRecords = 0;
+            return new ApiResponse<BulkUploadResponse>(
+                400,
+                "No new employees added. All rows already exist.",
+                response
+            );
+        }
+
 
         // 3. Subscription Check
         var company = await _companyRepo.GetByIdAsync(companyId);
@@ -92,7 +100,7 @@ public class EmployeeService : IEmployeeService
         }
 
         var companySubscription =
-            await _DapperercompanyRepo.GetActiveCompanySubscriptionByCompanyId(companyId);
+            await _DapperCompanyRepo.GetActiveCompanySubscriptionByCompanyId(companyId);
 
         if (companySubscription == null)
         {
@@ -310,7 +318,7 @@ public class EmployeeService : IEmployeeService
 
         // 4️⃣ Subscription check
         var companySubscription =
-            await _DapperercompanyRepo.GetActiveCompanySubscriptionByCompanyId(companyId);
+            await _DapperCompanyRepo.GetActiveCompanySubscriptionByCompanyId(companyId);
 
         if (companySubscription == null)
             return new ApiResponse<object>(400, "No active subscription for this company");
