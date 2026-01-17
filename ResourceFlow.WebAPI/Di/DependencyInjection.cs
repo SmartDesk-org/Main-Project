@@ -96,10 +96,13 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IEmailService, EmailService>();
             services.AddSingleton<DapperContext>();
             services.AddScoped<IUserDapperRepository, UserDapperRepository>();
-            services.AddScoped<ISubscriptionPlanDapperRepository, SubscriptionDapperRepository>();
             services.AddScoped<IHistoryDapperRepository, HistoryDapperRepository>();
             services.AddScoped<IFeedbackDapperRepository, FeedbackDapperRepository>();
+
             services.AddScoped<IQRCodeService, QRCodeService>();
+
+            services.AddScoped<ISubscriptionDapperRepository, SubscriptionDapperRepository>();
+
 
             services.AddScoped<ICompanyDapperRepository, CompanyDapperRepository>();
             services.AddScoped<IEmployeeDapperRepository, EmployeeDapperRepository>();

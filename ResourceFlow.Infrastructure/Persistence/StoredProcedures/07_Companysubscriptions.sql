@@ -144,7 +144,11 @@ BEGIN
         cs.StartDate,
         cs.EndDate,
         cs.IsActive,
-        cs.Status
+        cs.Status,
+        cs.DesksLimit,
+        cs.EmployeesLimit,
+        cs.FloorsLimit,
+        cs.MeetingRoomsLimit
     FROM dbo.CompanySubscription AS cs
     WHERE 
         cs.CompanyId = @COMPANYID

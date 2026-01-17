@@ -26,7 +26,9 @@ namespace ResourceFlow.WebAPI.Controllers
             _logger = logger;
         }
 
-        [Authorize(Roles =Roles.CompanyAdmin.ToString())]
+
+
+        [Authorize(Roles=RoleNames.CompanyAdmin)]
         [HttpPost]
         public async Task<IActionResult> CreateFloor([FromBody] CreateFloorDto dto)
         {
@@ -68,15 +70,15 @@ namespace ResourceFlow.WebAPI.Controllers
             try
             {
                 var userId = User.GetUserId();
-                var floors = await _floorService.GetFloorsAsync(userId);
+                var res = await _floorService.GetFloorsAsync(userId);
 
                 _logger.LogInformation(
                     "GetFloors request completed. CompanyId: {userId}, FloorsCount: {Count}",
-                    userId, 1
-                    //floors?.Count() ?? 0
+                    userId, 
+                    res.Data?.Count() ?? 0
                 );
 
-                return Ok(floors);
+                return StatusCode(res.StatusCode, res);
             }
             catch (Exception ex)
             {

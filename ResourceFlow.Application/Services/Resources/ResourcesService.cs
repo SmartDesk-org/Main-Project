@@ -13,8 +13,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ResourceFlow.Application.Services.Resources
-{
+namespace ResourceFlow.Application.Services.Resources { 
+
+
     public class ResourcesService : IResourcesService
     {
         private readonly IGenericRepository<Resource> _resourceRepo;
@@ -38,7 +39,7 @@ namespace ResourceFlow.Application.Services.Resources
             _logger = logger;
         }
 
-        public async Task<Response<CreateResourceDto>> CreateResourceAsync(CreateResourceDto dto)
+        public async Task<Response<CreateResourceDto>> CreateResourceAsync(CreateResourceDto dto, int userId)
         {
             _logger.LogInformation(
                 "CreateResourceAsync started. CompanyId: {CompanyId}, FloorId: {FloorId}, ResourceTypeId: {ResourceTypeId}",

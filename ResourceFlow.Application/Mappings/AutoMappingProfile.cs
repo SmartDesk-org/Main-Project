@@ -24,11 +24,11 @@ namespace ResourceFlow.Application.Mappings
         {
             CreateMap<RegisterRequestDto, User>().ReverseMap();
 
-            CreateMap<CreateSubscriptionPlanDto, Subscription>().ReverseMap();
+            CreateMap<CreateSubscriptionPlanDto, Domain.Entities.SubscriptionModels.Subscription>().ReverseMap();
 
-            CreateMap<UpdateSubscriptionPlanDto, Subscription>().ReverseMap();
+            CreateMap<UpdateSubscriptionPlanDto, Domain.Entities.SubscriptionModels.Subscription>().ReverseMap();
             CreateMap<NewClientMessageDto, ClientMessage>().ReverseMap();
-            CreateMap<SubscrptionResponseDto, Subscription>().ReverseMap().ForMember(dest => dest.TypeName, opt => opt.MapFrom(src => src.Type != null ? src.Type.TypeName : string.Empty));
+            CreateMap<SubscriptionResponseDto, Subscription>().ReverseMap().ForMember(dest => dest.TypeName, opt => opt.MapFrom(src => src.Type != null ? src.Type.TypeName : string.Empty));
             CreateMap<NewFeedbackDto, Feedback>().ReverseMap();
             CreateMap<Feedback, FeedbackResponseDto>().ReverseMap();
 

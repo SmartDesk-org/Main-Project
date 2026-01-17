@@ -78,6 +78,7 @@ namespace ResourceFlow.Application.Services.Floors
 
                 var floor = _mapper.Map<CompanyFloor>(dto);
                 floor.IsActive = true;
+                floor.CompanyId = companyId;
 
                 var newFloor = await _floorRepo.AddAsync(floor);
 

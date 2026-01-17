@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Application.DTOs.Subscription
 {
-    public class SubscrptionResponseDto
+    public class SubscriptionResponseDto
     {
         public int Id { get; set; }
         public string SubscriptionName { get; set; }

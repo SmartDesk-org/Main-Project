@@ -11,7 +11,7 @@ namespace ResourceFlow.Application.Interfaces.Resources
 {
     public  interface IResourcesService
     {
-        Task<Response<CreateResourceDto>> CreateResourceAsync(CreateResourceDto dto);
+        Task<Response<CreateResourceDto>> CreateResourceAsync(CreateResourceDto dto,int userId);
         Task<Response<UpdateResourcePositionDto>> UpdatePositionAsync(UpdateResourcePositionDto dto);
         Task<Response<IEnumerable<ResourceDto>>> GetByFloorAsync(int floorId);
         Task<Response<Resource>> DeleteAsync(int resourceId);
