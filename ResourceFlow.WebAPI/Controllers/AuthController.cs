@@ -157,8 +157,4 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
     }
-<<<<<<< HEAD
- }
-=======
 }
->>>>>>> 8933916 (floor validation edited)

@@ -16,7 +16,10 @@ public class ResourceBookingConfiguration
         builder.HasIndex(x => x.QRCodeValue).IsUnique();
         builder.Property(x => x.QrExpiresAt).IsRequired();
 
-
+        builder.Property(x => x.IsCheckedIn)
+               .IsRequired()
+               .HasDefaultValue(false);
+                 
         builder.HasOne(x => x.Resource)
                .WithMany()
                .HasForeignKey(x => x.ResourceId)

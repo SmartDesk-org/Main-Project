@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Resources;
+using ResourceFlow.Application.Interfaces.QRCode;
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Interfaces.Resources;
@@ -23,13 +24,14 @@ namespace ResourceFlow.Application.Services.Resources {
         private readonly ISubscriptionValidationService _validator;
         private readonly IMapper _mapper;
         private readonly ILogger<ResourcesService> _logger;
+        private readonly IQRCodeService _qrCodeService;
 
         public ResourcesService(
             IGenericRepository<Resource> resourceRepo,
             IResourceDapperRepository resourceDapperRepo,
             ISubscriptionValidationService validator,
             IMapper mapper,
-            ILogger<ResourcesService> logger
+            ILogger<ResourcesService> logger, IQRCodeService qrCodeService
         )
         {
             _resourceRepo = resourceRepo;
@@ -37,6 +39,8 @@ namespace ResourceFlow.Application.Services.Resources {
             _validator = validator;
             _mapper = mapper;
             _logger = logger;
+            _qrCodeService = qrCodeService;
+
         }
 
         public async Task<Response<CreateResourceDto>> CreateResourceAsync(CreateResourceDto dto, int userId)
@@ -69,12 +73,20 @@ namespace ResourceFlow.Application.Services.Resources {
                 var resource = _mapper.Map<Resource>(dto);
                 resource.IsActive = true;
 
+                resource.QRCodeValue = Guid.NewGuid().ToString(); // Unique string
+
+                // 2️⃣ Optionally generate the QR image (Base64) now if you want to store/display it
+                var qrBase64 = _qrCodeService.GenerateQrBase64(resource.QRCodeValue);
+                resource.QRCodeImage = qrBase64; // You may need to add this property to Resource entity
+
+
                 await _resourceRepo.AddAsync(resource);
 
                 _logger.LogInformation(
-                    "Resource created successfully. ResourceId: {ResourceId}, FloorId: {FloorId}",
+                    "Resource created successfully. ResourceId: {ResourceId}, FloorId: {FloorId},QRCode: {QRCode}",
                     resource.Id,
-                    dto.FloorId
+                    dto.FloorId,
+                    resource.QRCodeValue
                 );
 
                 return new Response<CreateResourceDto>(

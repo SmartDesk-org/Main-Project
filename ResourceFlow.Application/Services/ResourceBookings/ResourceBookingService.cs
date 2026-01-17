@@ -121,8 +121,8 @@ namespace ResourceFlow.Application.Services.ResourceBookings
 
 
                 // 🔹 8️⃣ Generate QR token & expiry
-                var qrValue = $"BOOKING:{Guid.NewGuid()}";
-                var qrExpiry = dto.StartTime.UtcDateTime.AddMinutes(10); // ⏱ 10 minutes late allowed
+                var qrValue = resource.QRCodeValue;                  // Fixed QR assigned to resource
+                var qrExpiry = dto.StartTime.UtcDateTime.AddMinutes(15);
 
 
                 // 8️⃣ Save booking

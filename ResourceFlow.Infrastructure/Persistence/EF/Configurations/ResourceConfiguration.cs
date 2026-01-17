@@ -27,6 +27,13 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
                    .WithMany(s => s.Resources)
                    .HasForeignKey(s => s.CompanyId)
                    .OnDelete(DeleteBehavior.Restrict);
+            // ✅ QR Code properties
+            builder.Property(r => r.QRCodeValue)
+                   .IsRequired()
+                   .HasMaxLength(100); // Guid string length
+
+            builder.Property(r => r.QRCodeImage)
+                   .HasColumnType("nvarchar(max)"); // Base64 image
 
             builder.HasOne(r => r.Floor)
                 .WithMany(f => f.Resources)

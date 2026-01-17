@@ -27,6 +27,9 @@ namespace ResourceFlow.Domain.Entities.CompanyModels
         public bool IsAvailable { get; set; } = true;
 
         public bool IsActive { get; set; } = true;
+
+        public string QRCodeValue { get; set; } = null!;       // Unique identifier
+        public string QRCodeImage { get; set; } = null!;       // Optional Base64 image
         public CompanyDetails Company { get; set; } = null!;
         public CompanyFloor Floor { get; set; } = null!;
         public ResourceType ResourceType { get; set; } = null!;
