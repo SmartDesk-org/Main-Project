@@ -18,6 +18,11 @@ namespace ResourceFlow.Domain.Entities.SubscriptionModels
         public bool IsActive { get; set; }
         public SubscriptionStatus Status { get; set; }
 
+        public int EmployeesLimit { get; set; }
+        public int FloorsLimit { get; set; }
+        public int DesksLimit { get; set; }
+        public int MeetingRoomsLimit { get; set; }
+
 
         public virtual CompanyDetails? Company { get; set; }
         public virtual Subscription? Subscription { get; set; }

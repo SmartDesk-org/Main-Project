@@ -13,7 +13,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
 {
     public class UserDapperRepository : IUserDapperRepository
     {
-        private readonly string _connectionString;
+        private readonly string? _connectionString;
         private readonly IStoredProcedureLogger _spLogger;
 
         public UserDapperRepository(IConfiguration config, IStoredProcedureLogger spLogger)
@@ -22,9 +22,9 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
             _spLogger = spLogger;
         }
 
-        public async Task<int?> GetCompanyId(int userId)
+        public async Task<int> GetCompanyId(int userId)
         {
-            int? companyId = null;
+            int companyId=0 ;
 
             await _spLogger.ExecuteAsync(
                 "SP_USER",
@@ -34,7 +34,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.Repositories
                     {
                         using var conn = new SqlConnection(_connectionString);
 
-                        companyId = await conn.QueryFirstOrDefaultAsync<int?>(
+                        companyId = await conn.QueryFirstOrDefaultAsync<int>(
                             "SP_USER",
                             new
                             {

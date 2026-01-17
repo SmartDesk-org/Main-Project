@@ -23,9 +23,8 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
         public async Task<IEnumerable<ResourceDto>> GetByFloorsAsync(int floorId)
         {
             var resources = await _db.QueryAsync<ResourceDto>(
-                @"SELECT Id,ResourceTypeId,X,Y,Width,Height,Rotation,MetadataJson,IsAvailable FROM Resources WHERE FllorId=@FloorId AND IsDeleted=0 ",
-                new { FloorId = floorId },
-                commandType: CommandType.StoredProcedure
+                @"SELECT Id,ResourceTypeId,X,Y,Width,Height,Rotation,MetadataJson,IsAvailable FROM Resources WHERE FloorId=@FloorId AND IsDeleted=0 ",
+                new { FloorId = floorId }
                 );
 
             return resources;

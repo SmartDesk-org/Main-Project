@@ -35,10 +35,11 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
 
-        [HttpGet("CompanyOverview")]
+        [HttpGet("CompanyOverview/{companyId}")]
         public async Task<IActionResult> CompanyOverview(int companyId)
         {
-            var res = await _service.GetCompanyOverview(companyId);
+            Console.WriteLine("controller");
+            var res = await _service.GetCompanyOverviewAsync(companyId);
             return StatusCode(res.StatusCode, res);
         }
     }

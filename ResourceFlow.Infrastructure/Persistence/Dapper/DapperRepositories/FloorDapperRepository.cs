@@ -22,7 +22,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
         public async Task<IEnumerable<FloorDto>> GetFloorsAsync(int companyId)
         {
             var floors =await _db.QueryAsync<FloorDto>(
-                @"SELECT  Id ,FloorName,FloorNumber,Width,Height,Scale FROM CompanyFloors WHERE CompanyId=@CompanyId AND IsDeleted=0 ",
+                @"SELECT  FloorId ,FloorName,FloorNumber,Width,Height,Scale FROM CompanyFloors WHERE CompanyId=@CompanyId AND IsDeleted=0 ",
                 new { CompanyId = companyId }
                 );
             return floors;

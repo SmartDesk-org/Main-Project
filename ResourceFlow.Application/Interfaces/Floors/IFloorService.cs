@@ -9,9 +9,10 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Application.Interfaces.Floors
 {
-    public  interface IFloorService
+    public interface IFloorService
     {
-        Task<Response<CompanyFloor>> CreateFloorAsync(CreateFloorDto dto);
-        Task<Response<IEnumerable<FloorDto>>> GetFloorsAsync(int companyId);
+        Task<Response<CompanyFloor>> CreateFloorAsync(CreateFloorDto dto,int userId);
+        Task<Response<IEnumerable<FloorDto>>> GetFloorsAsync(int userId);
+
     }
 }

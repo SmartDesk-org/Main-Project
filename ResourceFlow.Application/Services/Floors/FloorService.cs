@@ -6,6 +6,7 @@ using ResourceFlow.Application.Interfaces.Floors;
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Interfaces.Services;
+using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.CompanyModels;
 using ResourceFlow.Domain.Enums.Subscriptions;
 using System;
@@ -22,12 +23,16 @@ namespace ResourceFlow.Application.Services.Floors
         private readonly IFloorDapperRepository _floorDapperRepo;
         private readonly IMapper _mapper;
         private readonly ILogger<FloorService> _logger;
+        private readonly IUserDapperRepository _userDapperRepo;
+        private readonly ICompanyDapperRepository _companyDapperRepo;
 
         public FloorService(
             ISubscriptionValidationService validator,
             IGenericRepository<CompanyFloor> floorRepo,
+            IUserDapperRepository userDapperRepo,
             IFloorDapperRepository floorDapperRepo,
             IMapper mapper,
+            ICompanyDapperRepository companyDapperRepo,
             ILogger<FloorService> logger
         )
         {
@@ -36,24 +41,37 @@ namespace ResourceFlow.Application.Services.Floors
             _floorDapperRepo = floorDapperRepo;
             _mapper = mapper;
             _logger = logger;
+            _userDapperRepo = userDapperRepo;
+            _companyDapperRepo = companyDapperRepo;
         }
 
-        public async Task<Response<CompanyFloor>> CreateFloorAsync(CreateFloorDto dto)
+        public async Task<Response<CompanyFloor>> CreateFloorAsync(CreateFloorDto dto,int userId)
         {
-            _logger.LogInformation(
-                "CreateFloorAsync started. CompanyId: {CompanyId}",
-                dto.CompanyId
-            );
+            
 
             try
             {
+                int companyId =await  _userDapperRepo.GetCompanyId(userId);
+
+                var isCompanyAdmin = await _companyDapperRepo
+                     .IsUserCompanyAdminAsync(userId, companyId);
+
+                if (!isCompanyAdmin)
+                    throw new UnauthorizedAccessException(
+                        "User is not admin of this company"
+                    );
+
+                _logger.LogInformation(
+                "CreateFloorAsync started. CompanyId: {CompanyId}",
+                companyId
+            );
                 _logger.LogInformation(
                     "Validating subscription for floor creation. CompanyId: {CompanyId}",
-                    dto.CompanyId
+                    companyId
                 );
 
                 await _validator.ValidateAsync(
-                    dto.CompanyId,
+                    companyId,
                     SubscriptionFeature.Floor,
                     SubscriptionAction.Create
                 );
@@ -66,7 +84,7 @@ namespace ResourceFlow.Application.Services.Floors
                 _logger.LogInformation(
                     "Floor created successfully. FloorId: {FloorId}, CompanyId: {CompanyId}",
                     newFloor.FloorId,
-                    dto.CompanyId
+                    companyId
                 );
 
                 return new Response<CompanyFloor>(
@@ -79,29 +97,31 @@ namespace ResourceFlow.Application.Services.Floors
             {
                 _logger.LogError(
                     ex,
-                    "Error occurred while creating floor. CompanyId: {CompanyId}",
-                    dto.CompanyId
+                    "Error occurred while creating floor. CompanyId: "
                 );
                 throw;
             }
         }
 
-        public async Task<Response<IEnumerable<FloorDto>>> GetFloorsAsync(int companyId)
+        public async Task<Response<IEnumerable<FloorDto>>> GetFloorsAsync(int userId)
         {
             _logger.LogInformation(
-                "GetFloorsAsync started. CompanyId: {CompanyId}",
-                companyId
+                "GetFloorsAsync started. CompanyId: {userId}",
+                userId
             );
 
             try
             {
-                var floors = await _floorDapperRepo.GetFloorsAsync(companyId);
+                Console.WriteLine("__________________");Console.WriteLine($"from floor service userId :{userId}" );
+                var companyId = await _userDapperRepo.GetCompanyId(userId);
+                Console.WriteLine("__________________"); Console.WriteLine($"from floor service companyId :{companyId}");
+                var floors = await _floorDapperRepo.GetFloorsAsync(companyId  );
 
                 if (floors == null || !floors.Any())
                 {
                     _logger.LogWarning(
                         "No floors found for company. CompanyId: {CompanyId}",
-                        companyId
+                        userId
                     );
 
                     return new Response<IEnumerable<FloorDto>>(
@@ -118,15 +138,15 @@ namespace ResourceFlow.Application.Services.Floors
 
                 return new Response<IEnumerable<FloorDto>>(
                     200,
-                    "Floors fetched successfully"
+                    "Floors fetched successfully",floors
                 );
             }
             catch (Exception ex)
             {
                 _logger.LogError(
                     ex,
-                    "Error occurred while fetching floors. CompanyId: {CompanyId}",
-                    companyId
+                    "Error occurred while fetching floors"
+                    
                 );
                 throw;
             }

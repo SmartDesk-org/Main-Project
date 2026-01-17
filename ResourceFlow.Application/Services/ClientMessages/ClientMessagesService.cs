@@ -36,6 +36,7 @@ namespace ResourceFlow.Application.Services.ClientMessages
 
         public async Task<Response<ClientMessage>> CreateAsync(NewClientMessageDto dto)
         {
+           
             var msg = _mapper.Map<ClientMessage>(dto);
 
             if (msg == null)
