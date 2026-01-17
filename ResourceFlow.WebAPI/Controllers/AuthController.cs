@@ -100,7 +100,6 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(200, res.Data.AccessToken);
         }
 
-
         [AllowAnonymous]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()

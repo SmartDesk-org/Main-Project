@@ -158,7 +158,7 @@ public class EmployeeService : IEmployeeService
                         Email = r.Email,
                         PassWord = BCrypt.Net.BCrypt.HashPassword(rawPassword),
                         CompanyId = companyId,
-                        RoleId = 2,
+                        RoleId = (int)RoleEnum.Employee,
                         IsActive = true,
                         IsBlocked = false,
 
@@ -388,7 +388,7 @@ public class EmployeeService : IEmployeeService
                 Email = dto.Email,
                 PassWord = BCrypt.Net.BCrypt.HashPassword(rawPassword),
                 CompanyId = companyId,
-                RoleId = 2,
+                RoleId = (int)RoleEnum.Employee,
                 IsActive = true,
                 IsBlocked = false
             };

@@ -81,7 +81,11 @@ namespace ResourceFlow.Application.Services.Resources
                 resource.IsActive = true;
                 resource.CompanyId = companyId;
 
-                var existing = _resourceRepo.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.FloorId == dto.FloorId && x.ResourceName.ToLower().Trim() == dto.ResourceName.ToLower().Trim()  && x.IsDeleted == false);
+                var existing =await  _resourceRepo.SingleOrDefaultAsync( 
+                                                    x => x.CompanyId == companyId &&
+                                                    x.FloorId == dto.FloorId && 
+                                                    x.ResourceName.ToLower().Trim() == dto.ResourceName.ToLower().Trim()  && 
+                                                    x.IsDeleted == false);
                 if (existing != null)
                     return new Response<CreateResourceDto>(409, "A resource exist in this floor ");
 
@@ -95,7 +99,7 @@ namespace ResourceFlow.Application.Services.Resources
 
                 return new Response<CreateResourceDto>(
                     201,
-                    "Resource created suceessfully",
+                    "Resource created sucessfully",
                     dto
                 );
             }

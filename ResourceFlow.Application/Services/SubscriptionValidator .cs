@@ -5,6 +5,8 @@ using ResourceFlow.Domain.Exceptions.Subscriptions;
 using ResourceFlow.Domain.Exceptions.Subscriptions.Company;
 using ResourceFlow.Domain.Exceptions.Subscriptions.Subscription;
 using Microsoft.Extensions.Logging;
+using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Domain.Entities.SubscriptionModels;
 
 namespace ResourceFlow.Application.Services
 {
@@ -15,19 +17,23 @@ namespace ResourceFlow.Application.Services
         private readonly IResourceUsageDapperRepository _usageRepo;
         private readonly ILogger<SubscriptionValidator> _logger;
         private readonly ISubscriptionDapperRepository _subscriptionDapperRepo;
+        private readonly IGenericRepository<CompanySubscription> _compSubRepo;
 
         public SubscriptionValidator(
             ICompanyDapperRepository companyRepository,
             ICompanySubscriptionDapperRepository companySubscriptionRepository,
             IResourceUsageDapperRepository usageRepo,
             ILogger<SubscriptionValidator> logger,
-            ISubscriptionDapperRepository subscriptionDapperRepo)
+            ISubscriptionDapperRepository subscriptionDapperRepo,
+            IGenericRepository<CompanySubscription> compSubRepo
+            )
         {
             _companyRepository = companyRepository;
             _companySubscriptionRepository = companySubscriptionRepository;
             _usageRepo = usageRepo;
             _logger = logger;
             _subscriptionDapperRepo = subscriptionDapperRepo;
+            _compSubRepo = compSubRepo;
         }
 
         public async Task ValidateAsync(
@@ -48,7 +54,7 @@ namespace ResourceFlow.Application.Services
 
             // 2️⃣ Active subscription
             var companySubscription =
-                await _companySubscriptionRepository.GetActiveByCompanyIdAsync(companyId)
+                await _compSubRepo.GetByIdAsync(company.CompanySubscriptionId)
                 ?? throw new SubscriptionNotFoundException(companyId);
 
             var subscription =
