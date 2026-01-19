@@ -7,6 +7,11 @@
   CreatedOn   : 2025-12-16
   Owner       : Employee Module
 
+  Modified By :Rinshad
+  Sp :GETALL 
+  Description : When reading getall datas from Employee table included more datas like name, title 
+  Modified On : 30/12/2025 
+
   Execution Statements:
 
   -- Get all employees

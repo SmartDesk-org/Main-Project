@@ -165,7 +165,10 @@ else
         "SP auto-execution skipped. Environment: {Env}",
         app.Environment.EnvironmentName);
 }
+if (app.Environment.IsProduction())
+{
 
+}
 
 
 if (app.Environment.IsDevelopment())

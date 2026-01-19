@@ -44,7 +44,9 @@ using ResourceFlow.Infrastructure.Persistence.Dapper.Repositories;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 using ResourceFlow.Infrastructure.Persistence.Installers;
 using ResourceFlow.Infrastructure.Services;
+
 using ResourceFlow.Infrastructure.Services.QRCode;
+
 using System.ComponentModel.Design;
 using System.Data;
 using System.Text.Json.Serialization;
@@ -90,6 +92,7 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IFloorService, FloorService>();
             services.AddScoped<IResourcesService, ResourcesService>();
 
+
            
 
             services.AddScoped<IJwtService, JwtService>();
@@ -98,6 +101,8 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IUserDapperRepository, UserDapperRepository>();
             services.AddScoped<IHistoryDapperRepository, HistoryDapperRepository>();
             services.AddScoped<IFeedbackDapperRepository, FeedbackDapperRepository>();
+            services.AddScoped<ISubscriptionDapperRepository, SubscriptionDapperRepository>();
+            services.AddScoped<IResourceBookingDapperRepository, ResourceBookingDapperRepository>();
 
             services.AddScoped<IQRCodeService, QRCodeService>();
 

@@ -1,6 +1,5 @@
 ﻿using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Interfaces.Services;
-using ResourceFlow.Domain.Entities.SubscriptionModels;
 using ResourceFlow.Domain.Enums.Subscriptions;
 using ResourceFlow.Domain.Exceptions.Subscriptions;
 using ResourceFlow.Domain.Exceptions.Subscriptions.Company;
@@ -24,6 +23,7 @@ namespace ResourceFlow.Application.Services
             ILogger<SubscriptionValidator> logger,
             ISubscriptionDapperRepository subscriptionDapperRepo
             )
+
         {
             _companyRepository = companyRepository;
             _companySubscriptionRepository = companySubscriptionRepository;
@@ -44,6 +44,8 @@ namespace ResourceFlow.Application.Services
             // 1️⃣ Company must exist and be active
             _logger.LogDebug("Validating company existence. CompanyId: {CompanyId}", companyId);
 
+
+            // 1️⃣ Company validation
             var company = await _companyRepository.GetCompanyByCompanyId(companyId)
                 ?? throw new CompanyNotFoundException(companyId);
 
@@ -62,12 +64,16 @@ namespace ResourceFlow.Application.Services
                 await _companySubscriptionRepository.GetActiveByCompanyIdAsync(companyId)
                 ?? throw new SubscriptionNotFoundException(companyId);
 
-            var subscription =await  _subscriptionDapperRepo.GetByIdAsync(companySubscription.SubscriptionId)
-                 ?? throw new  SubscriptionNotFoundException(companyId);
+
+            var subscription = await _subscriptionDapperRepo.GetByIdAsync(companySubscription.SubscriptionId)
+                 ?? throw new SubscriptionNotFoundException(companyId);
 
             _logger.LogInformation(
                 "Active subscription found. SubscriptionId: {SubscriptionId}, EndDate: {EndDate}",
                 subscription.Id, companySubscription.EndDate);
+
+
+
 
             var now = DateTime.UtcNow;
 
@@ -95,6 +101,7 @@ namespace ResourceFlow.Application.Services
                 }
             }
 
+
             // 4️⃣ Plan usage validation (Create only)
             if (action == SubscriptionAction.Create)
             {
@@ -102,35 +109,54 @@ namespace ResourceFlow.Application.Services
                     "Validating plan limits. CompanyId: {CompanyId}, Feature: {Feature}",
                     companyId, feature);
 
-                var used = await _usageRepo.GetCountAsync(companyId, feature);
+                //var used = await _usageRepo.GetCountAsync(companyId, feature);
                 var plan = subscription;
 
-                var allowed = feature switch
+                // 4️⃣ Plan usage validation (ONLY for actual resource creation)
+                if (action == SubscriptionAction.Create)
                 {
-                    SubscriptionFeature.Desk => companySubscription.DesksLimit,
-                    SubscriptionFeature.Employee =>companySubscription.EmployeesLimit,
-                   SubscriptionFeature.Floor=>companySubscription.FloorsLimit,
-                   SubscriptionFeature.MeetingRoom=>companySubscription.MeetingRoomsLimit,
-                   _ => throw new InvalidOperationException(
-                          $"Unsupported subscription feature: {feature}")
-                };
+                    // ⛔ Booking does NOT consume room limits
+                    if (feature == SubscriptionFeature.MeetingRoomBooking)
+                    {
+                        _logger.LogInformation(
+                            "Meeting room booking detected. Skipping plan limit validation.");
+                        return;
+                    }
+
+                    var used = await _usageRepo.GetCountAsync(companyId, feature);
+
+
+                    var allowed = feature switch
+                    {
+                        SubscriptionFeature.Desk => companySubscription.DesksLimit,
+
+                        SubscriptionFeature.Employee => companySubscription.EmployeesLimit,
+                        SubscriptionFeature.Floor => companySubscription.FloorsLimit,
+                        SubscriptionFeature.MeetingRoom => companySubscription.MeetingRoomsLimit,
+                        _ => throw new InvalidOperationException(
+                               $"Unsupported subscription feature: {feature}")
+
+                    };
+
+                    _logger.LogInformation(
+                        "Plan usage checked. CompanyId: {CompanyId}, Feature: {Feature}, Used: {Used}, Allowed: {Allowed}",
+                        companyId, feature, used, allowed);
+
+                    if (used >= allowed)
+
+                    {
+                        _logger.LogWarning(
+                            "Plan limit exceeded. CompanyId: {CompanyId}, Feature: {Feature}",
+                            companyId, feature);
+                        throw new PlanLimitExceededException(feature);
+                    }
+
+                }
 
                 _logger.LogInformation(
-                    "Plan usage checked. CompanyId: {CompanyId}, Feature: {Feature}, Used: {Used}, Allowed: {Allowed}",
-                    companyId, feature, used, allowed);
-
-                if (used >= allowed)
-                {
-                    _logger.LogWarning(
-                        "Plan limit exceeded. CompanyId: {CompanyId}, Feature: {Feature}",
-                        companyId, feature);
-                    throw new PlanLimitExceededException(feature);
-                }
+                    "Subscription validation completed successfully. CompanyId: {CompanyId}",
+                    companyId);
             }
-
-            _logger.LogInformation(
-                "Subscription validation completed successfully. CompanyId: {CompanyId}",
-                companyId);
         }
     }
 }

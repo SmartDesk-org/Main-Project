@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Logging;
 using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Resources;
+
 using ResourceFlow.Application.Interfaces.QRCode;
+
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Interfaces.Resources;
@@ -14,7 +16,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace ResourceFlow.Application.Services.Resources { 
+
 
 
     public class ResourcesService : IResourcesService
@@ -26,12 +30,22 @@ namespace ResourceFlow.Application.Services.Resources {
         private readonly ILogger<ResourcesService> _logger;
         private readonly IQRCodeService _qrCodeService;
 
+        private readonly IUserDapperRepository _userDapperRepo;
+        private readonly ICompanyDapperRepository _companyDapperRepository;
+
+
         public ResourcesService(
             IGenericRepository<Resource> resourceRepo,
             IResourceDapperRepository resourceDapperRepo,
             ISubscriptionValidationService validator,
             IMapper mapper,
-            ILogger<ResourcesService> logger, IQRCodeService qrCodeService
+
+            ILogger<ResourcesService> logger, IQRCodeService qrCodeService,
+
+           
+            IUserDapperRepository userDapperRepo,
+            ICompanyDapperRepository companyDapperRepo
+
         )
         {
             _resourceRepo = resourceRepo;
@@ -39,33 +53,138 @@ namespace ResourceFlow.Application.Services.Resources {
             _validator = validator;
             _mapper = mapper;
             _logger = logger;
+
             _qrCodeService = qrCodeService;
 
         }
 
+        //public async Task<Response<CreateResourceDto>> CreateResourceAsync(CreateResourceDto dto, int userId)
+        //{
+        //    _logger.LogInformation(
+        //        "CreateResourceAsync started. CompanyId: {CompanyId}, FloorId: {FloorId}, ResourceTypeId: {ResourceTypeId}",
+        //        dto.CompanyId,
+        //        dto.FloorId,
+        //        dto.ResourceTypeId
+        //    );
+
+        //    try { 
+
+        //    _userDapperRepo = userDapperRepo;
+            //_companyDapperRepository = companyDapperRepo;
+        
+
+        //public async Task<Response<CreateResourceDto>> CreateResourceAsync(CreateResourceDto dto,int userId)
+        //{
+
+            
+
+        //    try
+        //    {
+        //        int companyId = await _userDapperRepo.GetCompanyId(userId);
+        //        _logger.LogInformation(
+        //            "CreateResourceAsync started. CompanyId: {CompanyId}, FloorId: {FloorId}, ResourceTypeId: {ResourceTypeId}",
+        //            companyId,
+        //            dto.FloorId,
+        //            dto.ResourceTypeId
+        //        );
+
+        //        bool isAdmin = await _companyDapperRepository.IsUserCompanyAdminAsync(userId,companyId);
+
+
+        //        var feature = dto.ResourceTypeId == 1
+        //            ? SubscriptionFeature.Desk
+        //            : SubscriptionFeature.MeetingRoom;
+
+        //        _logger.LogInformation(
+        //            "Validating subscription for resource creation. CompanyId: {CompanyId}, Feature: {Feature}",
+
+        //            companyId,
+
+        //            feature
+        //        );
+
+        //        await _validator.ValidateAsync(
+
+        //            companyId,
+
+        //            feature,
+        //            SubscriptionAction.Create
+        //        );
+
+        //        var resource = _mapper.Map<Resource>(dto);
+        //        resource.IsActive = true;
+
+
+        //        resource.QRCodeValue = Guid.NewGuid().ToString(); // Unique string
+
+        //        // 2️⃣ Optionally generate the QR image (Base64) now if you want to store/display it
+        //        var qrBase64 = _qrCodeService.GenerateQrBase64(resource.QRCodeValue);
+        //        resource.QRCodeImage = qrBase64; // You may need to add this property to Resource entity
+
+
+        //        resource.CompanyId = companyId;
+
+        //        var existing = _resourceRepo.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.FloorId == dto.FloorId && x.ResourceName.ToLower().Trim() == dto.ResourceName.ToLower().Trim()  && x.IsDeleted == false);
+        //        if (existing != null)
+        //            return new Response<CreateResourceDto>(409, "A resource exist in this floor ");
+
+        //        await _resourceRepo.AddAsync(resource);
+
+        //        _logger.LogInformation(
+
+        //            "Resource created successfully. ResourceId: {ResourceId}, FloorId: {FloorId},QRCode: {QRCode}",
+        //            resource.Id,
+        //            dto.FloorId,
+        //            resource.QRCodeValue
+
+        //        );
+
+        //        return new Response<CreateResourceDto>(
+        //            201,
+        //            "Resource created suceessfully",
+        //            dto
+        //        );
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(
+        //            ex,
+
+        //            "Error occurred while creating resource. CompanyId: {CompanyId}, FloorId: {FloorId}",
+        //            CompanyId,
+
+        //            dto.FloorId
+        //        );
+        //        throw;
+        //    }
+        //}
+
         public async Task<Response<CreateResourceDto>> CreateResourceAsync(CreateResourceDto dto, int userId)
         {
-            _logger.LogInformation(
-                "CreateResourceAsync started. CompanyId: {CompanyId}, FloorId: {FloorId}, ResourceTypeId: {ResourceTypeId}",
-                dto.CompanyId,
-                dto.FloorId,
-                dto.ResourceTypeId
-            );
-
             try
             {
+                int companyId = await _userDapperRepo.GetCompanyId(userId);
+                _logger.LogInformation(
+                    "CreateResourceAsync started. CompanyId: {CompanyId}, FloorId: {FloorId}, ResourceTypeId: {ResourceTypeId}",
+                    companyId,
+                    dto.FloorId,
+                    dto.ResourceTypeId
+                );
+
+                bool isAdmin = await _companyDapperRepository.IsUserCompanyAdminAsync(userId, companyId);
+
                 var feature = dto.ResourceTypeId == 1
                     ? SubscriptionFeature.Desk
                     : SubscriptionFeature.MeetingRoom;
 
                 _logger.LogInformation(
                     "Validating subscription for resource creation. CompanyId: {CompanyId}, Feature: {Feature}",
-                    dto.CompanyId,
+                    companyId,
                     feature
                 );
 
                 await _validator.ValidateAsync(
-                    dto.CompanyId,
+                    companyId,
                     feature,
                     SubscriptionAction.Create
                 );
@@ -79,6 +198,15 @@ namespace ResourceFlow.Application.Services.Resources {
                 var qrBase64 = _qrCodeService.GenerateQrBase64(resource.QRCodeValue);
                 resource.QRCodeImage = qrBase64; // You may need to add this property to Resource entity
 
+                resource.CompanyId = companyId;
+
+                var existing = await _resourceRepo.SingleOrDefaultAsync(
+                                                    x => x.CompanyId == companyId &&
+                                                    x.FloorId == dto.FloorId &&
+                                                    x.ResourceName.ToLower().Trim() == dto.ResourceName.ToLower().Trim() &&
+                                                    x.IsDeleted == false);
+                if (existing != null)
+                    return new Response<CreateResourceDto>(409, "A resource exist in this floor ");
 
                 await _resourceRepo.AddAsync(resource);
 
@@ -91,7 +219,7 @@ namespace ResourceFlow.Application.Services.Resources {
 
                 return new Response<CreateResourceDto>(
                     201,
-                    "Resource created suceessfully",
+                    "Resource created sucessfully",
                     dto
                 );
             }
@@ -99,8 +227,7 @@ namespace ResourceFlow.Application.Services.Resources {
             {
                 _logger.LogError(
                     ex,
-                    "Error occurred while creating resource. CompanyId: {CompanyId}, FloorId: {FloorId}",
-                    dto.CompanyId,
+                    "Error occurred while creating resource. CompanyId: , FloorId: {FloorId}",
                     dto.FloorId
                 );
                 throw;

@@ -259,9 +259,9 @@ BEGIN
 
         
         SELECT 
-            cs.Id AS CompanySubscriptionId,
+            cs.Id AS SubscriptionId,
             cs.CompanyId,
-            cs.SubscriptionId AS CompanySubscription_SubscriptionId,
+            cs.SubscriptionId ,
             cs.StartDate,
             cs.EndDate,
             cs.IsActive,

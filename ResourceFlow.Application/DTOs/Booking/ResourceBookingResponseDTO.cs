@@ -16,5 +16,12 @@ namespace ResourceFlow.Application.DTOs.Booking
         public DateTime StartTime { get; set; }    // Booking start
         public DateTime EndTime { get; set; }      // Booking end
         public string Status { get; set; }
+
+        public int UserId { get; set; }
+        public string UserName { get; set; }
+        public string EmployeeStatus { get; set; }
+
+
+
     }
 }

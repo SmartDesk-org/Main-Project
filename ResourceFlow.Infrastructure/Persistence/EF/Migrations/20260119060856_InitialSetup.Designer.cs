@@ -12,7 +12,7 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260117110512_InitialSetup")]
+    [Migration("20260119060856_InitialSetup")]
     partial class InitialSetup
     {
         /// <inheritdoc />
@@ -310,21 +310,21 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(8338),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(2168),
                             IsDeleted = false,
                             RoleName = "SuperAdmin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(8340),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(2169),
                             IsDeleted = false,
                             RoleName = "CompanyAdmin"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(8341),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(2170),
                             IsDeleted = false,
                             RoleName = "Employee"
                         });
@@ -420,13 +420,13 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 540, DateTimeKind.Utc).AddTicks(1810),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 985, DateTimeKind.Utc).AddTicks(9282),
                             Email = "suhailpalakkal1@gmail.com",
                             FailedLoginAttempts = 0,
                             IsActive = true,
                             IsBlocked = false,
                             IsDeleted = false,
-                            PassWord = "$2a$11$UM5RcXDJbcYIzMQhWxKxgOZGwO2vT1jiwOp/s.QSwc7e1OPEYSCqO",
+                            PassWord = "$2a$11$0U.y8.1SpHygeDux.ZT7iucUpu8sPoUgThcbZrXggS.ri.uMIgXa.",
                             RefreshToken = "",
                             RoleId = 1,
                             UserName = "Suhail"
@@ -484,7 +484,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 1,
                             Code = 1,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(51),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8375),
                             IsDeleted = false,
                             Name = "User Management"
                         },
@@ -492,7 +492,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 2,
                             Code = 3,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(56),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8377),
                             IsDeleted = false,
                             Name = "Company Details"
                         },
@@ -500,7 +500,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 3,
                             Code = 4,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(59),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8378),
                             IsDeleted = false,
                             Name = "Company Floor",
                             ParentId = 2
@@ -509,7 +509,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 4,
                             Code = 5,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(60),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8380),
                             IsDeleted = false,
                             Name = "Resource Type"
                         },
@@ -517,7 +517,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 5,
                             Code = 6,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(62),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8381),
                             IsDeleted = false,
                             Name = "FeedBack"
                         },
@@ -525,7 +525,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 6,
                             Code = 7,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(64),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8382),
                             IsDeleted = false,
                             Name = "Employee Management"
                         },
@@ -533,7 +533,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 7,
                             Code = 8,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(65),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8383),
                             IsDeleted = false,
                             Name = "Subscription Plans"
                         },
@@ -541,7 +541,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 8,
                             Code = 9,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(66),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8384),
                             IsDeleted = false,
                             Name = "Resource Management",
                             ParentId = 7
@@ -550,7 +550,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 9,
                             Code = 10,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(68),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8386),
                             IsDeleted = false,
                             Name = "Subscription Types",
                             ParentId = 7
@@ -559,7 +559,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 10,
                             Code = 11,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(69),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8387),
                             IsDeleted = false,
                             Name = "Company Subscriptions",
                             ParentId = 7
@@ -568,7 +568,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 11,
                             Code = 12,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(71),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8388),
                             IsDeleted = false,
                             Name = "Payment",
                             ParentId = 10
@@ -577,7 +577,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 12,
                             Code = 13,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(72),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8389),
                             IsDeleted = false,
                             Name = "Billing",
                             ParentId = 10
@@ -586,7 +586,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 13,
                             Code = 14,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(74),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8391),
                             IsDeleted = false,
                             Name = "Subscription History",
                             ParentId = 10
@@ -595,7 +595,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 14,
                             Code = 15,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(237),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8392),
                             IsDeleted = false,
                             Name = "Notifications"
                         },
@@ -603,7 +603,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 15,
                             Code = 16,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(238),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8393),
                             IsDeleted = false,
                             Name = "Client Messages"
                         },
@@ -611,7 +611,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 16,
                             Code = 2,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(262),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8409),
                             IsDeleted = false,
                             Name = "Roles"
                         },
@@ -619,7 +619,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 17,
                             Code = 17,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(263),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8410),
                             IsDeleted = false,
                             Name = "AppModules"
                         },
@@ -627,7 +627,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 18,
                             Code = 18,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(265),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8411),
                             IsDeleted = false,
                             Name = "Role Permission",
                             ParentId = 17
@@ -636,7 +636,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 19,
                             Code = 19,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(266),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8412),
                             IsDeleted = false,
                             Name = "Resource Booking Permission"
                         },
@@ -644,7 +644,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 20,
                             Code = 20,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(267),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(8413),
                             IsDeleted = false,
                             Name = "Resource Booking"
                         });
@@ -730,7 +730,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 1,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7526),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1887),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -743,7 +743,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 2,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7531),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1889),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -756,7 +756,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 3,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7533),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1891),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -769,7 +769,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 4,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7535),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1892),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -782,7 +782,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 5,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7536),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1894),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -795,7 +795,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 6,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7538),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1895),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -808,7 +808,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 7,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7540),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1897),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -821,7 +821,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 8,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7542),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1898),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -834,7 +834,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 9,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7543),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1900),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -847,7 +847,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 10,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7545),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1901),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -860,7 +860,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 11,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7547),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1903),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -873,7 +873,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 12,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7548),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1904),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -886,7 +886,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 13,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7550),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1905),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -899,7 +899,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 14,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7551),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1906),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -912,7 +912,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 15,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7552),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1908),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -925,7 +925,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 16,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7765),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1909),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -938,7 +938,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 17,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7767),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1910),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -951,7 +951,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 18,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7768),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1911),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -964,7 +964,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 19,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7769),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1912),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -977,7 +977,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 20,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7771),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1914),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -990,7 +990,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 21,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7773),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1915),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -1003,7 +1003,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 22,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7775),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1917),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -1016,7 +1016,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 23,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7777),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1918),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -1029,7 +1029,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 24,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7779),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1920),
                             Delete = false,
                             Edit = true,
                             IsDeleted = false,
@@ -1042,7 +1042,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 25,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7781),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1921),
                             Delete = false,
                             Edit = true,
                             IsDeleted = false,
@@ -1055,7 +1055,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 26,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7782),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1923),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -1068,7 +1068,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 27,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7784),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1924),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -1081,7 +1081,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 28,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7786),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1926),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -1094,7 +1094,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 29,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7787),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1928),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -1107,7 +1107,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 30,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7788),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1929),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -1120,7 +1120,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 31,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7790),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1930),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -1133,7 +1133,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 32,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7791),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1946),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -1146,11 +1146,11 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 42,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7792),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1947),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
-                            ModuleCode = 18,
+                            ModuleCode = 19,
                             RoleId = 2,
                             Scope = 0,
                             View = true
@@ -1159,7 +1159,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 43,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7794),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1949),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -1172,7 +1172,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 33,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7795),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1951),
                             Delete = false,
                             Edit = true,
                             IsDeleted = false,
@@ -1185,7 +1185,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 34,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7797),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1952),
                             Delete = false,
                             Edit = true,
                             IsDeleted = false,
@@ -1198,7 +1198,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 35,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7798),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1953),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -1211,7 +1211,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 36,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7800),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1955),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -1224,7 +1224,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 37,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7801),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1956),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -1237,7 +1237,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 38,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7802),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1957),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -1250,7 +1250,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 39,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7804),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1958),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -1263,7 +1263,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 40,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7805),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1960),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -1276,7 +1276,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 41,
                             Add = false,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7806),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1961),
                             Delete = false,
                             Edit = false,
                             IsDeleted = false,
@@ -1289,7 +1289,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         {
                             Id = 44,
                             Add = true,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(7808),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1962),
                             Delete = true,
                             Edit = true,
                             IsDeleted = false,
@@ -1360,7 +1360,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                             Id = 1,
                             CanBook = true,
                             CompanyId = 1,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(1039),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(9035),
                             EmployeeType = "MANAGER",
                             IsDeleted = false,
                             ResourceTypeId = 2
@@ -1370,7 +1370,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                             Id = 2,
                             CanBook = true,
                             CompanyId = 1,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(1043),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 654, DateTimeKind.Utc).AddTicks(9036),
                             EmployeeType = "TEAM_LEAD",
                             IsDeleted = false,
                             ResourceTypeId = 2
@@ -1778,7 +1778,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(6573),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1683),
                             DefaultHeight = 60,
                             DefaultWidth = 60,
                             Icon = "desk.png",
@@ -1789,7 +1789,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 211, DateTimeKind.Utc).AddTicks(6585),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(1686),
                             DefaultHeight = 120,
                             DefaultWidth = 120,
                             Icon = "meetingroom.png",
@@ -2152,21 +2152,21 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 212, DateTimeKind.Utc).AddTicks(3345),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(3485),
                             IsDeleted = false,
                             TypeName = "Basic"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 212, DateTimeKind.Utc).AddTicks(3359),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(3487),
                             IsDeleted = false,
                             TypeName = "Upgrade"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 1, 17, 11, 5, 11, 212, DateTimeKind.Utc).AddTicks(3361),
+                            CreatedAt = new DateTime(2026, 1, 19, 6, 8, 55, 655, DateTimeKind.Utc).AddTicks(3488),
                             IsDeleted = false,
                             TypeName = "Renewal"
                         });

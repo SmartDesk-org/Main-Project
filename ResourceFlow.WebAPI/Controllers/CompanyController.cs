@@ -34,6 +34,7 @@ namespace ResourceFlow.WebAPI.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
+        [ModuleAuthorize(ModuleCode.CDS,PermissionAction.View)]
 
         [HttpGet("CompanyOverview/{companyId}")]
         public async Task<IActionResult> CompanyOverview(int companyId)

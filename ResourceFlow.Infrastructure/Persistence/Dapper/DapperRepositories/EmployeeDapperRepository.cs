@@ -49,40 +49,38 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
                         throw new StoredProcedureException("Error executing SP_EMPLOYEE", ex);
                     }
 
-                   
+
                 });
             return result;
         }
-        public async Task<IEnumerable<Employees>> GetAllEmployeesAsync()
+        public async Task<IEnumerable<EmployeeGetAllDto>> GetAllEmployeesAsync()
         {
-            IEnumerable<Employees> result = Enumerable.Empty<Employees>();
+            IEnumerable<EmployeeGetAllDto> result = Enumerable.Empty<EmployeeGetAllDto>();
 
             await _spLogger.ExecuteAsync(
-            "SP_EMPLOYEE",
-            async () =>
-            {
-                try
+                "SP_EMPLOYEE",
+                async () =>
                 {
-                    var parameters = new DynamicParameters();
-                    parameters.Add("@FLAG", "GETALL");
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("@FLAG", "GETALL");
 
-                    result = await _db.QueryAsync<Employees>(
-                        "SP_EMPLOYEE",
-                        parameters,
-                        commandType: CommandType.StoredProcedure
-                    );
-
-                }
-                catch (SqlException ex)
-                {
-                    throw new StoredProcedureException("Error executing SP_EMPLOYEE", ex);
-                }
-
-           
-        });
+                        result = await _db.QueryAsync<EmployeeGetAllDto>(
+                            "SP_EMPLOYEE",
+                            parameters,
+                            commandType: CommandType.StoredProcedure
+                        );
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new StoredProcedureException("Error executing SP_EMPLOYEE", ex);
+                    }
+                });
 
             return result;
         }
+
     }
 }
 

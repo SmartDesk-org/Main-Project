@@ -35,14 +35,14 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
 
-
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var res = await _service.GetAllPlansAsync();
             return StatusCode(res.StatusCode, res);
         }
-
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {

@@ -47,7 +47,7 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
 
-        [ModuleAuthorize(ModuleCode.EMP, PermissionAction.Add)]
+        //[ModuleAuthorize(ModuleCode.EMP, PermissionAction.Add)]
         [HttpPost]
         public async Task<IActionResult> CreateEmployee([FromBody] EmployeeImportDto dto)
         {
@@ -58,7 +58,11 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
 
+
         // [ModuleAuthorize(ModuleCode.EMP, PermissionAction.View)]
+
+         [ModuleAuthorize(ModuleCode.EMP, PermissionAction.View)]
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

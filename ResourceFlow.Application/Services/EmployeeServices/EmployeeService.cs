@@ -13,22 +13,23 @@ using OfficeOpenXml;
 using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
+using OfficeOpenXml.Style;
+using System.Drawing;
+using OfficeOpenXml.DataValidation;
 
 public class EmployeeService : IEmployeeService
 {
     private readonly IEmployeeDapperRepository _dapperRepo;
     private readonly IGenericRepository<User> _userRepo;
     private readonly IGenericRepository<Employees> _employeeRepo;
-
     private readonly IGenericRepository<CompanyDetails> _companyRepo;
     private readonly IGenericRepository<Subscription> _subscriptionRepo;
     private readonly IGenericRepository<CompanyFloor> _floorRepo;
-
-
     private readonly IExcelReader _excelReader;
     private readonly IEmployeeImportValidator _validator;
     private readonly ICompanyDapperRepository _DapperCompanyRepo;
     private readonly IUnitOfWork _uow;
+    private readonly IEmployeeDapperRepository _employeeDapperRepository;
 
     // CRITICAL CHANGE: Use ScopeFactory (Singleton) instead of ServiceProvider (Request-Scoped)
     private readonly IServiceScopeFactory _scopeFactory;
@@ -44,8 +45,8 @@ public class EmployeeService : IEmployeeService
         IEmployeeImportValidator validator,
         IUnitOfWork uow,
         IServiceScopeFactory scopeFactory,
-        ICompanyDapperRepository dapperRepository
-    )
+        ICompanyDapperRepository dapperRepository,
+        IEmployeeDapperRepository employeeDapperRepository)
     {
         _floorRepo = companyFloor;
         _dapperRepo = dapperRepo;
@@ -58,6 +59,9 @@ public class EmployeeService : IEmployeeService
         _uow = uow;
         _scopeFactory = scopeFactory;
         _DapperCompanyRepo = dapperRepository;
+
+        _employeeDapperRepository = employeeDapperRepository;
+
     }
 
     public async Task<ApiResponse<BulkUploadResponse>> BulkUploadAsync(IFormFile file, int companyId)
@@ -152,7 +156,7 @@ public class EmployeeService : IEmployeeService
 
                     newUsers.Add(new User
                     {
-                        UserName = r.Email,
+                        UserName = r.EmployeeName,
                         Email = r.Email,
                         PassWord = BCrypt.Net.BCrypt.HashPassword(rawPassword),
                         CompanyId = companyId,
@@ -164,7 +168,7 @@ public class EmployeeService : IEmployeeService
                 }
 
                 await _userRepo.AddRangeAsync(newUsers);
-                await _uow.SaveChangesAsync(); // IDs generated here
+                await _uow.SaveChangesAsync(); 
 
                 for (int i = 0; i < newUsers.Count; i++)
                 {
@@ -245,38 +249,75 @@ public class EmployeeService : IEmployeeService
 
     public byte[] GenerateEmployeeUploadTemplate()
     {
+        // Set License Context
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
         using var package = new ExcelPackage();
         var sheet = package.Workbook.Worksheets.Add("Employees");
 
-        // Headers
+        // =====================================================
+        // 1. HEADERS & STYLING
+        // =====================================================
         sheet.Cells[1, 1].Value = "EmployeeName";
         sheet.Cells[1, 2].Value = "Email";
         sheet.Cells[1, 3].Value = "Department";
         sheet.Cells[1, 4].Value = "DefaultFloorId";
 
-        // Sample row
+        // Style the headers
+        using (var headerRange = sheet.Cells[1, 1, 1, 4])
+        {
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            headerRange.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+            headerRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+        }
+        sheet.Cells["A2:D1000"].Style.Locked = false;
+
         sheet.Cells[2, 1].Value = "John Doe";
         sheet.Cells[2, 2].Value = "john@company.com";
-        sheet.Cells[2, 3].Value = "IT";
+        sheet.Cells[2, 3].Value = "IT"; // Must match a dropdown value
         sheet.Cells[2, 4].Value = 1;
 
-        // Style header
-        sheet.Cells[1, 1, 1, 4].Style.Font.Bold = true;
+        // =====================================================
+        // 4. DEPARTMENT DROPDOWN (Strict Validation)
+        // =====================================================
+        var departments = new[]
+        {
+        "IT", "HR", "Finance", "Sales", "Marketing", "Operations"
+    };
 
-        // 🔒 Lock header row
-        sheet.Cells[1, 1, 1, 4].Style.Locked = true;
+        // Add validation to Column C (Rows 2 to 1000)
+        var departmentValidation = sheet.DataValidations.AddListValidation("C2:C1000");
 
-        // 🔓 Unlock data rows
-        sheet.Cells[2, 1, sheet.Dimension.End.Row, 4].Style.Locked = false;
+        foreach (var dept in departments)
+        {
+            departmentValidation.Formula.Values.Add(dept);
+        }
 
-        // Protect worksheet
+        // STRICT ENFORCEMENT
+        departmentValidation.ShowErrorMessage = true;
+        // 'Stop' prevents the user from typing anything that isn't in the list
+        departmentValidation.ErrorStyle = ExcelDataValidationWarningStyle.stop;
+        departmentValidation.ErrorTitle = "Invalid Selection";
+        departmentValidation.Error = "You must select a Department from the dropdown list.";
+
+        departmentValidation.ShowInputMessage = true;
+        departmentValidation.PromptTitle = "Select Department";
+        departmentValidation.Prompt = "Please select from the list.";
+
+        // =====================================================
+        // 5. PROTECT SHEET
+        // =====================================================
+        sheet.Cells.AutoFitColumns();
+
+        // Enable protection
         sheet.Protection.IsProtected = true;
-        sheet.Protection.AllowSelectLockedCells = false;
+
+        // Allow users to click on the editable cells (A2:D1000)
         sheet.Protection.AllowSelectUnlockedCells = true;
 
-        sheet.Cells.AutoFitColumns();
+        // Prevent users from clicking/selecting the headers (Row 1)
+        sheet.Protection.AllowSelectLockedCells = false;
 
         return package.GetAsByteArray();
     }
@@ -345,7 +386,7 @@ public class EmployeeService : IEmployeeService
         {
             var user = new User
             {
-                UserName = dto.Email,
+                UserName = dto.EmployeeName,
                 Email = dto.Email,
                 PassWord = BCrypt.Net.BCrypt.HashPassword(rawPassword),
                 CompanyId = companyId,
@@ -386,14 +427,14 @@ public class EmployeeService : IEmployeeService
     }
 
 
-    public async Task<Response<IEnumerable<Employees>>> GetAllEmployees()
+    public async Task<Response<IEnumerable<EmployeeGetAllDto>>> GetAllEmployees()
     {
-        var result = await _employeeRepo.GetAllAsync();
+        var result = await _employeeDapperRepository.GetAllEmployeesAsync();
         if (result == null || !result.Any())
         {
-            return new Response<IEnumerable<Employees>>(404, "Employees Not Found");
+            return new Response<IEnumerable<EmployeeGetAllDto>>(404, "Employees Not Found");
         }
-        return new Response<IEnumerable<Employees>>(200, "Employees Fetched Successully", result);
+        return new Response<IEnumerable<EmployeeGetAllDto>>(200, "Employees Fetched Successully", result);
     }
     public async Task<ApiResponse<object>> UpdateEmployeeAsync(
     int employeeId,

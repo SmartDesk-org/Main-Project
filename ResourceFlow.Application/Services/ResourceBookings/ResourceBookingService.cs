@@ -3,6 +3,7 @@ using ResourceFlow.Application.DTOs.Booking;
 using ResourceFlow.Application.Interfaces.Booking;
 using ResourceFlow.Application.Interfaces.QRCode;
 using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.Booking;
@@ -23,19 +24,28 @@ namespace ResourceFlow.Application.Services.ResourceBookings
         private readonly IGenericRepository<Employees> _employeeRepo;
         private readonly ISubscriptionValidationService _subscriptionValidator;
         private readonly IGenericRepository<User> _userRepo;
+
         private readonly IQRCodeService _qrCodeService;
+
+     
+        private readonly IResourceBookingDapperRepository _resourceBookingDapperRepo;
 
         public ResourceBookingService(IGenericRepository<Resource> resourceRepo,IGenericRepository<ResourceBooking> bookingRepo, 
                                        IGenericRepository<CompanyResourceBookingPermission> permissionRepo,IGenericRepository<Employees> employeeRepo,ISubscriptionValidationService subscriptionValidator,
-                                       IGenericRepository<User> userRepo,IQRCodeService qRCodeService)
-                    {
+                                       IGenericRepository<User> userRepo, IResourceBookingDapperRepository resourceBookingDapperRepo,IQRCodeService qRCodeService)
+
+        {
                         _resourceRepo = resourceRepo;
                         _bookingRepo = bookingRepo;
                         _permissionRepo = permissionRepo;
                         _employeeRepo= employeeRepo;
                         _subscriptionValidator = subscriptionValidator;
                         _userRepo = userRepo;
+
                         _qrCodeService = qRCodeService;
+
+                       _resourceBookingDapperRepo = resourceBookingDapperRepo;
+
                     }
 
         public async Task<Response<string>> CreateBookingAsync( ResourceBookingDTO dto,int resourceId,int userId)
@@ -54,13 +64,13 @@ namespace ResourceFlow.Application.Services.ResourceBookings
 
                 var companyId = user.CompanyId.Value;
 
-                // 2️⃣ Subscription validation
                 await _subscriptionValidator.ValidateAsync(
-                    companyId,
-                    SubscriptionFeature.MeetingRoom,
-                    SubscriptionAction.Create);
+                                 companyId,
+                                 SubscriptionFeature.MeetingRoomBooking,
+                                 SubscriptionAction.Create
+                             );
 
-                // 3️⃣ Employee validation
+                //Employee validation
                 var employee = await _employeeRepo.SingleOrDefaultAsync(x =>
                     x.UserId == userId &&
                     x.CompanyId == companyId);
@@ -107,6 +117,29 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                 if (dto.StartTime >= dto.EndTime)
                     return new Response<string>(400, "Invalid time range");
 
+                var minDuration = TimeSpan.FromMinutes(10);
+
+                if (dto.EndTime - dto.StartTime < minDuration)
+                    return new Response<string>(400, "Minimum booking duration is 10 minutes");
+
+
+                var maxDuration = TimeSpan.FromHours(8);
+
+                if (dto.EndTime - dto.StartTime > maxDuration)
+                    return new Response<string>(400, "Maximum booking duration is 8 hours");
+
+                // 7️⃣a - User active booking check
+                var activeBookingExists = _bookingRepo.Queryable().Any(x =>
+                    x.BookedByUserId == userId &&
+                    x.Status == BookingStatus.Confirmed &&
+                    x.EndTime > now
+                );
+
+                if (activeBookingExists)
+                    return new Response<string>(409, "You already have an active booking. Finish or cancel it before booking again.");
+
+
+
                 // 7️⃣ Overlap check
                 var overlapExists = _bookingRepo.Queryable().Any(x =>
                     x.ResourceId == resourceId &&
@@ -143,9 +176,9 @@ namespace ResourceFlow.Application.Services.ResourceBookings
 
                 await _bookingRepo.AddAsync(booking);
 
-                var qrBase64 = _qrCodeService.GenerateQrBase64(qrValue);
+               
 
-                return new Response<string>(200,"Resource booked successfully", qrBase64);
+                return new Response<string>(200,"Resource booked successfully");
             }
             catch (SubscriptionException ex)
             {
@@ -264,6 +297,7 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                     .OrderBy(x => x.StartTime)
                     .Select(x => new ResourceBookingResponseDTO
                     {
+                     
                         BookingId = x.Id,
                         CompanyId = x.CompanyId,
                         ResourceId = x.ResourceId,
@@ -272,6 +306,7 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                         StartTime = x.StartTime,
                         EndTime = x.EndTime,
                         Status = x.Status.ToString()
+                     
                     })
                     .ToList();
 
@@ -299,15 +334,25 @@ namespace ResourceFlow.Application.Services.ResourceBookings
 
                 var now = DateTime.UtcNow;
 
-                // 2️⃣ Validate new end time
+                if (newEndTime.Kind != DateTimeKind.Utc)
+                    return new Response<string>(400, "newEndTime must be in UTC");
+
+                if (booking.EndTime <= now)
+                    return new Response<string>(400, "Booking already ended");
+
                 if (newEndTime <= booking.StartTime)
                     return new Response<string>(400, "New end time must be after booking start time");
 
                 if (newEndTime >= booking.EndTime)
                     return new Response<string>(400, "New end time must be before original end time");
 
-                if (newEndTime > now)
-                    return new Response<string>(400, "You can only release past time"); // optional
+                var allowedSkew = TimeSpan.FromMinutes(2);
+                if (newEndTime > now.Add(allowedSkew))
+                    return new Response<string>(400, "Release time cannot be in the future");
+
+                var minDuration = TimeSpan.FromMinutes(10);
+                if (newEndTime - booking.StartTime < minDuration)
+                    return new Response<string>(400, "Minimum booking duration is 10 minutes");
 
                 // 3️⃣ Shorten booking
                 booking.EndTime = newEndTime;
@@ -320,41 +365,42 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                 return new Response<string>(500, ex.Message);
             }
         }
-
+            
 
         public async Task<Response<List<ResourceBookingResponseDTO>>> GetBookingsOfCurrentUserAsync(int userId)
         {
             try
             {
-                var bookings = _bookingRepo.Queryable()
-               .Where(x => x.BookedByUserId == userId)
-               .OrderByDescending(x => x.StartTime)
-               .Select(x => new ResourceBookingResponseDTO
-               {
-                   BookingId = x.Id,
-                   CompanyId = x.CompanyId,
-                   ResourceId = x.ResourceId,
-                   ResourceTypeId = x.ResourceTypeId,
-                   BookedByUserId = x.BookedByUserId,
-                   StartTime = x.StartTime,
-                   EndTime = x.EndTime,
-                   Status = x.Status.ToString()
-               })
-               .ToList();
+                var bookings = (await _resourceBookingDapperRepo
+                    .GetBookingsByUserId(userId))
+                    .ToList();
 
                 if (!bookings.Any())
                 {
-                    return new Response<List<ResourceBookingResponseDTO>>( 200, "No bookings found for this user");
+                    return new Response<List<ResourceBookingResponseDTO>>(
+                        200,
+                        "No bookings found for this user",
+                        new List<ResourceBookingResponseDTO>()
+                    );
                 }
-                return new Response<List<ResourceBookingResponseDTO>>(200,"User bookings fetched successfully", bookings);
 
+                return new Response<List<ResourceBookingResponseDTO>>(
+                    200,
+                    "User bookings fetched successfully",
+                    bookings
+                );
             }
             catch (Exception ex)
             {
-                return new Response<List<ResourceBookingResponseDTO>>(500, ex.Message);
+                return new Response<List<ResourceBookingResponseDTO>>(
+                    500,
+                    ex.Message
+                );
             }
-           
         }
+
+
+
 
 
         public async Task<Response<List<ResourceBookingResponseDTO>>> GetAllBookingsOfCompanyAsync(int userId)
@@ -365,13 +411,13 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                 var user = await _userRepo.SingleOrDefaultAsync(x =>
                     x.UserId == userId && x.IsActive);
 
+               
+
                 if (user == null || !user.CompanyId.HasValue)
+
                     return new Response<List<ResourceBookingResponseDTO>>(200, "User or company not found");
 
-                if (user.RoleEnum != RoleEnum.CompanyAdmin)
-                {
-                    return new Response<List<ResourceBookingResponseDTO>>(403, "Only company admin can access company bookings");
-                };
+               
 
                 var companyId = user.CompanyId.Value;
 
@@ -381,14 +427,18 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                     .OrderBy(x => x.StartTime)
                     .Select(x => new ResourceBookingResponseDTO
                     {
+                        
                         BookingId = x.Id,
                         CompanyId = x.CompanyId,
+                        UserId = userId,
+                        UserName = user.UserName,
                         ResourceId = x.ResourceId,
                         ResourceTypeId = x.ResourceTypeId,
                         BookedByUserId = x.BookedByUserId,
                         StartTime = x.StartTime,
                         EndTime = x.EndTime,
-                        Status = x.Status.ToString()
+                        Status = x.Status.ToString(),
+                       
                     })
                     .ToList();
 

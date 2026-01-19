@@ -11,6 +11,7 @@ namespace ResourceFlow.Domain.Enums.Subscriptions
         Employee,
         Floor,
         Desk,
-        MeetingRoom
+        MeetingRoom,
+        MeetingRoomBooking
     }
 }

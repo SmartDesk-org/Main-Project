@@ -76,12 +76,7 @@ namespace ResourceFlow.Application.Services.Subscriptions
                 //var res = _mapper.Map<IEnumerable<SubscrptionResponseDto>>(sub);
                 _logger.LogInformation("sub {data}", sub.First().Description);
                 return new ApiResponse<IEnumerable<SubscriptionResponseDto>>(200, "Plans fetched succesfully", sub);
-//=======
-//                    return new ApiResponse<IEnumerable<SubscriptionResponseDto>>(404, "Subscription plans not configured");
-//                //var res = _mapper.Map<IEnumerable<SubscriptionResponseDto>>(sub);
 
-//                return new ApiResponse<IEnumerable<SubscriptionResponseDto>>(200, "Plans fetched succesfully", sub);
-//>>>>>>> d55ac86 (Some fixes in drag and drop)
 
             }
             catch (Exception ex)
