@@ -13,22 +13,26 @@ using OfficeOpenXml;
 using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
+using OfficeOpenXml.Style;
+using System.Drawing;
+using OfficeOpenXml.DataValidation;
+using ResourceFlow.Application.DTOs.Common;
 
 public class EmployeeService : IEmployeeService
 {
     private readonly IEmployeeDapperRepository _dapperRepo;
     private readonly IGenericRepository<User> _userRepo;
     private readonly IGenericRepository<Employees> _employeeRepo;
-
     private readonly IGenericRepository<CompanyDetails> _companyRepo;
     private readonly IGenericRepository<Subscription> _subscriptionRepo;
     private readonly IGenericRepository<CompanyFloor> _floorRepo;
-
-
     private readonly IExcelReader _excelReader;
     private readonly IEmployeeImportValidator _validator;
-    private readonly ICompanyDapperRepository _DapperercompanyRepo;
+    private readonly ICompanyDapperRepository _DapperCompanyRepo;
     private readonly IUnitOfWork _uow;
+    private readonly IEmployeeDapperRepository _employeeDapperRepository;
+    private readonly IBulkUploadProgressNotifier _progressNotifier;
+
 
     // CRITICAL CHANGE: Use ScopeFactory (Singleton) instead of ServiceProvider (Request-Scoped)
     private readonly IServiceScopeFactory _scopeFactory;
@@ -44,8 +48,9 @@ public class EmployeeService : IEmployeeService
         IEmployeeImportValidator validator,
         IUnitOfWork uow,
         IServiceScopeFactory scopeFactory,
-        ICompanyDapperRepository dapperRepository
-    )
+        ICompanyDapperRepository dapperRepository,
+        IEmployeeDapperRepository employeeDapperRepository,
+        IBulkUploadProgressNotifier progressNotifier)
     {
         _floorRepo = companyFloor;
         _dapperRepo = dapperRepo;
@@ -57,10 +62,12 @@ public class EmployeeService : IEmployeeService
         _validator = validator;
         _uow = uow;
         _scopeFactory = scopeFactory;
-        _DapperercompanyRepo = dapperRepository;
+        _DapperCompanyRepo = dapperRepository;
+        _employeeDapperRepository = employeeDapperRepository;
+        _progressNotifier = progressNotifier;
     }
 
-    public async Task<ApiResponse<BulkUploadResponse>> BulkUploadAsync(IFormFile file, int companyId)
+    public async Task<ApiResponse<BulkUploadResponse>> BulkUploadAsync(IFormFile file, int companyId,int userId)
     {
         var response = new BulkUploadResponse();
 
@@ -82,7 +89,15 @@ public class EmployeeService : IEmployeeService
         response.FailedRecords = errors.Count;
 
         if (!validRows.Any())
-            return new ApiResponse<BulkUploadResponse>(400, "All rows failed validation.", response);
+        {
+            response.SuccessfulRecords = 0;
+            return new ApiResponse<BulkUploadResponse>(
+                400,
+                "No new employees added. All rows already exist.",
+                response
+            );
+        }
+
 
         // 3. Subscription Check
         var company = await _companyRepo.GetByIdAsync(companyId);
@@ -92,7 +107,7 @@ public class EmployeeService : IEmployeeService
         }
 
         var companySubscription =
-            await _DapperercompanyRepo.GetActiveCompanySubscriptionByCompanyId(companyId);
+            await _DapperCompanyRepo.GetActiveCompanySubscriptionByCompanyId(companyId);
 
         if (companySubscription == null)
         {
@@ -123,6 +138,8 @@ public class EmployeeService : IEmployeeService
 
         int chunkSize = 50;
         var chunks = validRows.Chunk(chunkSize).ToList();
+        int totalChunks = chunks.Count;
+        int processedChunks = 0;
 
         response.ChunkSize = chunkSize;
         response.TotalChunks = chunks.Count;
@@ -144,7 +161,7 @@ public class EmployeeService : IEmployeeService
 
                     newUsers.Add(new User
                     {
-                        UserName = r.Email,
+                        UserName = r.EmployeeName,
                         Email = r.Email,
                         PassWord = BCrypt.Net.BCrypt.HashPassword(rawPassword),
                         CompanyId = companyId,
@@ -156,7 +173,7 @@ public class EmployeeService : IEmployeeService
                 }
 
                 await _userRepo.AddRangeAsync(newUsers);
-                await _uow.SaveChangesAsync(); // IDs generated here
+                await _uow.SaveChangesAsync();
 
                 for (int i = 0; i < newUsers.Count; i++)
                 {
@@ -174,6 +191,12 @@ public class EmployeeService : IEmployeeService
                 await _uow.SaveChangesAsync();
 
                 usersToSendEmailsTo.AddRange(newUsers);
+                processedChunks++;
+                await _progressNotifier.ReportProgressAsync(
+                    processedChunks,
+                    totalChunks,
+                    userId
+                );
             }
 
             await _uow.CommitAsync();
@@ -182,7 +205,7 @@ public class EmployeeService : IEmployeeService
         {
             await _uow.RollbackAsync();
             return new ApiResponse<BulkUploadResponse>(500, $"DB Error: {ex.Message}");
-            
+
         }
         _ = ProcessEmailBackground(usersToSendEmailsTo, passwordMap);
 
@@ -237,38 +260,75 @@ public class EmployeeService : IEmployeeService
 
     public byte[] GenerateEmployeeUploadTemplate()
     {
+        // Set License Context
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
         using var package = new ExcelPackage();
         var sheet = package.Workbook.Worksheets.Add("Employees");
 
-        // Headers
+        // =====================================================
+        // 1. HEADERS & STYLING
+        // =====================================================
         sheet.Cells[1, 1].Value = "EmployeeName";
         sheet.Cells[1, 2].Value = "Email";
         sheet.Cells[1, 3].Value = "Department";
         sheet.Cells[1, 4].Value = "DefaultFloorId";
 
-        // Sample row
+        // Style the headers
+        using (var headerRange = sheet.Cells[1, 1, 1, 4])
+        {
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            headerRange.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+            headerRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+        }
+        sheet.Cells["A2:D1000"].Style.Locked = false;
+
         sheet.Cells[2, 1].Value = "John Doe";
         sheet.Cells[2, 2].Value = "john@company.com";
-        sheet.Cells[2, 3].Value = "IT";
+        sheet.Cells[2, 3].Value = "IT"; // Must match a dropdown value
         sheet.Cells[2, 4].Value = 1;
 
-        // Style header
-        sheet.Cells[1, 1, 1, 4].Style.Font.Bold = true;
+        // =====================================================
+        // 4. DEPARTMENT DROPDOWN (Strict Validation)
+        // =====================================================
+        var departments = new[]
+        {
+        "IT", "HR", "Finance", "Sales", "Marketing", "Operations"
+    };
 
-        // 🔒 Lock header row
-        sheet.Cells[1, 1, 1, 4].Style.Locked = true;
+        // Add validation to Column C (Rows 2 to 1000)
+        var departmentValidation = sheet.DataValidations.AddListValidation("C2:C1000");
 
-        // 🔓 Unlock data rows
-        sheet.Cells[2, 1, sheet.Dimension.End.Row, 4].Style.Locked = false;
+        foreach (var dept in departments)
+        {
+            departmentValidation.Formula.Values.Add(dept);
+        }
 
-        // Protect worksheet
+        // STRICT ENFORCEMENT
+        departmentValidation.ShowErrorMessage = true;
+        // 'Stop' prevents the user from typing anything that isn't in the list
+        departmentValidation.ErrorStyle = ExcelDataValidationWarningStyle.stop;
+        departmentValidation.ErrorTitle = "Invalid Selection";
+        departmentValidation.Error = "You must select a Department from the dropdown list.";
+
+        departmentValidation.ShowInputMessage = true;
+        departmentValidation.PromptTitle = "Select Department";
+        departmentValidation.Prompt = "Please select from the list.";
+
+        // =====================================================
+        // 5. PROTECT SHEET
+        // =====================================================
+        sheet.Cells.AutoFitColumns();
+
+        // Enable protection
         sheet.Protection.IsProtected = true;
-        sheet.Protection.AllowSelectLockedCells = false;
+
+        // Allow users to click on the editable cells (A2:D1000)
         sheet.Protection.AllowSelectUnlockedCells = true;
 
-        sheet.Cells.AutoFitColumns();
+        // Prevent users from clicking/selecting the headers (Row 1)
+        sheet.Protection.AllowSelectLockedCells = false;
 
         return package.GetAsByteArray();
     }
@@ -310,7 +370,7 @@ public class EmployeeService : IEmployeeService
 
         // 4️⃣ Subscription check
         var companySubscription =
-            await _DapperercompanyRepo.GetActiveCompanySubscriptionByCompanyId(companyId);
+            await _DapperCompanyRepo.GetActiveCompanySubscriptionByCompanyId(companyId);
 
         if (companySubscription == null)
             return new ApiResponse<object>(400, "No active subscription for this company");
@@ -337,11 +397,11 @@ public class EmployeeService : IEmployeeService
         {
             var user = new User
             {
-                UserName = dto.Email,
+                UserName = dto.EmployeeName,
                 Email = dto.Email,
                 PassWord = BCrypt.Net.BCrypt.HashPassword(rawPassword),
                 CompanyId = companyId,
-                RoleId = 2,
+                RoleId = 3,
                 IsActive = true,
                 IsBlocked = false
             };
@@ -368,7 +428,7 @@ public class EmployeeService : IEmployeeService
                 new Dictionary<string, string> { { user.Email, rawPassword } }
             );
 
-            return new ApiResponse<object>(200, "Employee created successfully");
+            return new ApiResponse<object>(201, "Employee created successfully");
         }
         catch
         {
@@ -376,16 +436,45 @@ public class EmployeeService : IEmployeeService
             throw;
         }
     }
-
-
-    public async Task<Response<IEnumerable<Employees>>> GetAllEmployees()
+    public async Task<Response<PagedResultDto<EmployeeGetAllDto>>> GetEmployeesPaginatedAsync(
+    int companyId,
+    int pageNumber,
+    int pageSize,
+    string? searchTerm) // 🟢 1. Accept search term
     {
-        var result = await _employeeRepo.GetAllAsync();
+        if (pageNumber < 1) pageNumber = 1;
+        if (pageSize < 1) pageSize = 10;
+
+        try
+        {
+            // 🟢 2. Pass search term to the repository
+            var result = await _employeeDapperRepository.GetEmployeesPaginatedAsync(
+                companyId,
+                pageNumber,
+                pageSize,
+                searchTerm
+            );
+
+            // Even if empty, return 200 with empty list
+            return new Response<PagedResultDto<EmployeeGetAllDto>>(
+                200,
+                "Employees fetched successfully",
+                result
+            );
+        }
+        catch (Exception ex)
+        {
+            return new Response<PagedResultDto<EmployeeGetAllDto>>(500, $"Error: {ex.Message}");
+        }
+    }
+    public async Task<Response<IEnumerable<EmployeeGetAllDto>>> GetAllEmployees()
+    {
+        var result = await _employeeDapperRepository.GetAllEmployeesAsync();
         if (result == null || !result.Any())
         {
-            return new Response<IEnumerable<Employees>>(404, "Employees Not Found");
+            return new Response<IEnumerable<EmployeeGetAllDto>>(404, "Employees Not Found");
         }
-        return new Response<IEnumerable<Employees>>(200, "Employees Fetched Successully", result);
+        return new Response<IEnumerable<EmployeeGetAllDto>>(200, "Employees Fetched Successully", result);
     }
     public async Task<ApiResponse<object>> UpdateEmployeeAsync(
     int employeeId,
@@ -448,5 +537,6 @@ public class EmployeeService : IEmployeeService
 
         return new ApiResponse<object>(200, "Employee deleted successfully");
     }
+
 
 }

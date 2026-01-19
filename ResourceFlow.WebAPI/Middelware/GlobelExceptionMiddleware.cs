@@ -1,8 +1,11 @@
-﻿using System.Net;
-using System.Text.Json;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using ResourceFlow.Application.Common;
+using ResourceFlow.Domain.Exceptions.Subscriptions;
+using ResourceFlow.Domain.Exceptions.Subscriptions.Company;
+using ResourceFlow.Domain.Exceptions.Subscriptions.Subscription;
+using System.Net;
+using System.Text.Json;
 
 namespace ResourceFlow.WebAPI.Middleware
 {
@@ -27,7 +30,7 @@ namespace ResourceFlow.WebAPI.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unhandled exception occurred");
+                _logger.LogError(ex, "Unhandled exception occurred from middleware");
                 await HandleExceptionAsync(context, ex);
             }
         }
@@ -44,13 +47,20 @@ namespace ResourceFlow.WebAPI.Middleware
             switch (exception)
             {
                 case UnauthorizedAccessException:
-                    statusCode = StatusCodes.Status401Unauthorized;
-                    message = "Unauthorized access";
+                    statusCode = StatusCodes.Status403Forbidden;
+                    message = exception.Message;
+                    break;
+
+                case SubscriptionExpiredException:
+                case PlanLimitExceededException:
+                case CompanyInactiveException:
+                    statusCode = StatusCodes.Status400BadRequest;
+                    message = exception.Message;
                     break;
 
                 case KeyNotFoundException:
                     statusCode = StatusCodes.Status404NotFound;
-                    message = "Resource not found";
+                    message = exception.Message;
                     break;
 
                 case ArgumentException ex:
@@ -60,9 +70,10 @@ namespace ResourceFlow.WebAPI.Middleware
 
                 default:
                     statusCode = StatusCodes.Status500InternalServerError;
-                    message =exception.Message ;
+                    message = "Something went wrong";
                     break;
             }
+
 
             context.Response.StatusCode = statusCode;
 

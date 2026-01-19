@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using ResourceFlow.Application.DTOs.Common;
 using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Domain.Entities.CompanyModels;
@@ -49,40 +50,59 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
                         throw new StoredProcedureException("Error executing SP_EMPLOYEE", ex);
                     }
 
-                   
+
                 });
             return result;
         }
-        public async Task<IEnumerable<Employees>> GetAllEmployeesAsync()
+        public async Task<IEnumerable<EmployeeGetAllDto>> GetAllEmployeesAsync()
         {
-            IEnumerable<Employees> result = Enumerable.Empty<Employees>();
+            IEnumerable<EmployeeGetAllDto> result = Enumerable.Empty<EmployeeGetAllDto>();
 
             await _spLogger.ExecuteAsync(
-            "SP_EMPLOYEE",
-            async () =>
-            {
-                try
+                "SP_EMPLOYEE",
+                async () =>
                 {
-                    var parameters = new DynamicParameters();
-                    parameters.Add("@FLAG", "GETALL");
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("@FLAG", "GETALL");
 
-                    result = await _db.QueryAsync<Employees>(
-                        "SP_EMPLOYEE",
-                        parameters,
-                        commandType: CommandType.StoredProcedure
-                    );
-
-                }
-                catch (SqlException ex)
-                {
-                    throw new StoredProcedureException("Error executing SP_EMPLOYEE", ex);
-                }
-
-           
-        });
+                        result = await _db.QueryAsync<EmployeeGetAllDto>(
+                            "SP_EMPLOYEE",
+                            parameters,
+                            commandType: CommandType.StoredProcedure
+                        );
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new StoredProcedureException("Error executing SP_EMPLOYEE", ex);
+                    }
+                });
 
             return result;
         }
+        public async Task<PagedResultDto<EmployeeGetAllDto>> GetEmployeesPaginatedAsync(int companyId, int pageNumber, int pageSize, string? searchTerm)
+        {
+    
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@CompanyId", companyId);
+            parameters.Add("@PageNumber", pageNumber);
+            parameters.Add("@PageSize", pageSize);
+            parameters.Add("@SearchTerm", string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm);
+
+            using var multi = await _db.QueryMultipleAsync(
+                "sp_GetEmployeesPaginated",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            var employees = await multi.ReadAsync<EmployeeGetAllDto>();
+            var totalCount = await multi.ReadFirstAsync<int>();
+
+            return new PagedResultDto<EmployeeGetAllDto>(employees, totalCount, pageNumber, pageSize);
+        }
+
     }
 }
 

@@ -15,7 +15,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
 {
     public class CompanySubscriptionDapperRepository : ICompanySubscriptionDapperRepository
     {
-        private readonly string _connectionString;
+        private readonly string? _connectionString;
         private readonly IStoredProcedureLogger _spLogger;
 
         public CompanySubscriptionDapperRepository(
@@ -47,6 +47,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
                             {
                                 companySubscription.Subscription = subscription;
                                 return companySubscription;
+
                             },
                             new { COMPANYID = companyId },
                             splitOn: "SubscriptionId",

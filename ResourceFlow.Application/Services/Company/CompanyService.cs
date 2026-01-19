@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Company;
 using ResourceFlow.Application.Interfaces.Company;
 using ResourceFlow.Application.Interfaces.Repositories;
+using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.CompanyModels;
@@ -21,7 +23,9 @@ namespace ResourceFlow.Application.Services.Company
         private readonly IGenericRepository<Resource> _resourceRepo;
         private readonly IGenericRepository<CompanyFloor> _floorRepo;
         private readonly IGenericRepository<SubscriptionHistory> _historyRepo;
+        private readonly ICompanyDapperRepository _companyDapperRepo;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<CompanyService> _logger;
 
         private readonly IMapper _mapper;
 
@@ -33,6 +37,8 @@ namespace ResourceFlow.Application.Services.Company
             IGenericRepository<CompanyFloor> floorRepo,
             IGenericRepository<SubscriptionHistory> historyRepo,
             IUnitOfWork unitOfWork,
+            ILogger<CompanyService> logger,
+            ICompanyDapperRepository companyDapperRepo,
             IMapper mapper
             )
         {
@@ -42,8 +48,10 @@ namespace ResourceFlow.Application.Services.Company
             _subRepo = subRepo;
             _floorRepo = floorRepo;
             _historyRepo = historyRepo;
+            _companyDapperRepo = companyDapperRepo;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
 
@@ -120,7 +128,11 @@ namespace ResourceFlow.Application.Services.Company
                         EndDate = endDate,
                         IsActive = false,
                         Status = SubscriptionStatus.Pending,
-                        AmoutToBePaid = totalAmount
+                        AmoutToBePaid = totalAmount,
+                        EmployeesLimit=subPlan.MaxEmployees,
+                        FloorsLimit=subPlan.MaxFloors,
+                        DesksLimit=subPlan.MaxDesks,
+                        MeetingRoomsLimit=subPlan.MaxMeetingRooms
                     }
                 );
 
@@ -191,7 +203,7 @@ namespace ResourceFlow.Application.Services.Company
                 AmountPaid = compSubscription.AmoutToBePaid,
                 Currency = "INR",
 
-                StatusEnum = compSubscription.Status,
+                StatusEnum = SubscriptionStatus.Active,
                 ChangeReasonEnum = HistoryChangeReasonEnum.Initial_Purchase
             };
             
@@ -215,6 +227,40 @@ namespace ResourceFlow.Application.Services.Company
                 throw;
             }
 
+        }
+
+        public async Task<Response<CompanyOverview>> GetCompanyOverviewAsync(int companyId)
+        {
+            _logger.LogInformation(
+                "GetCompanyOverviewAsync started. CompanyId: {CompanyId}",
+                companyId
+            );
+
+            var overview = await _companyDapperRepo.GetCompanyOverviewAsync(companyId);
+
+            if (overview == null)
+            {
+                _logger.LogWarning(
+                    "Company overview not found. CompanyId: {CompanyId}",
+                    companyId
+                );
+
+                return new Response<CompanyOverview>(
+                    404,
+                    "Company overview not found"
+                );
+            }
+
+            _logger.LogInformation(
+                "Company overview fetched successfully. CompanyId: {CompanyId}",
+                overview.EmployeesLimit
+            );
+
+            return new Response<CompanyOverview>(
+                200,
+                "Company overview fetched successfully",
+                overview
+            );
         }
     }
 }

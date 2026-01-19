@@ -75,6 +75,8 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
+
 
 
 
@@ -92,7 +94,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-
+// In Program.cs
 
 .AddJwtBearer(options =>
 {
@@ -100,6 +102,7 @@ builder.Services.AddAuthentication(options =>
     {
         OnMessageReceived = context =>
         {
+            // 1. Header Check
             var authHeader = context.Request.Headers["Authorization"].ToString();
             if (!string.IsNullOrWhiteSpace(authHeader) && authHeader.StartsWith("Bearer "))
             {
@@ -107,14 +110,30 @@ builder.Services.AddAuthentication(options =>
                 return Task.CompletedTask;
             }
 
-            // 2. Fallback to cookie
+            // 2. Cookie Check
             if (context.Request.Cookies.ContainsKey("accessToken"))
             {
                 context.Token = context.Request.Cookies["accessToken"];
+                return Task.CompletedTask;
             }
+
+            // 👇👇👇 THIS IS THE MISSING PART YOU NEED 👇👇👇
+            // 3. Query String Check (REQUIRED because you used skipNegotiation: true)
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrEmpty(accessToken) &&
+                (path.StartsWithSegments("/uploadProgressHub")))
+            {
+                context.Token = accessToken;
+            }
+            // 👆👆👆 END OF CRITICAL FIX 👆👆👆
+
             return Task.CompletedTask;
         }
     };
+
+    // (Keep your TokenValidationParameters exactly as they are)
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -126,7 +145,6 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true
     };
 });
-
 builder.Services.AddAuthorization();
 
 
@@ -176,13 +194,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowFrontEnd");
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
-app.UseMiddleware<GlobalExceptionMiddleware>();
+// app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapHub<UploadProgressHub>("/uploadProgressHub");
 
 app.MapControllers();
 

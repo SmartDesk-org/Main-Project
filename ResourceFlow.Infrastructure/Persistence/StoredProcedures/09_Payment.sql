@@ -26,7 +26,7 @@
 
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_PAYMENT] 
+CREATE  PROCEDURE [dbo].[SP_PAYMENT] 
     @FLAG           VARCHAR(40),
     @PAYMENTID      INT              = NULL,
     @COMPANYID      INT              = NULL,

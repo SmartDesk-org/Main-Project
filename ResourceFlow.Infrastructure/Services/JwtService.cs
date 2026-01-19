@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Domain.Entities.Authentication;
+using ResourceFlow.Domain.Enums;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -25,11 +26,14 @@ namespace ResourceFlow.Infrastructure.Services
             var audience = jwtSettings["Audience"];
             var expiryInMinutes = int.Parse(jwtSettings["AccessTokenExpiryMinutes"] ?? "15");
 
+            var roleName = Enum.GetName(typeof(Domain.Enums.Roles), user.RoleId);
+
             var claims = new List<Claim>
             {
                 new Claim("UserEmail", user.Email),
                 new Claim("userId", user.UserId.ToString()),
                 new Claim("roleId", user.RoleId.ToString()),
+                new Claim(ClaimTypes.Role,roleName ?? RoleNames.Employee),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

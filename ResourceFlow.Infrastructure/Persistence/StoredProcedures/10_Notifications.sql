@@ -30,7 +30,7 @@
 }*/
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_NOTIFICATION]
+CREATE  PROCEDURE [dbo].[SP_NOTIFICATION]
     @FLAG            VARCHAR(40),
     @ID              INT              = NULL,
     @COMPANYID       INT              = NULL,

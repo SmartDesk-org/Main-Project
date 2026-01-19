@@ -1,5 +1,6 @@
 ﻿using ResourceFlow.Domain.Entities.CompanyModels;
 using ResourceFlow.Domain.Enums;
+using ResourceFlow.Domain.Enums.Subscriptions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -33,6 +34,18 @@ namespace ResourceFlow.Domain.Entities.SubscriptionModels
 
         public bool IsActive { get; set; } = true;
         public int GracePeriodDays { get; set; }
+
+        public int GetLimit(SubscriptionFeature feature)
+        {
+            return feature switch
+            {
+                SubscriptionFeature.Desk => MaxDesks,
+                SubscriptionFeature.Floor => MaxFloors,
+                SubscriptionFeature.Employee => MaxEmployees,
+                SubscriptionFeature.MeetingRoom => MaxMeetingRooms,
+                _ => 0
+            };
+        }
 
 
         public virtual ICollection<CompanySubscription> CompanySubscriptions { get; set; }  = new List<CompanySubscription>();

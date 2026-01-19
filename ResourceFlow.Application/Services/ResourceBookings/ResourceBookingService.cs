@@ -1,4 +1,5 @@
-﻿using ResourceFlow.Application.Common;
+﻿
+using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Booking;
 using ResourceFlow.Application.Interfaces.Booking;
 using ResourceFlow.Application.Interfaces.Repositories;
@@ -14,7 +15,7 @@ using ResourceFlow.Domain.Exceptions.Subscriptions.Subscription;
 
 namespace ResourceFlow.Application.Services.ResourceBookings
 {
-    public class ResourceBookingService:IResourceBookingService
+    public class ResourceBookingService : IResourceBookingService
     {
         private readonly IGenericRepository<Resource> _resourceRepo;
         private readonly IGenericRepository<ResourceBooking> _bookingRepo;
@@ -23,19 +24,19 @@ namespace ResourceFlow.Application.Services.ResourceBookings
         private readonly ISubscriptionValidationService _subscriptionValidator;
         private readonly IGenericRepository<User> _userRepo;
 
-        public ResourceBookingService(IGenericRepository<Resource> resourceRepo,IGenericRepository<ResourceBooking> bookingRepo, 
-                                       IGenericRepository<CompanyResourceBookingPermission> permissionRepo,IGenericRepository<Employees> employeeRepo,ISubscriptionValidationService subscriptionValidator,
+        public ResourceBookingService(IGenericRepository<Resource> resourceRepo, IGenericRepository<ResourceBooking> bookingRepo,
+                                       IGenericRepository<CompanyResourceBookingPermission> permissionRepo, IGenericRepository<Employees> employeeRepo, ISubscriptionValidationService subscriptionValidator,
                                        IGenericRepository<User> userRepo)
-                    {
-                        _resourceRepo = resourceRepo;
-                        _bookingRepo = bookingRepo;
-                        _permissionRepo = permissionRepo;
-                        _employeeRepo= employeeRepo;
-                        _subscriptionValidator = subscriptionValidator;
-                        _userRepo = userRepo;
-                    }
+        {
+            _resourceRepo = resourceRepo;
+            _bookingRepo = bookingRepo;
+            _permissionRepo = permissionRepo;
+            _employeeRepo = employeeRepo;
+            _subscriptionValidator = subscriptionValidator;
+            _userRepo = userRepo;
+        }
 
-        public async Task<Response<string>> CreateBookingAsync( ResourceBookingDTO dto,int resourceId,int userId)
+        public async Task<Response<string>> CreateBookingAsync(ResourceBookingDTO dto, int resourceId, int userId)
         {
             try
             {
@@ -52,10 +53,10 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                 var companyId = user.CompanyId.Value;
 
                 // 2️⃣ Subscription validation
-                await _subscriptionValidator.ValidateAsync(
-                    companyId,
-                    SubscriptionFeature.MeetingRoom,
-                    SubscriptionAction.Create);
+                // await _subscriptionValidator.ValidateAsync(
+                //     companyId,
+                //     SubscriptionFeature.MeetingRoom,
+                //     SubscriptionAction.Create);
 
                 // 3️⃣ Employee validation
                 var employee = await _employeeRepo.SingleOrDefaultAsync(x =>
@@ -97,7 +98,7 @@ namespace ResourceFlow.Application.Services.ResourceBookings
 
                 if (dto.StartTime.UtcDateTime < DateTime.UtcNow)
                 {
-                    return new Response<string>(400,"Start time must be greater than or equal to the current time");
+                    return new Response<string>(400, "Start time must be greater than or equal to the current time");
                 }
 
 
@@ -131,7 +132,7 @@ namespace ResourceFlow.Application.Services.ResourceBookings
 
                 await _bookingRepo.AddAsync(booking);
 
-                return new Response<string>(200,"Resource booked successfully");
+                return new Response<string>(200, "Resource booked successfully");
             }
             catch (SubscriptionException ex)
             {
@@ -293,16 +294,16 @@ namespace ResourceFlow.Application.Services.ResourceBookings
 
                 if (!bookings.Any())
                 {
-                    return new Response<List<ResourceBookingResponseDTO>>( 200, "No bookings found for this user");
+                    return new Response<List<ResourceBookingResponseDTO>>(200, "No bookings found for this user");
                 }
-                return new Response<List<ResourceBookingResponseDTO>>(200,"User bookings fetched successfully", bookings);
+                return new Response<List<ResourceBookingResponseDTO>>(200, "User bookings fetched successfully", bookings);
 
             }
             catch (Exception ex)
             {
                 return new Response<List<ResourceBookingResponseDTO>>(500, ex.Message);
             }
-           
+
         }
 
 
@@ -320,7 +321,8 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                 if (user.RoleEnum != RoleEnum.CompanyAdmin)
                 {
                     return new Response<List<ResourceBookingResponseDTO>>(403, "Only company admin can access company bookings");
-                };
+                }
+                ;
 
                 var companyId = user.CompanyId.Value;
 
@@ -341,13 +343,14 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                     })
                     .ToList();
 
-                return new Response<List<ResourceBookingResponseDTO>>(200,"Company bookings fetched successfully", bookings);
+                return new Response<List<ResourceBookingResponseDTO>>(200, "Company bookings fetched successfully", bookings);
 
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return new Response<List<ResourceBookingResponseDTO>>(500, ex.Message);
             }
-           
+
         }
 
 

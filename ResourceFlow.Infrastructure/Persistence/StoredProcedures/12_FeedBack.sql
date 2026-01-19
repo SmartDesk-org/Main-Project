@@ -1,3 +1,26 @@
+
+-------------------------------------------------------------------------------------------------------------------------------------
+/*{
+  Title       : [dbo].[SP_FEEDBACK]
+  Description : Handles Feedback read operations using FLAG-based logic
+  Created On  : 05/01/2026
+  Created By  : -----------
+  Modified On : 07/01/2026
+  Modified By : Rinshad
+
+  Execution Statements:
+
+  -- Get all feedbacks (Admin)
+  EXEC dbo.SP_FEEDBACK @FLAG = 'GET_ALL';
+
+  -- Get only published feedbacks (Public)
+  EXEC dbo.SP_FEEDBACK @FLAG = 'GET_PUBLISHED';
+
+  -- Get feedbacks by company
+  EXEC dbo.SP_FEEDBACK @FLAG = 'GET_BY_COMPANY', @CompanyId = 1;
+}*/
+
+
 CREATE OR ALTER PROCEDURE dbo.Feedback
 (
     @FLAG NVARCHAR(50),
@@ -64,3 +87,5 @@ BEGIN
     END
 END;
 GO
+
+

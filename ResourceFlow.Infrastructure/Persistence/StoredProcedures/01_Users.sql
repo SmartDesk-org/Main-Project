@@ -32,7 +32,7 @@ Description : created 'GET_COMPANYID_BY_USRERID'
 GO
 
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_USER]
+CREATE PROCEDURE [dbo].[SP_USER]
     @FLAG                  VARCHAR(40),
     @USERID                INT              = NULL,
     @COMPANYID             INT              = NULL,

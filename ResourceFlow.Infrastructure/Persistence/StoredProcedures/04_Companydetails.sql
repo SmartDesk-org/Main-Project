@@ -22,7 +22,7 @@
 GO
 
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_COMPANYDETAILS]
+CREATE  PROCEDURE [dbo].[SP_COMPANYDETAILS]
     @FLAG              VARCHAR(40),
     @COMPANYID         INT              = NULL,
     @NAME              NVARCHAR(200)    = NULL,
@@ -59,7 +59,7 @@ BEGIN
             END
               
             SELECT 
-                CompanyId, Name, Address, IsActive
+                CompanyId, Name, Address, IsActive,CompanySubscriptionId
             FROM CompanyDetails
             WHERE CompanyId = @COMPANYID AND IsDeleted = 0;
             RETURN;

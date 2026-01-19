@@ -37,6 +37,7 @@ namespace ResourceFlow.WebAPI.Controllers
 
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             var res = await _service.GetAllPlansAsync();
@@ -79,7 +80,7 @@ namespace ResourceFlow.WebAPI.Controllers
             var res = await _service.ChangeStatusAsync(id, userId);
             return StatusCode(res.StatusCode, res);
         }
-
+ 
         [ModuleAuthorize(ModuleCode.STY,PermissionAction.View)]
         [HttpGet("SubscriptionTypes")]
         public async Task<ActionResult> SubscriptionTypes()

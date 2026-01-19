@@ -1,11 +1,13 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using ResourceFlow.Application.DTOs.Company;
 using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Domain.Entities.SubscriptionModels;
 
 using ResourceFlow.Domain.Exceptions;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
@@ -14,7 +16,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
 {
     public class CompanyDapperRepository : ICompanyDapperRepository
     {
-        private readonly string _connectionString;
+        private readonly string? _connectionString;
         private readonly IStoredProcedureLogger _spLogger;
         public CompanyDapperRepository(IConfiguration config ,IStoredProcedureLogger spLogger)
         {
@@ -129,5 +131,29 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
             return result;
         }
 
+
+        public async Task<CompanyOverview> GetCompanyOverviewAsync(int companyId)
+        {
+            using var conn = new SqlConnection(_connectionString);
+            return await conn.QuerySingleOrDefaultAsync<CompanyOverview>(
+                "dbo.SP_GetCompanyOverview",
+                new { CompanyId = companyId },
+                commandType:CommandType.StoredProcedure
+            );
+
+        }
+
+
+        public async Task<bool> IsUserCompanyAdminAsync(int userId, int companyId)
+        {
+            Console.WriteLine("__________________");Console.WriteLine("Company ownership checking");Console.WriteLine($"userId :{userId} , CompanyId{companyId}");
+            using var conn = new SqlConnection(_connectionString);
+            string sql = "SELECT COUNT(1) FROM Users WHERE UserId = @UserId  AND CompanyId = @CompanyId  AND RoleId = 2  AND IsActive = 1 AND IsDeleted=0";
+            int count=await conn.ExecuteScalarAsync<int>(
+               sql,
+               new { UserId = userId, CompanyId = companyId });
+            Console.WriteLine("__________________"); Console.WriteLine("Company ownership checking completed"); Console.WriteLine($"Count :{count} ");
+            return count > 0;
+        }
     }
 }

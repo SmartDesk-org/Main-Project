@@ -39,7 +39,7 @@ Description : Updated and added new Flag named 'GETACTIVE_BYCOMPANYID' to retrie
 
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_COMPANYSUBSCRIPTION]
+CREATE PROCEDURE [dbo].[SP_COMPANYSUBSCRIPTION]
     @FLAG                VARCHAR(40),
     @ID                  INT              = NULL,
     @COMPANYID           INT              = NULL,
@@ -144,7 +144,11 @@ BEGIN
         cs.StartDate,
         cs.EndDate,
         cs.IsActive,
-        cs.Status
+        cs.Status,
+        cs.DesksLimit,
+        cs.EmployeesLimit,
+        cs.FloorsLimit,
+        cs.MeetingRoomsLimit
     FROM dbo.CompanySubscription AS cs
     WHERE 
         cs.CompanyId = @COMPANYID
