@@ -46,9 +46,6 @@ namespace ResourceFlow.Application.Services.Resources
 
         public async Task<Response<CreateResourceDto>> CreateResourceAsync(CreateResourceDto dto,int userId)
         {
-
-            
-
             try
             {
                 int companyId = await _userDapperRepo.GetCompanyId(userId);
