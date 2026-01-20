@@ -16,6 +16,8 @@ using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using OfficeOpenXml.Style;
 using System.Drawing;
 using OfficeOpenXml.DataValidation;
+using ResourceFlow.Application.DTOs.Common;
+
 
 public class EmployeeService : IEmployeeService
 {
@@ -30,6 +32,10 @@ public class EmployeeService : IEmployeeService
     private readonly ICompanyDapperRepository _DapperCompanyRepo;
     private readonly IUnitOfWork _uow;
     private readonly IEmployeeDapperRepository _employeeDapperRepository;
+
+    private readonly IBulkUploadProgressNotifier _progressNotifier;
+
+
 
     // CRITICAL CHANGE: Use ScopeFactory (Singleton) instead of ServiceProvider (Request-Scoped)
     private readonly IServiceScopeFactory _scopeFactory;
@@ -46,7 +52,9 @@ public class EmployeeService : IEmployeeService
         IUnitOfWork uow,
         IServiceScopeFactory scopeFactory,
         ICompanyDapperRepository dapperRepository,
-        IEmployeeDapperRepository employeeDapperRepository)
+        IEmployeeDapperRepository employeeDapperRepository,
+        IBulkUploadProgressNotifier progressNotifier)
+
     {
         _floorRepo = companyFloor;
         _dapperRepo = dapperRepo;
@@ -61,10 +69,11 @@ public class EmployeeService : IEmployeeService
         _DapperCompanyRepo = dapperRepository;
 
         _employeeDapperRepository = employeeDapperRepository;
+        _progressNotifier = progressNotifier;
 
     }
 
-    public async Task<ApiResponse<BulkUploadResponse>> BulkUploadAsync(IFormFile file, int companyId)
+    public async Task<ApiResponse<BulkUploadResponse>> BulkUploadAsync(IFormFile file, int companyId,int userId)
     {
         var response = new BulkUploadResponse();
 
@@ -135,6 +144,8 @@ public class EmployeeService : IEmployeeService
 
         int chunkSize = 50;
         var chunks = validRows.Chunk(chunkSize).ToList();
+        int totalChunks = chunks.Count;
+        int processedChunks = 0;
 
         response.ChunkSize = chunkSize;
         response.TotalChunks = chunks.Count;
@@ -168,7 +179,9 @@ public class EmployeeService : IEmployeeService
                 }
 
                 await _userRepo.AddRangeAsync(newUsers);
-                await _uow.SaveChangesAsync(); 
+
+                await _uow.SaveChangesAsync();
+
 
                 for (int i = 0; i < newUsers.Count; i++)
                 {
@@ -186,6 +199,12 @@ public class EmployeeService : IEmployeeService
                 await _uow.SaveChangesAsync();
 
                 usersToSendEmailsTo.AddRange(newUsers);
+                processedChunks++;
+                await _progressNotifier.ReportProgressAsync(
+                    processedChunks,
+                    totalChunks,
+                    userId
+                );
             }
 
             await _uow.CommitAsync();
@@ -194,7 +213,7 @@ public class EmployeeService : IEmployeeService
         {
             await _uow.RollbackAsync();
             return new ApiResponse<BulkUploadResponse>(500, $"DB Error: {ex.Message}");
-            
+
         }
         _ = ProcessEmailBackground(usersToSendEmailsTo, passwordMap);
 
@@ -390,7 +409,7 @@ public class EmployeeService : IEmployeeService
                 Email = dto.Email,
                 PassWord = BCrypt.Net.BCrypt.HashPassword(rawPassword),
                 CompanyId = companyId,
-                RoleId = 2,
+                RoleId = 3,
                 IsActive = true,
                 IsBlocked = false
             };
@@ -417,7 +436,7 @@ public class EmployeeService : IEmployeeService
                 new Dictionary<string, string> { { user.Email, rawPassword } }
             );
 
-            return new ApiResponse<object>(200, "Employee created successfully");
+            return new ApiResponse<object>(201, "Employee created successfully");
         }
         catch
         {
@@ -427,8 +446,40 @@ public class EmployeeService : IEmployeeService
     }
 
 
+    public async Task<Response<PagedResultDto<EmployeeGetAllDto>>> GetEmployeesPaginatedAsync(
+    int companyId,
+    int pageNumber,
+    int pageSize,
+    string? searchTerm) // 🟢 1. Accept search term
+    {
+        if (pageNumber < 1) pageNumber = 1;
+        if (pageSize < 1) pageSize = 10;
+
+        try
+        {
+            // 🟢 2. Pass search term to the repository
+            var result = await _employeeDapperRepository.GetEmployeesPaginatedAsync(
+                companyId,
+                pageNumber,
+                pageSize,
+                searchTerm
+            );
+
+            // Even if empty, return 200 with empty list
+            return new Response<PagedResultDto<EmployeeGetAllDto>>(
+                200,
+                "Employees fetched successfully",
+                result
+            );
+        }
+        catch (Exception ex)
+        {
+            return new Response<PagedResultDto<EmployeeGetAllDto>>(500, $"Error: {ex.Message}");
+        }
+    }
     public async Task<Response<IEnumerable<EmployeeGetAllDto>>> GetAllEmployees()
     {
+
         var result = await _employeeDapperRepository.GetAllEmployeesAsync();
         if (result == null || !result.Any())
         {
@@ -497,5 +548,6 @@ public class EmployeeService : IEmployeeService
 
         return new ApiResponse<object>(200, "Employee deleted successfully");
     }
+
 
 }

@@ -76,7 +76,7 @@ namespace ResourceFlow.WebAPI.Controllers
 
             var result = await _resouBookService.ScanQRCodeAsync(request.QrValue, userId);
 
-            return StatusCode(result.StatusCode, result.Message);
+            return StatusCode(result.StatusCode, result);
         }
 
 

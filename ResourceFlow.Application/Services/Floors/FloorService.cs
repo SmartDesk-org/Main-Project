@@ -44,14 +44,57 @@ namespace ResourceFlow.Application.Services.Floors
             _userDapperRepo = userDapperRepo;
             _companyDapperRepo = companyDapperRepo;
         }
+//<<<<<<< HEAD
 
-        public async Task<Response<CompanyFloor>> CreateFloorAsync(CreateFloorDto dto,int userId)
-        {
+//        public async Task<Response<CompanyFloor>> CreateFloorAsync(CreateFloorDto dto,int userId)
+//        {
             
+
+//            try
+//            {
+//                int companyId =await  _userDapperRepo.GetCompanyId(userId);
+//=======
+        public async Task<Response<FloorDto>> GetFloorByIdAsync(int floorId, int userId)
+        {
+            _logger.LogInformation("GetFloorByIdAsync started. FloorId: {FloorId}, UserId: {UserId}", floorId, userId);
 
             try
             {
-                int companyId =await  _userDapperRepo.GetCompanyId(userId);
+                // 1. Get the current user's CompanyId
+                var userCompanyId = await _userDapperRepo.GetCompanyId(userId);
+
+                // 2. Fetch the floor ensuring it belongs to the user's company
+                // Using FindAsync with a predicate ensures Tenant Isolation (Security)
+                var floors = await _floorRepo.FindAsync(f => f.FloorId == floorId && f.CompanyId == userCompanyId);
+                var floor = floors.FirstOrDefault();
+
+                if (floor == null)
+                {
+                    _logger.LogWarning("Floor not found or access denied. FloorId: {FloorId}, UserCompanyId: {CompanyId}", floorId, userCompanyId);
+                    return new Response<FloorDto>(404, "Floor not found");
+                }
+
+                // 3. Map to DTO
+                var floorDto = _mapper.Map<FloorDto>(floor);
+
+                _logger.LogInformation("Floor fetched successfully. FloorId: {FloorId}", floorId);
+
+                return new Response<FloorDto>(200, "Floor fetched successfully", floorDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching floor by ID. FloorId: {FloorId}", floorId);
+                throw;
+            }
+        }
+        public async Task<Response<CompanyFloor>> CreateFloorAsync(CreateFloorDto dto, int userId)
+        {
+
+
+            try
+            {
+                int companyId = await _userDapperRepo.GetCompanyId(userId);
+
 
                 var isCompanyAdmin = await _companyDapperRepo
                      .IsUserCompanyAdminAsync(userId, companyId);
@@ -70,15 +113,18 @@ namespace ResourceFlow.Application.Services.Floors
                     companyId
                 );
 
-                await _validator.ValidateAsync(
-                    companyId,
-                    SubscriptionFeature.Floor,
-                    SubscriptionAction.Create
-                );
+
+                // await _validator.ValidateAsync(
+                //     companyId,
+                //     SubscriptionFeature.Floor,
+                //     SubscriptionAction.Create
+                // );   
+
 
                 var floor = _mapper.Map<CompanyFloor>(dto);
                 floor.IsActive = true;
                 floor.CompanyId = companyId;
+
 
 
                 var existing = await _floorRepo.SingleOrDefaultAsync(x => x.CompanyId==companyId && x.FloorName.ToLower().Trim() == dto.FloorName.ToLower().Trim() && x.IsActive == true && x.IsDeleted == false);
@@ -123,10 +169,12 @@ namespace ResourceFlow.Application.Services.Floors
 
             try
             {
-                Console.WriteLine("__________________");Console.WriteLine($"from floor service userId :{userId}" );
+
+                Console.WriteLine("__________________"); Console.WriteLine($"from floor service userId :{userId}");
                 var companyId = await _userDapperRepo.GetCompanyId(userId);
                 Console.WriteLine("__________________"); Console.WriteLine($"from floor service companyId :{companyId}");
-                var floors = await _floorDapperRepo.GetFloorsAsync(companyId  );
+                var floors = await _floorDapperRepo.GetFloorsAsync(companyId);
+
 
                 if (floors == null || !floors.Any())
                 {
@@ -149,7 +197,9 @@ namespace ResourceFlow.Application.Services.Floors
 
                 return new Response<IEnumerable<FloorDto>>(
                     200,
-                    "Floors fetched successfully",floors
+
+                    "Floors fetched successfully", floors
+
                 );
             }
             catch (Exception ex)
@@ -157,7 +207,6 @@ namespace ResourceFlow.Application.Services.Floors
                 _logger.LogError(
                     ex,
                     "Error occurred while fetching floors"
-                    
                 );
                 throw;
             }

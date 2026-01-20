@@ -1,4 +1,7 @@
+
 CREATE OR ALTER PROCEDURE dbo.SP_GetCompanyOverview
+
+
     @CompanyId INT
 AS
 BEGIN

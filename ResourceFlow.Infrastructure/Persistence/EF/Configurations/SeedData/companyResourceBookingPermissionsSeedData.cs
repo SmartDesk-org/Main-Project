@@ -10,29 +10,29 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations.SeedData
 {
-    public class companyResourceBookingPermissionsSeedData: IEntityTypeConfiguration<CompanyResourceBookingPermission>
-    {
+    //public class companyResourceBookingPermissionsSeedData: IEntityTypeConfiguration<CompanyResourceBookingPermission>
+    //{
 
-        public void Configure(EntityTypeBuilder<CompanyResourceBookingPermission> builder)
-        {
+    //    //public void Configure(EntityTypeBuilder<CompanyResourceBookingPermission> builder)
+    //    //{
 
-            builder.HasData(new CompanyResourceBookingPermission
-            {
-                Id = 1,
-                CompanyId = 1,
-                ResourceTypeId = 2,
-                EmployeeType = "MANAGER",
-                CanBook = true
-            },
-                new CompanyResourceBookingPermission
-                {
-                    Id = 2,
-                    CompanyId = 1,
-                    ResourceTypeId = 2,
-                    EmployeeType = "TEAM_LEAD",
-                    CanBook = true
-                });
-        }
+    //    //    builder.HasData(new CompanyResourceBookingPermission
+    //    //    {
+    //    //        Id = 1,
+    //    //        CompanyId = 1,
+    //    //        ResourceTypeId = 2,
+    //    //        EmployeeType = "MANAGER",
+    //    //        CanBook = true
+    //    //    },
+    //    //        new CompanyResourceBookingPermission
+    //    //        {
+    //    //            Id = 2,
+    //    //            CompanyId = 1,
+    //    //            ResourceTypeId = 2,
+    //    //            EmployeeType = "TEAMLEAD",
+    //    //            CanBook = true
+    //    //        });
+    //    //}
 
-    }
+    //}
 }

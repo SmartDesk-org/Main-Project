@@ -14,9 +14,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
 
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.EmployeeType)
-                   .HasMaxLength(100)
-                   .IsRequired();
+            
 
             builder.Property(x => x.CanBook)
                    .HasDefaultValue(true);
@@ -26,12 +24,17 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
                    .HasForeignKey(x => x.ResourceTypeId)
                    .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne(x => x.EmployeeType)
+              .WithMany(e => e.BookingPermissions)
+              .HasForeignKey(x => x.EmployeeTypeId)
+              .OnDelete(DeleteBehavior.Restrict);
+
             // Recommended: prevent duplicates
             builder.HasIndex(x => new
             {
                 x.CompanyId,
                 x.ResourceTypeId,
-                x.EmployeeType
+                x.EmployeeTypeId
             })
             .IsUnique();
         }

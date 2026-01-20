@@ -10,7 +10,7 @@ namespace ResourceFlow.Application.DTOs.Booking
     {
 
         public int ResourceTypeId { get; set; }
-        public string EmployeeTypes { get; set; }
+        public int EmployeeTypeId { get; set; }
         public bool CanBook { get; set; }
     }
 }

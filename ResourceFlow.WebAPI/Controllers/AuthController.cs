@@ -68,36 +68,45 @@ namespace ResourceFlow.WebAPI.Controllers
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh()
         {
-
-            _logger.LogInformation("Refresh token API called");
-
-            var refreshToken = Request.Cookies["refreshToken"];
-
-            _logger.LogDebug("Refresh token received from cookie");
-
-            if (string.IsNullOrEmpty(refreshToken))
+            try
             {
-                _logger.LogWarning("Refresh token missing");
-                return Unauthorized();
+                _logger.LogInformation("Refresh token API called");
+
+                var refreshToken = Request.Cookies["refreshToken"];
+
+                if (string.IsNullOrEmpty(refreshToken))
+                {
+                    _logger.LogWarning("Refresh token missing in cookie");
+                    return Unauthorized("No refresh token provided");
+                }
+
+                var res = await _auth.RefreshTokenAsync(refreshToken);
+
+                if (res == null || res.Data == null)
+                {
+                    _logger.LogWarning("Refresh token invalid or expired");
+                    // Important: Delete the bad cookie so the client stops sending it
+                    Response.Cookies.Delete("refreshToken");
+                    return Unauthorized();
+                }
+
+                // Set new Refresh Token
+                Response.Cookies.Append("refreshToken", res.Data.RefreshToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false, // Set to true in Production
+                    SameSite = SameSiteMode.Lax,
+                    Expires = res.Data.RefreshTokenExpiry
+                });
+
+                _logger.LogInformation("Refresh token successful");
+                return Ok(res.Data.AccessToken); // Return 200 OK
             }
-
-            var res = await _auth.RefreshTokenAsync(refreshToken);
-            if (res == null)
+            catch (Exception ex)
             {
-                _logger.LogWarning("Refresh token invalid");
-                return Unauthorized();
+                _logger.LogError(ex, "Error during token refresh");
+                return Unauthorized(); // Return 401 instead of crashing with 500
             }
-            Response.Cookies.Append("refreshToken", res.Data.RefreshToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = false,
-                SameSite = SameSiteMode.Lax,
-                Expires = res.Data.RefreshTokenExpiry
-            });
-
-            _logger.LogInformation("Refresh token successful {token}", res.Data.RefreshToken);
-
-            return StatusCode(200, res.Data.AccessToken);
         }
 
 
@@ -105,17 +114,20 @@ namespace ResourceFlow.WebAPI.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-
             int userId = User.GetUserId();
             _logger.LogInformation("Logout API called. UserId: {UserId}", userId);
 
+
             var result = await _auth.LogoutAsync(userId);
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false,
+                SameSite = SameSiteMode.Lax,
+                Path = "/"
+            };
 
-
-            await _auth.LogoutAsync(userId);
-
-            Response.Cookies.Delete("refreshToken");
-
+            Response.Cookies.Delete("refreshToken", cookieOptions);
 
             _logger.LogInformation("Logout completed. UserId: {UserId}", userId);
 
@@ -124,6 +136,7 @@ namespace ResourceFlow.WebAPI.Controllers
 
 
         [AllowAnonymous]
+
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {

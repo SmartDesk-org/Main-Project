@@ -1,4 +1,6 @@
-﻿using ResourceFlow.Application.Common;
+﻿
+using Microsoft.EntityFrameworkCore;
+using ResourceFlow.Application.Common;
 using ResourceFlow.Application.DTOs.Booking;
 using ResourceFlow.Application.Interfaces.Booking;
 using ResourceFlow.Application.Interfaces.QRCode;
@@ -12,11 +14,12 @@ using ResourceFlow.Domain.Enums;
 using ResourceFlow.Domain.Enums.Resource_Booking;
 using ResourceFlow.Domain.Enums.Subscriptions;
 using ResourceFlow.Domain.Exceptions.Subscriptions.Subscription;
+using System.Security;
 
 
 namespace ResourceFlow.Application.Services.ResourceBookings
 {
-    public class ResourceBookingService:IResourceBookingService
+    public class ResourceBookingService : IResourceBookingService
     {
         private readonly IGenericRepository<Resource> _resourceRepo;
         private readonly IGenericRepository<ResourceBooking> _bookingRepo;
@@ -24,6 +27,7 @@ namespace ResourceFlow.Application.Services.ResourceBookings
         private readonly IGenericRepository<Employees> _employeeRepo;
         private readonly ISubscriptionValidationService _subscriptionValidator;
         private readonly IGenericRepository<User> _userRepo;
+
 
         private readonly IQRCodeService _qrCodeService;
 
@@ -48,7 +52,9 @@ namespace ResourceFlow.Application.Services.ResourceBookings
 
                     }
 
-        public async Task<Response<string>> CreateBookingAsync( ResourceBookingDTO dto,int resourceId,int userId)
+
+
+        public async Task<Response<string>> CreateBookingAsync(ResourceBookingDTO dto, int resourceId, int userId)
         {
             try
             {
@@ -64,11 +70,13 @@ namespace ResourceFlow.Application.Services.ResourceBookings
 
                 var companyId = user.CompanyId.Value;
 
+
                 await _subscriptionValidator.ValidateAsync(
                                  companyId,
                                  SubscriptionFeature.MeetingRoomBooking,
                                  SubscriptionAction.Create
                              );
+
 
                 //Employee validation
                 var employee = await _employeeRepo.SingleOrDefaultAsync(x =>
@@ -88,29 +96,46 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                 if (resource == null)
                     return new Response<string>(404, "Resource not found or inactive");
 
-                // 5️⃣ Permission check (ONLY for restricted resources like Meeting Room)
-                var requiresPermission = await _permissionRepo.FindAsync(x =>
-                    x.CompanyId == companyId &&
-                    x.ResourceTypeId == dto.ResourceTypeId);
 
-                if (requiresPermission.Any())
+
+              // 5️⃣ Permission check
+                        var permissions = await _permissionRepo.FindAsync(x =>
+                            x.CompanyId == companyId &&
+                            x.ResourceTypeId == dto.ResourceTypeId &&
+                            x.CanBook &&
+                            !x.IsDeleted);
+
+                if (permissions.Any())
                 {
-                    var hasPermission = requiresPermission.Any(x =>
-                        x.EmployeeType == employee.Designation &&
-                        x.CanBook);
+                    // Convert EmployeeTypeId (int) → EmployeeTypes enum → string, then compare with Designation
+                    bool hasPermission = permissions.Any(p =>
+                    {
+                        if (Enum.IsDefined(typeof(EmployeeTypes), p.EmployeeTypeId))
+                        {
+                            string permissionEmployeeType = ((EmployeeTypes)p.EmployeeTypeId).ToString();
+                            return permissionEmployeeType.Equals(employee.Designation, StringComparison.OrdinalIgnoreCase);
+                        }
+                        return false;
+                    });
 
                     if (!hasPermission)
+                    {
                         return new Response<string>(
                             403,
                             "You are not authorized to book this resource");
+                    }
                 }
+            
+
+
+
 
                 // 6️⃣ Time validation
                 var now = DateTime.UtcNow;
 
                 if (dto.StartTime.UtcDateTime < DateTime.UtcNow)
                 {
-                    return new Response<string>(400,"Start time must be greater than or equal to the current time");
+                    return new Response<string>(400, "Start time must be greater than or equal to the current time");
                 }
 
 
@@ -128,30 +153,37 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                 if (dto.EndTime - dto.StartTime > maxDuration)
                     return new Response<string>(400, "Maximum booking duration is 8 hours");
 
-                // 7️⃣a - User active booking check
-                var activeBookingExists = _bookingRepo.Queryable().Any(x =>
-                    x.BookedByUserId == userId &&
-                    x.Status == BookingStatus.Confirmed &&
-                    x.EndTime > now
-                );
+                var userOverlapExists = _bookingRepo.Queryable().Any(x =>
+                                 x.BookedByUserId == userId &&
+                                 x.ResourceId == resourceId &&
+                                 x.Status == BookingStatus.Confirmed &&
+                                 x.StartTime < dto.EndTime &&
+                                 x.EndTime > dto.StartTime
+ );
 
-                if (activeBookingExists)
-                    return new Response<string>(409, "You already have an active booking. Finish or cancel it before booking again.");
+                if (userOverlapExists)
+                {
+                    return new Response<string>(
+                        409,
+                        "You already have a booking for this resource during the selected time range."
+                    );
+                }
 
 
 
-                // 7️⃣ Overlap check
                 var overlapExists = _bookingRepo.Queryable().Any(x =>
-                    x.ResourceId == resourceId &&
-                    x.Status == BookingStatus.Confirmed &&
-                    dto.StartTime < x.EndTime &&
-                    dto.EndTime > x.StartTime);
+                                 x.ResourceId == resourceId &&
+                                 x.Status == BookingStatus.Confirmed &&
+                                 dto.StartTime < x.EndTime &&
+                                 dto.EndTime > x.StartTime
+ );
 
                 if (overlapExists)
+                {
                     return new Response<string>(
                         409,
                         "Resource already booked for this time slot");
-
+                }
 
                 // 🔹 8️⃣ Generate QR token & expiry
                 var qrValue = resource.QRCodeValue;                  // Fixed QR assigned to resource
@@ -176,9 +208,11 @@ namespace ResourceFlow.Application.Services.ResourceBookings
 
                 await _bookingRepo.AddAsync(booking);
 
+
                
 
                 return new Response<string>(200,"Resource booked successfully");
+
             }
             catch (SubscriptionException ex)
             {
@@ -193,39 +227,52 @@ namespace ResourceFlow.Application.Services.ResourceBookings
 
         public async Task<Response<string>> ScanQRCodeAsync(string qrValue, int userId)
         {
-            // 1️⃣ Find booking by QR
-            var booking = await _bookingRepo.SingleOrDefaultAsync(x => x.QRCodeValue == qrValue);
+            var now = DateTime.UtcNow;
+
+            // 1️⃣ Fetch booking by QR code (no time filtering yet)
+            var booking = await _bookingRepo.Queryable()
+                .Where(x => x.QRCodeValue == qrValue)
+                .OrderByDescending(x => x.StartTime)
+                .FirstOrDefaultAsync();
 
             if (booking == null)
                 return new Response<string>(404, "Invalid QR code");
 
-            // 2️⃣ Verify that the booking belongs to the user (optional, if multi-user system)
+            // 2️⃣ Booking must be confirmed
+            if (booking.Status != BookingStatus.Confirmed)
+                return new Response<string>(400, $"Booking is {booking.Status}");
+
+            // 3️⃣ Authorization check
             if (booking.BookedByUserId != userId)
                 return new Response<string>(403, "You are not authorized to check in for this booking");
 
-            var now = DateTime.UtcNow;
-
-            // 3️⃣ Check if QR is expired
+            // 4️⃣ QR expiry check
             if (now > booking.QrExpiresAt)
             {
                 booking.Status = BookingStatus.Expired;
                 await _bookingRepo.UpdateAsync(booking);
-                return new Response<string>(400, "Booking expired. QR no longer valid.");
+                return new Response<string>(400, "QR code has expired");
             }
 
-            // 4️⃣ Check-in only
-            if (!booking.IsCheckedIn)
-            {
-                booking.IsCheckedIn = true;
-                booking.CheckInTime = now;
-                await _bookingRepo.UpdateAsync(booking);
-                return new Response<string>(200, "Checked in successfully.");
-            }
+            // 5️⃣ Time window validation
+            if (now < booking.StartTime)
+                return new Response<string>(400, "Check-in not started yet");
 
-            // 5️⃣ Already checked in
-            return new Response<string>(400, "Booking already checked in.");
+            if (now > booking.EndTime)
+                return new Response<string>(400, "Booking time has already ended");
+
+            // 6️⃣ Already checked in
+            if (booking.IsCheckedIn)
+                return new Response<string>(400, "Booking already checked in");
+
+            // 7️⃣ Perform check-in
+            booking.IsCheckedIn = true;
+            booking.CheckInTime = now;
+
+            await _bookingRepo.UpdateAsync(booking);
+
+            return new Response<string>(200, "Checked in successfully");
         }
-
 
 
         public async Task<Response<string>> CancelBookingAsync(int bookingId, int userId)
@@ -305,10 +352,14 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                         BookedByUserId = x.BookedByUserId,
                         StartTime = x.StartTime,
                         EndTime = x.EndTime,
-                        Status = x.Status.ToString()
+                        Status = x.Status.ToString(),
+                        QRCodeValue=x.QRCodeValue,
+                        QrExpiresAt= x.QrExpiresAt
                      
                     })
                     .ToList();
+
+                
 
                 return new Response<List<ResourceBookingResponseDTO>>(200, "Bookings fetched successfully", bookings);
             }
@@ -377,12 +428,14 @@ namespace ResourceFlow.Application.Services.ResourceBookings
 
                 if (!bookings.Any())
                 {
+
                     return new Response<List<ResourceBookingResponseDTO>>(
                         200,
                         "No bookings found for this user",
                         new List<ResourceBookingResponseDTO>()
                     );
                 }
+
 
                 return new Response<List<ResourceBookingResponseDTO>>(
                     200,
@@ -417,7 +470,7 @@ namespace ResourceFlow.Application.Services.ResourceBookings
 
                     return new Response<List<ResourceBookingResponseDTO>>(200, "User or company not found");
 
-               
+
 
                 var companyId = user.CompanyId.Value;
 
@@ -438,17 +491,20 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                         StartTime = x.StartTime,
                         EndTime = x.EndTime,
                         Status = x.Status.ToString(),
+                        QrExpiresAt = x.QrExpiresAt,
+                        QRCodeValue = x.QRCodeValue
                        
                     })
                     .ToList();
 
-                return new Response<List<ResourceBookingResponseDTO>>(200,"Company bookings fetched successfully", bookings);
+                return new Response<List<ResourceBookingResponseDTO>>(200, "Company bookings fetched successfully", bookings);
 
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return new Response<List<ResourceBookingResponseDTO>>(500, ex.Message);
             }
-           
+
         }
 
 

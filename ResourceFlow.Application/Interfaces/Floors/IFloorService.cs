@@ -14,5 +14,8 @@ namespace ResourceFlow.Application.Interfaces.Floors
         Task<Response<CompanyFloor>> CreateFloorAsync(CreateFloorDto dto,int userId);
         Task<Response<IEnumerable<FloorDto>>> GetFloorsAsync(int userId);
 
+        Task<Response<FloorDto>> GetFloorByIdAsync(int floorId, int userId);
+
+
     }
 }

@@ -12,10 +12,11 @@ namespace ResourceFlow.Application.DTOs.Resources
         public int ResourceTypeId { get; set; } // 1=Desk, 2=MeetingRoom
 
 
-        public int CompanyId { get; set; }
+       // public int CompanyId { get; set; }
 
         public string ResourceName { get; set; } = string.Empty;
         // Canvas
+
 
         public int X { get; set; }
         public int Y { get; set; }

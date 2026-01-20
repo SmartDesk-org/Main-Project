@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ResourceFlow.Application.DTOs.Resources;
 using ResourceFlow.Application.Interfaces.Resources;
-using ResourceFlow.Application.Services.Resources;
 using ResourceFlow.Domain.Enums;
 using ResourceFlow.Infrastructure.Extensions;
 

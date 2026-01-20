@@ -46,7 +46,7 @@ namespace ResourceFlow.Application.Services.Payments
 
             Console.WriteLine($"is paid : {isPaid}");
             if (!isPaid)
-                return new Response<Billing>(400,"Payment failed");
+                return new Response<Billing>(400,"Payment unsuccessfull");
 
             var record = await _paymentRepo.SingleOrDefaultAsync(x => x.PaymentIntentId == paymentIntentId);
 

@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using ResourceFlow.Application.DTOs.Common;
 using ResourceFlow.Application.Interfaces.Logging;
 using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Domain.Entities.CompanyModels;
@@ -80,6 +81,29 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
 
             return result;
         }
+
+        public async Task<PagedResultDto<EmployeeGetAllDto>> GetEmployeesPaginatedAsync(int companyId, int pageNumber, int pageSize, string? searchTerm)
+        {
+    
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@CompanyId", companyId);
+            parameters.Add("@PageNumber", pageNumber);
+            parameters.Add("@PageSize", pageSize);
+            parameters.Add("@SearchTerm", string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm);
+
+            using var multi = await _db.QueryMultipleAsync(
+                "sp_GetEmployeesPaginated",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            var employees = await multi.ReadAsync<EmployeeGetAllDto>();
+            var totalCount = await multi.ReadFirstAsync<int>();
+
+            return new PagedResultDto<EmployeeGetAllDto>(employees, totalCount, pageNumber, pageSize);
+        }
+
 
     }
 }

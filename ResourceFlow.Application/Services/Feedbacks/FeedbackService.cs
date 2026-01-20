@@ -125,10 +125,7 @@ namespace ResourceFlow.Application.Services.Feedbacks
                 );
 
             var feedbacks =await  _feedbackDapperRepo.GetByCompanyAsync(companyId);
-            if (!feedbacks.Any())
-                return new Response<IEnumerable<FeedbackResponseDto>>(404, "No response found");
-
-            return new Response<IEnumerable<FeedbackResponseDto>>(200, "Feed backes fetched successfully", feedbacks);
+            return new Response<IEnumerable<FeedbackResponseDto>>(200, "Feedbacks fetched successfully", feedbacks);
         }
     }
 }

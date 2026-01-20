@@ -32,24 +32,25 @@ using ResourceFlow.Application.Services.Payments;
 
 using ResourceFlow.Application.Services.ResourceBookings;
 
-using ResourceFlow.Application.Services.Resources;
-
 using ResourceFlow.Application.Services.Subscriptions;
 using ResourceFlow.Application.Validators.Employee;
 using ResourceFlow.Infrastructure.Ef.Repositories;
-using ResourceFlow.Infrastructure.Logging;
+using ResourceFlow.Application.Interfaces.ClientMessages;
 using ResourceFlow.Infrastructure.Persistence.Dapper;
 using ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories;
 using ResourceFlow.Infrastructure.Persistence.Dapper.Repositories;
 using ResourceFlow.Infrastructure.Persistence.EF.Context;
 using ResourceFlow.Infrastructure.Persistence.Installers;
 using ResourceFlow.Infrastructure.Services;
-
 using ResourceFlow.Infrastructure.Services.QRCode;
+
 
 using System.ComponentModel.Design;
 using System.Data;
 using System.Text.Json.Serialization;
+using ResourceFlow.Infrastructure.Logging;
+using Microsoft.AspNetCore.SignalR;
+using ResourceFlow.WebAPI.SignalR;
 
 
 
@@ -93,7 +94,6 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IResourcesService, ResourcesService>();
 
 
-           
 
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IEmailService, EmailService>();
@@ -102,11 +102,13 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IHistoryDapperRepository, HistoryDapperRepository>();
             services.AddScoped<IFeedbackDapperRepository, FeedbackDapperRepository>();
             services.AddScoped<ISubscriptionDapperRepository, SubscriptionDapperRepository>();
+
             services.AddScoped<IResourceBookingDapperRepository, ResourceBookingDapperRepository>();
 
             services.AddScoped<IQRCodeService, QRCodeService>();
 
             services.AddScoped<ISubscriptionDapperRepository, SubscriptionDapperRepository>();
+
 
 
             services.AddScoped<ICompanyDapperRepository, CompanyDapperRepository>();
@@ -118,12 +120,16 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IFloorDapperRepository, FloorDapperRepository>();
             services.AddScoped<IResourceDapperRepository, ResourceDapperRepository>();
 
-            services.AddScoped<IStoredProcedureInstaller,StoredProcedureInstaller> ();
+            services.AddScoped<IStoredProcedureInstaller, StoredProcedureInstaller>();
             services.AddScoped<IResourceBookingService, ResourceBookingService>();
             services.AddScoped<IResourceBookingPermissionService, ResourceBookingPermissionService>();
             services.AddScoped<IResourcesService, ResourcesService>();
 
 
+
+            services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
+            services.AddSignalR();
+            services.AddScoped<IBulkUploadProgressNotifier, SignalRBulkUploadProgressNotifier>();
 
             services.AddScoped<IDbConnection>(sp =>
                 new SqlConnection(

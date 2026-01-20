@@ -71,7 +71,6 @@ namespace ResourceFlow.Application.Services.Subscriptions
                 var sub = await _dapperRepo.GetAllAsync();
                
                 if (sub == null || !sub.Any())
-
                     return new ApiResponse<IEnumerable<SubscriptionResponseDto>>(404, "Subscription plans not configured");
                 //var res = _mapper.Map<IEnumerable<SubscrptionResponseDto>>(sub);
                 _logger.LogInformation("sub {data}", sub.First().Description);

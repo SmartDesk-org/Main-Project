@@ -22,7 +22,7 @@
 GO
 
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_COMPANYDETAILS]
+CREATE OR ALTER   PROCEDURE [dbo].[SP_COMPANYDETAILS]
     @FLAG              VARCHAR(40),
     @COMPANYID         INT              = NULL,
     @NAME              NVARCHAR(200)    = NULL,

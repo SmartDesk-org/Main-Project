@@ -6,6 +6,7 @@ using ResourceFlow.Application.Interfaces.Booking;
 using ResourceFlow.Application.Interfaces.Repositories;
 using ResourceFlow.Domain.Entities.Authentication;
 using ResourceFlow.Domain.Entities.Booking;
+using ResourceFlow.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,8 +28,8 @@ namespace ResourceFlow.Application.Services.ResourceBookings
 
         public async Task<Response<string>> CreateBookingPermissionAsync(SetResourceBookingPermissionDto dto, int userId)
         {   
-            dto.EmployeeTypes=dto.EmployeeTypes.Trim();
-            var normalizedEmployeeType = EmployeeTypeNormalizer.Normalize(dto.EmployeeTypes);
+            
+           // var normalizedEmployeeType = EmployeeTypeNormalizer.Normalize(dto.EmployeeTypeId);
             var user = await _userRepo.SingleOrDefaultAsync(
                 u => u.UserId == userId && !u.IsDeleted);
 
@@ -41,7 +42,7 @@ namespace ResourceFlow.Application.Services.ResourceBookings
             var existingPermission = await _permissionRepo.SingleOrDefaultAsync(p =>
                 p.CompanyId == user.CompanyId &&
                 p.ResourceTypeId == dto.ResourceTypeId &&
-                p.EmployeeType == normalizedEmployeeType &&
+                p.EmployeeTypeId == dto.EmployeeTypeId &&
                 !p.IsDeleted);
 
             if (existingPermission != null)
@@ -51,7 +52,7 @@ namespace ResourceFlow.Application.Services.ResourceBookings
             {
                 CompanyId = user.CompanyId.Value,
                 ResourceTypeId = dto.ResourceTypeId,
-                EmployeeType = normalizedEmployeeType,
+                EmployeeTypeId = dto.EmployeeTypeId,
                 CanBook = dto.CanBook,
                 CreatedAt = DateTime.UtcNow
             };
@@ -93,9 +94,10 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                 CompanyId = companyId,
                 ResourceTypeId = resourceTypeId,
                 AllowedEmployeeTypes = permissions
-                    .Select(p => p.EmployeeType)
-                    .Distinct()
-                    .ToList()
+                        .Select(p => ((EmployeeTypes)p.EmployeeTypeId).ToString()) // convert int → enum → string
+                        .Distinct()
+                        .ToList()
+
             };
 
             return new Response<ResourceBookingPermissionResponseDto>(200, "Permissions fetched successfully.", response);

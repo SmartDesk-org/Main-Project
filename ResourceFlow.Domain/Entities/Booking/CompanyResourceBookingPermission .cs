@@ -14,8 +14,10 @@ namespace ResourceFlow.Domain.Entities.Booking
         public int ResourceTypeId { get; set; }  // MeetingRoom
         public ResourceType ResourceType { get; set; }
 
-        public string EmployeeType { get; set; } // Manager, Lead, 
+        public int EmployeeTypeId { get; set; }  
         public bool CanBook { get; set; } = true;  // 
+
+        public EmployeeType EmployeeType { get; set; } = null!;
 
     }
 }

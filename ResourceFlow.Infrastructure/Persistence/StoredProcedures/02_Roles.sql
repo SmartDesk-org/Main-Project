@@ -21,7 +21,7 @@
 
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_ROLES]
+CREATE OR ALTER  PROCEDURE [dbo].[SP_ROLES]
 
     @FLAG          VARCHAR(40),
     @ROLEID        INT             = NULL,

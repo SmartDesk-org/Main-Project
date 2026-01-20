@@ -26,6 +26,8 @@ BEGIN
             rb.CompanyId              AS CompanyId,
             rb.ResourceId             AS ResourceId,
             rb.ResourceTypeId         AS ResourceTypeId,
+            rb.QRCodeValue            AS QRCodeValue,
+            rb.QrExpiresAt            AS QrExpiresAt,
 
             u.UserId                  AS UserId,
             u.UserName                AS UserName,

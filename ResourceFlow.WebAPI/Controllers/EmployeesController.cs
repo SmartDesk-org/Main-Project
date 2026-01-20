@@ -23,14 +23,14 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
 
-         [ModuleAuthorize(ModuleCode.EMP,PermissionAction.Add)]
+        [ModuleAuthorize(ModuleCode.EMP, PermissionAction.Add)]
         [HttpPost("bulk-upload")]
         public async Task<IActionResult> BulkUpload([FromForm] EmployeeUploadRequest request)
         {
             int userId = User.GetUserId();
             int? companyId = await _userRepo.GetCompanyId(userId);
 
-            var result = await _employeeService.BulkUploadAsync(request.File, companyId.Value);
+            var result = await _employeeService.BulkUploadAsync(request.File, companyId.Value, userId);
             return Ok(result);
         }
 
@@ -66,7 +66,7 @@ namespace ResourceFlow.WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            
+
             var response = await _employeeService.GetAllEmployees();
             return Ok(response);
         }
@@ -88,7 +88,7 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
 
-        [ModuleAuthorize(ModuleCode.EMP,PermissionAction.Delete)]
+        [ModuleAuthorize(ModuleCode.EMP, PermissionAction.Delete)]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -102,6 +102,20 @@ namespace ResourceFlow.WebAPI.Controllers
                 id,
                 companyId.Value
             );
+
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("paginated")]
+        public async Task<IActionResult> GetEmployeesPaginated(
+      [FromQuery] int page = 1,
+      [FromQuery] int pageSize = 12,
+      [FromQuery] string? search = null)
+        {
+            var userId = User.GetUserId();
+            var companyId = await _userRepo.GetCompanyId(userId);
+
+            var result = await _employeeService.GetEmployeesPaginatedAsync(companyId, page, pageSize, search);
 
             return StatusCode(result.StatusCode, result);
         }

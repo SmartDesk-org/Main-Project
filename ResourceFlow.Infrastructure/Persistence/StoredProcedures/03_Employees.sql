@@ -35,7 +35,7 @@
 
 GO
 
-CREATE OR ALTER  PROCEDURE [dbo].[SP_EMPLOYEE]
+CREATE OR ALTER   PROCEDURE [dbo].[SP_EMPLOYEE]
     @FLAG              VARCHAR(40),
     @ID                INT              = NULL,
     @USERID            INT              = NULL,

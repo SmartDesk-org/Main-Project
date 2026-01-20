@@ -4,6 +4,7 @@ using ResourceFlow.Application.DTOs.Feedback;
 using ResourceFlow.Application.Interfaces.Feedbacks;
 using ResourceFlow.Domain.Enums;
 
+
 using ResourceFlow.Domain.Enums.Authorization;
 
 using ResourceFlow.Infrastructure.Extensions;
@@ -52,7 +53,7 @@ namespace ResourceFlow.WebAPI.Controllers
         public async Task<IActionResult> Add([FromBody] NewFeedbackDto dto)
         {
             var userId = User.GetUserId();
-            var res = await _service.CreateAsync(dto,userId);
+            var res = await _service.CreateAsync(dto, userId);
             return StatusCode(res.StatusCode, res);
         }
 
@@ -79,18 +80,21 @@ namespace ResourceFlow.WebAPI.Controllers
         }
 
 
+
         
         //[Authorize(Roles =RoleNames.CompanyAdmin)]
 
         [ModuleAuthorize(ModuleCode.FBK,PermissionAction.View)]
-        //[Authorize(Roles =RoleNames.CompanyAdmin)]
+        [Authorize(Roles =RoleNames.CompanyAdmin)]
 
         [HttpGet("GetAllForCompany")]
         public async Task<IActionResult> GetAllForCompany(int id)
         {
             var userId = User.GetUserId();
             var res = await _service.GetAllForCompany( userId);
+
             return StatusCode(res.StatusCode, res);
         }
+
     }
 }

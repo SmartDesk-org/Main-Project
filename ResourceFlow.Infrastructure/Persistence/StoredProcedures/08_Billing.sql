@@ -22,7 +22,7 @@
 }*/
 
 GO
-CREATE OR ALTER PROCEDURE [dbo].[SP_BILLING] 
+CREATE OR ALTER   PROCEDURE [dbo].[SP_BILLING] 
     @FLAG                  VARCHAR(40),
     @BILLINGID             INT              = NULL,
     @COMPANYID             INT              = NULL,

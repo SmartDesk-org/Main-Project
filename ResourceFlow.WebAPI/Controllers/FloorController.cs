@@ -28,23 +28,27 @@ namespace ResourceFlow.WebAPI.Controllers
 
 
 
+
         [Authorize(Roles=RoleNames.CompanyAdmin)]
+
         [HttpPost]
         public async Task<IActionResult> CreateFloor([FromBody] CreateFloorDto dto)
         {
             _logger.LogInformation(
                 "CreateFloor request started. CompanyId: "
-                
+
             );
             var userId = User.GetUserId();
             var res = await _floorService.CreateFloorAsync(dto, userId);
 
             _logger.LogInformation(
+
                 "Floor created successfully. FloorId: {FloorId}, CompanyId: ",res
             );
 
             return StatusCode(res.StatusCode, res);
            
+
         }
 
         [HttpGet]
@@ -65,7 +69,28 @@ namespace ResourceFlow.WebAPI.Controllers
             );
 
             return StatusCode(res.StatusCode, res);
-            
+
+
+        }
+        
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetFloorById(int id)
+        {
+            _logger.LogInformation("GetFloorById request started for FloorId: {FloorId}", id);
+
+            var userId = User.GetUserId();
+            var res = await _floorService.GetFloorByIdAsync(id, userId);
+
+            if (res.StatusCode == 404)
+            {
+                _logger.LogWarning("Floor not found. FloorId: {FloorId}", id);
+                return NotFound(res);
+            }
+
+            _logger.LogInformation("GetFloorById request completed successfully. FloorId: {FloorId}", id);
+
+            return StatusCode(res.StatusCode, res);
+
         }
     }
 }

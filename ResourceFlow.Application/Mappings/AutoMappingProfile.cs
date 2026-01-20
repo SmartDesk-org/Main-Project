@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace ResourceFlow.Application.Mappings
 {
-    public  class AutoMappingProfile:Profile
+    public class AutoMappingProfile : Profile
     {
         public AutoMappingProfile()
         {
@@ -32,11 +32,17 @@ namespace ResourceFlow.Application.Mappings
             CreateMap<NewFeedbackDto, Feedback>().ReverseMap();
             CreateMap<Feedback, FeedbackResponseDto>().ReverseMap();
 
+
             CreateMap<CompanyFloor, CreateFloorDto>().ReverseMap();
-            CreateMap<Resource, CreateResourceDto>().ReverseMap();
+            //CreateMap<Resource, CreateResourceDto>().ReverseMap();
 
 
             CreateMap<ClientComplaint, CreateClientComplaintDto>().ReverseMap(); 
+
+
+            CreateMap<CompanyFloor, FloorDto>().ReverseMap();
+            CreateMap<CompanyFloor, CreateFloorDto>().ReverseMap();
+            CreateMap<Resource, CreateResourceDto>().ReverseMap();
 
         }
     }

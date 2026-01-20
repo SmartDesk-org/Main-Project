@@ -24,7 +24,10 @@ namespace ResourceFlow.Domain.Entities.CompanyModels
         public string MetadataJson { get; set; } = "{}";
 
 
+
         public bool IsAvailable { get; set; } = true;
+
+       
 
         public bool IsActive { get; set; } = true;
 
