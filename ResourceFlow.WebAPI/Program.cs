@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+﻿using Hangfire;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OfficeOpenXml;
+using ResourceFlow.Application.Interfaces;
 using ResourceFlow.Application.Interfaces.Persistence;
 using ResourceFlow.WebAPI.DI;
 using ResourceFlow.WebAPI.Middleware;
@@ -162,6 +164,17 @@ builder.Services.AddRateLimiter(options =>
 
 
 var app = builder.Build();
+
+
+//background job scheduling 
+app.UseHangfireDashboard("/hangfire");
+
+RecurringJob.AddOrUpdate<ISubscriptionJob>(
+    "daily-subscription-check",
+    job => job.CheckAndUpdateSubscriptionsAsync(),
+    Cron.Daily
+    );
+
 
 //StoredProcedure installer;
 

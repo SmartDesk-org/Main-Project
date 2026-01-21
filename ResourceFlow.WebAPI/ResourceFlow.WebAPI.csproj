@@ -13,6 +13,8 @@
 		<PackageReference Include="DinkToPdf" Version="1.0.8" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+		<PackageReference Include="Hangfire" Version="1.8.22" />
+		<PackageReference Include="Hangfire.SqlServer" Version="1.8.22" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.9" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">

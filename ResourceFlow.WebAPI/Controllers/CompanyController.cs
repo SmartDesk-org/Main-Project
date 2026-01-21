@@ -45,5 +45,23 @@ namespace ResourceFlow.WebAPI.Controllers
             var res = await _service.GetCompanyOverviewAsync(companyId);
             return StatusCode(res.StatusCode, res);
         }
+
+        [HttpGet("SingleCompanyOverview")]
+        public async Task<IActionResult> CompanyOverview()
+        {
+            int userId = User.GetUserId();
+            Console.WriteLine("controller");
+            var res = await _service.GetSingleCompanyOverviewAsync(userId);
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpPost("RenewSubscription")]
+        public async Task<IActionResult> RenewSubscription(RenewelDto dto)
+        {
+            var userId = User.GetUserId();
+            var res=await _service.RenewSubscription(userId, dto);
+            return StatusCode(res.StatusCode, res);
+        }
+
     }
 }

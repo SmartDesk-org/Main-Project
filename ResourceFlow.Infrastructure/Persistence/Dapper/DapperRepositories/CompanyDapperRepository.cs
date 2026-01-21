@@ -134,6 +134,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories
 
         public async Task<CompanyOverview> GetCompanyOverviewAsync(int companyId)
         {
+            Console.WriteLine("___________"); Console.WriteLine("From comp Dap"); Console.WriteLine($"companyId{companyId}");
             using var conn = new SqlConnection(_connectionString);
 
             return await conn.QuerySingleOrDefaultAsync<CompanyOverview>(
