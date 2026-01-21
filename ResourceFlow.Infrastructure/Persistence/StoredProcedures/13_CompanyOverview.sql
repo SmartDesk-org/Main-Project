@@ -1,7 +1,5 @@
-
-CREATE OR ALTER PROCEDURE dbo.SP_GetCompanyOverview
-
-
+GO
+CREATE or ALTER PROCEDURE dbo.SP_GetCompanyOverview
     @CompanyId INT
 AS
 BEGIN
@@ -34,4 +32,5 @@ BEGIN
         ON s.Id = c.CompanySubscriptionId
     WHERE c.CompanyId = @CompanyId;
 END;
+
 GO

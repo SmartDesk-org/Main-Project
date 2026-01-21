@@ -29,8 +29,8 @@ Description : created 'GET_COMPANYID_BY_USRERID'
 
 
 }*/
-GO
 
+Go
 
 CREATE OR ALTER PROCEDURE [dbo].[SP_USER]
     @FLAG                  VARCHAR(40),

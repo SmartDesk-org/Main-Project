@@ -22,7 +22,7 @@
   Modified On and Modified By : { 124/12/2025 : Suhail }
   Description : Added typeName in GETALL joining subscrptioType table 
 }*/
-
+GO
 CREATE OR ALTER  PROCEDURE [dbo].[SP_SUBSCRIPTION] 
     @FLAG           VARCHAR(40),
     @SUBSCRIPTIONID INT              = NULL,

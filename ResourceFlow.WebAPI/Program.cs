@@ -172,7 +172,7 @@ app.UseHangfireDashboard("/hangfire");
 RecurringJob.AddOrUpdate<ISubscriptionJob>(
     "daily-subscription-check",
     job => job.CheckAndUpdateSubscriptionsAsync(),
-    "2,30,*,*,*"
+    Cron.Daily(2,30)
     );
 
 

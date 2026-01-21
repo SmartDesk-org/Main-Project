@@ -1,7 +1,7 @@
 -- CREATED BY RINSHAD
 -- SP_sp_GetEmployeesPaginated
 -- CREATED ON : 09:01:2026 on 04:07 PM
-
+GO
 CREATE OR ALTER  PROCEDURE sp_GetEmployeesPaginated
     @CompanyId INT,
     @PageNumber INT,

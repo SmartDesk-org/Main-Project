@@ -14,6 +14,8 @@
   EXEC [dbo].[SP_HISTORYBYCOMPANY] @CompanyDi=companyID
   
 }*/
+
+GO
 CREATE OR ALTER  PROCEDURE [dbo].[SP_HISTORYBYCOMPANY]
 ( 
     @CompanyId INT
