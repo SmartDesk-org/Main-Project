@@ -44,4 +44,7 @@
 		<!-- FIXED Stripe Package Name -->
 		<PackageReference Include="Stripe.net" Version="50.0.0" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Persistence\EF\Migrations\" />
+	</ItemGroup>
 </Project>
