@@ -52,19 +52,40 @@ namespace ResourceFlow.Application.Services.Authorization
             };
         }
 
-        public async Task<bool> HasScopePermission(int userId, ModuleCode module, PermissionAction action, int? targetOwnerId = null)
+        public async Task<bool> HasModulePermission(int userId, ModuleCode module, PermissionAction action)
         {
-            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserId == userId);
-            if (user == null) return false;
+            var user = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u =>
+                    u.UserId == userId &&
+                    u.IsActive &&
+                    !u.IsBlocked);
+
+            if (user == null)
+                return false;
+
+            // 🔑 SuperAdmin → full access
+            if (user.RoleEnum == RoleEnum.SuperAdmin)
+                return true;
 
             var permission = await _context.RolePermissions
-                .Where(rp => rp.RoleId == user.RoleId && rp.ModuleCode == module)
-                .Select(rp => new { rp.View, rp.Add, rp.Edit, rp.Delete, rp.Scope })
+                .AsNoTracking()
+                .Where(rp =>
+                    rp.RoleId == user.RoleId &&
+                    rp.ModuleCode == module)
+                .Select(rp => new
+                {
+                    rp.View,
+                    rp.Add,
+                    rp.Edit,
+                    rp.Delete
+                })
                 .FirstOrDefaultAsync();
 
-            if (permission == null) return false;
+            if (permission == null)
+                return false;
 
-            bool actionAllowed = action switch
+            return action switch
             {
                 PermissionAction.View => permission.View,
                 PermissionAction.Add => permission.Add,
@@ -72,26 +93,9 @@ namespace ResourceFlow.Application.Services.Authorization
                 PermissionAction.Delete => permission.Delete,
                 _ => false
             };
-
-            if (!actionAllowed) return false;
-
-            // 🔑 CREATE / BULK CREATE → scope does NOT apply
-            if (action == PermissionAction.Add)
-                return true;
-
-            // Scope enforcement for other actions
-            return permission.Scope switch
-            {
-                PermissionScope.ALL => true,
-
-                PermissionScope.OWN =>
-                    !targetOwnerId.HasValue || targetOwnerId.Value == userId,
-
-                _ => false
-            };
-
-
         }
+
+
 
 
 
@@ -148,8 +152,9 @@ namespace ResourceFlow.Application.Services.Authorization
             return modules;
         }
 
-
-  
-
+        public Task<bool> HasScopePermission(int userId, ModuleCode module, PermissionAction action)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

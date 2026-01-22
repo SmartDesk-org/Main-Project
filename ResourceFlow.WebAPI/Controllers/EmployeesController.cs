@@ -5,7 +5,6 @@ using ResourceFlow.Application.Interfaces.Repositories.DapperRepository;
 using ResourceFlow.Application.Interfaces.Services;
 using ResourceFlow.Domain.Enums.Authorization;
 using ResourceFlow.Infrastructure.Extensions;
-using ResourceFlow.Infrastructure.Services.Authorization;
 
 namespace ResourceFlow.WebAPI.Controllers
 {

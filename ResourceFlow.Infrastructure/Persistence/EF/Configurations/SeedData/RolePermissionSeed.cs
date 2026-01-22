@@ -42,36 +42,37 @@ new RolePermission { Id = 17, RoleId = 1, UserId = null, ModuleCode = RTY, View 
 new RolePermission { Id = 18, RoleId = 1, UserId = null, ModuleCode = FBK, View = true },
 // ------------------- Company Admin -------------------
 
-new RolePermission { Id = 19, RoleId = 2, UserId = null, ModuleCode = CDS, Scope = PermissionScope.OWN, Add = true, Edit = true, Delete = true, View = true },
-new RolePermission { Id = 20, RoleId = 2, UserId = null, ModuleCode = FLR, Scope = PermissionScope.OWN, Add = true, Edit = true, Delete = true, View = true },
-new RolePermission { Id = 21, RoleId = 2, UserId = null, ModuleCode = NOT, Scope = PermissionScope.OWN, Add = true, Edit = true, Delete = true, View = true },
-new RolePermission { Id = 22, RoleId = 2, UserId = null, ModuleCode = EMP, Scope = PermissionScope.OWN, Add = true, Edit = true, Delete = true, View = true },
-new RolePermission { Id = 23, RoleId = 2, UserId = null, ModuleCode = RTY, Scope = PermissionScope.OWN, Add = true, Edit = true, Delete = true, View = true },
-new RolePermission { Id = 24, RoleId = 2, UserId = null, ModuleCode = PAY, Scope = PermissionScope.OWN, Add = true, Edit = true, View = true },
-new RolePermission { Id = 25, RoleId = 2, UserId = null, ModuleCode = USR, Scope = PermissionScope.OWN, Add = true, Edit = true, View = true },
-new RolePermission { Id = 26, RoleId = 2, UserId = null, ModuleCode = CLM, Scope = PermissionScope.OWN, Add = true, View = true },
-new RolePermission { Id = 27, RoleId = 2, UserId = null, ModuleCode = FBK, Scope = PermissionScope.OWN, Add = true, View = true },
-new RolePermission { Id = 28, RoleId = 2, UserId = null, ModuleCode = SHI, Scope = PermissionScope.OWN, View = true },
-new RolePermission { Id = 29, RoleId = 2, UserId = null, ModuleCode = CUS, Scope = PermissionScope.OWN, View = true },
-new RolePermission { Id = 30, RoleId = 2, UserId = null, ModuleCode = BIL, Scope = PermissionScope.OWN, View = true },
+new RolePermission { Id = 19, RoleId = 2, UserId = null, ModuleCode = CDS, Add = true, Edit = true, Delete = true, View = true },
+new RolePermission { Id = 20, RoleId = 2, UserId = null, ModuleCode = FLR, Add = true, Edit = true, Delete = true, View = true },
+new RolePermission { Id = 21, RoleId = 2, UserId = null, ModuleCode = NOT, Add = true, Edit = true, Delete = true, View = true },
+new RolePermission { Id = 22, RoleId = 2, UserId = null, ModuleCode = EMP, Add = true, Edit = true, Delete = true, View = true },
+new RolePermission { Id = 23, RoleId = 2, UserId = null, ModuleCode = RTY, Add = true, Edit = true, Delete = true, View = true },
+new RolePermission { Id = 24, RoleId = 2, UserId = null, ModuleCode = PAY, Add = true, Edit = true, View = true },
+new RolePermission { Id = 25, RoleId = 2, UserId = null, ModuleCode = USR, Add = true, Edit = true, View = true },
+new RolePermission { Id = 26, RoleId = 2, UserId = null, ModuleCode = CLM, Add = true, View = true },
+new RolePermission { Id = 27, RoleId = 2, UserId = null, ModuleCode = FBK, Add = true, View = true },
+new RolePermission { Id = 28, RoleId = 2, UserId = null, ModuleCode = SHI, View = true },
+new RolePermission { Id = 29, RoleId = 2, UserId = null, ModuleCode = CUS, View = true },
+new RolePermission { Id = 30, RoleId = 2, UserId = null, ModuleCode = BIL, View = true },
 new RolePermission { Id = 31, RoleId = 2, UserId = null, ModuleCode = SPS, View = true },
 new RolePermission { Id = 32, RoleId = 2, UserId = null, ModuleCode = STY, View = true },
-new RolePermission { Id = 42, RoleId = 2, UserId = null, ModuleCode = RBP, Scope = PermissionScope.OWN, Add = true, Edit = true, Delete = true, View = true },
-new RolePermission { Id = 43, RoleId = 2, UserId = null, ModuleCode = RBT, Scope = PermissionScope.OWN, Add = true, Edit = true, Delete = true, View = true },
+new RolePermission { Id = 42, RoleId = 2, UserId = null, ModuleCode = RBP, Add = true, Edit = true, Delete = true, View = true },
+new RolePermission { Id = 43, RoleId = 2, UserId = null, ModuleCode = RBT, Add = true, Edit = true, Delete = true, View = true },
 
 // ------------------- Employees -------------------
 
-new RolePermission { Id = 33, RoleId = 3, UserId = null, ModuleCode = EMP, Scope = PermissionScope.OWN, Edit = true, View = true },
-new RolePermission { Id = 34, RoleId = 3, UserId = null, ModuleCode = USR, Scope = PermissionScope.OWN, Edit = true, View = true },
-new RolePermission { Id = 35, RoleId = 3, UserId = null, ModuleCode = FBK, Scope = PermissionScope.OWN, Add = true, View = true },
-new RolePermission { Id = 36, RoleId = 3, UserId = null, ModuleCode = RTY, Scope = PermissionScope.OWN, View = true },
-new RolePermission { Id = 37, RoleId = 3, UserId = null, ModuleCode = CDS, Scope = PermissionScope.OWN, View = true },
-new RolePermission { Id = 38, RoleId = 3, UserId = null, ModuleCode = CUS, Scope = PermissionScope.OWN, View = true },
-new RolePermission { Id = 39, RoleId = 3, UserId = null, ModuleCode = FLR, Scope = PermissionScope.OWN, View = true },
-new RolePermission { Id = 40, RoleId = 3, UserId = null, ModuleCode = NOT, Scope = PermissionScope.OWN, View = true },
+new RolePermission { Id = 33, RoleId = 3, UserId = null, ModuleCode = EMP, Edit = true, View = true },
+new RolePermission { Id = 34, RoleId = 3, UserId = null, ModuleCode = USR, Edit = true, View = true },
+new RolePermission { Id = 35, RoleId = 3, UserId = null, ModuleCode = FBK, Add = true, View = true },
+new RolePermission { Id = 36, RoleId = 3, UserId = null, ModuleCode = RTY, View = true },
+new RolePermission { Id = 37, RoleId = 3, UserId = null, ModuleCode = CDS, View = true },
+new RolePermission { Id = 38, RoleId = 3, UserId = null, ModuleCode = CUS, View = true },
+new RolePermission { Id = 39, RoleId = 3, UserId = null, ModuleCode = FLR, View = true },
+new RolePermission { Id = 40, RoleId = 3, UserId = null, ModuleCode = NOT, View = true },
 new RolePermission { Id = 41, RoleId = 3, UserId = null, ModuleCode = SPS, View = true },
-new RolePermission { Id = 44, RoleId = 3, UserId = null, ModuleCode = RBT, Scope = PermissionScope.OWN, Add = true, Edit = true, Delete = true, View = true }
+new RolePermission { Id = 44, RoleId = 3, UserId = null, ModuleCode = RBT, Add = true, Edit = true, Delete = true, View = true }
 );
+
 
         }
     }

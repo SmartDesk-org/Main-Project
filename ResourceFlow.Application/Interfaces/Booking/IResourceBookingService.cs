@@ -26,6 +26,10 @@ namespace ResourceFlow.Application.Interfaces.Booking
 
         Task<Response<string>> ScanQRCodeAsync(string qrValue, int userId);
 
+        Task<Response<List<ResourceBookingResponseDTO>>> ExpireAndGetExpiredBookingsForCompanyAsync(int userId);
+
+        Task<Response<List<ResourceBookingResponseDTO>>>ExpireAndGetExpiredBookingsForUserAsync(int userId);
+
     }
 }
 

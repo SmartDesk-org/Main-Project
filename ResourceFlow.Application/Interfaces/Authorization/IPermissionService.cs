@@ -7,6 +7,7 @@ namespace ResourceFlow.Application.Interfaces.Authorization
     public interface IPermissionService
     {
         Task<bool> HasPermission(int userId, ModuleCode module, PermissionAction action);
-        Task<bool> HasScopePermission(int userId, ModuleCode module, PermissionAction action, int? targetOwnerId = null);
+       Task<bool> HasModulePermission(int userId, ModuleCode module, PermissionAction action);
+
     }
 }

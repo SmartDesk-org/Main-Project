@@ -163,6 +163,12 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
+
+app.Logger.LogInformation(
+    "Current Environment: {Env}",
+    app.Environment.EnvironmentName
+);
+
 //StoredProcedure installer;
 
 var autoInstallEnabled =

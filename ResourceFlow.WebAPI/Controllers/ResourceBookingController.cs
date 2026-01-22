@@ -5,7 +5,7 @@ using ResourceFlow.Application.DTOs.Booking;
 using ResourceFlow.Application.Interfaces.Booking;
 using ResourceFlow.Domain.Enums.Authorization;
 using ResourceFlow.Infrastructure.Extensions;
-using ResourceFlow.Infrastructure.Services.Authorization;
+
 
 namespace ResourceFlow.WebAPI.Controllers
 {
@@ -98,6 +98,29 @@ namespace ResourceFlow.WebAPI.Controllers
             int userId = User.GetUserId();
 
             var result = await _resouBookService.GetAllBookingsOfCompanyAsync(userId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [ModuleAuthorize(ModuleCode.RBT, PermissionAction.View)]
+        [HttpGet("my-expired-bookings")]
+        public async Task<IActionResult> GetMyExpiredBookings()
+        {
+            int userId = User.GetUserId();
+
+            var result = await _resouBookService.ExpireAndGetExpiredBookingsForUserAsync(userId);
+
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [ModuleAuthorize(ModuleCode.RBT, PermissionAction.View)]
+        
+        [HttpGet("company-expired-bookings")]
+        public async Task<IActionResult> GetCompanyExpiredBookings()
+        {
+            int userId = User.GetUserId();
+
+            var result = await _resouBookService.ExpireAndGetExpiredBookingsForCompanyAsync(userId);
+
             return StatusCode(result.StatusCode, result);
         }
 

@@ -5,7 +5,6 @@ using ResourceFlow.Application.DTOs.ClientMessages;
 using ResourceFlow.Application.Interfaces.ClientMessages;
 using ResourceFlow.Domain.Entities;
 using ResourceFlow.Domain.Enums.Authorization;
-using ResourceFlow.Infrastructure.Services.Authorization;
 
 namespace ResourceFlow.WebAPI.Controllers
 {

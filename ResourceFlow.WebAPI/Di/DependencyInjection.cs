@@ -1,13 +1,17 @@
 ﻿
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.OData;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
 using ResourceFlow.Application.Common;
 using ResourceFlow.Application.Interfaces;
 using ResourceFlow.Application.Interfaces.Authorization;
 using ResourceFlow.Application.Interfaces.Booking;
+using ResourceFlow.Application.Interfaces.ClientMessages;
 using ResourceFlow.Application.Interfaces.ClientMessages;
 using ResourceFlow.Application.Interfaces.Company;
 using ResourceFlow.Application.Interfaces.Feedbacks;
@@ -29,13 +33,12 @@ using ResourceFlow.Application.Services.Company;
 using ResourceFlow.Application.Services.Feedbacks;
 using ResourceFlow.Application.Services.Floors;
 using ResourceFlow.Application.Services.Payments;
-
 using ResourceFlow.Application.Services.ResourceBookings;
-
 using ResourceFlow.Application.Services.Subscriptions;
 using ResourceFlow.Application.Validators.Employee;
+using ResourceFlow.Domain.Entities.Booking;
 using ResourceFlow.Infrastructure.Ef.Repositories;
-using ResourceFlow.Application.Interfaces.ClientMessages;
+using ResourceFlow.Infrastructure.Logging;
 using ResourceFlow.Infrastructure.Persistence.Dapper;
 using ResourceFlow.Infrastructure.Persistence.Dapper.DapperRepositories;
 using ResourceFlow.Infrastructure.Persistence.Dapper.Repositories;
@@ -43,14 +46,10 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 using ResourceFlow.Infrastructure.Persistence.Installers;
 using ResourceFlow.Infrastructure.Services;
 using ResourceFlow.Infrastructure.Services.QRCode;
-
-
+using ResourceFlow.WebAPI.SignalR;
 using System.ComponentModel.Design;
 using System.Data;
 using System.Text.Json.Serialization;
-using ResourceFlow.Infrastructure.Logging;
-using Microsoft.AspNetCore.SignalR;
-using ResourceFlow.WebAPI.SignalR;
 
 
 
@@ -165,6 +164,26 @@ namespace ResourceFlow.WebAPI.DI
                           .AllowCredentials();
                 });
             });
+
+
+            // 1️⃣ Build OData EDM model (startup-time)
+            var odataBuilder = new ODataConventionModelBuilder();
+
+            // Register OData entity sets
+            odataBuilder.EntitySet<ResourceBooking>("ResourceBookings");
+
+            // 2️⃣ Register Controllers + OData
+            services.AddControllers()
+                .AddOData(options =>
+                    options
+                        .Select()
+                        .Filter()
+                        .OrderBy()
+                        .Expand()
+                        .Count()
+                        .SetMaxTop(100)
+                        .AddRouteComponents("odata", odataBuilder.GetEdmModel())
+                );
 
 
             // Swagger

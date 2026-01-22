@@ -473,11 +473,15 @@ namespace ResourceFlow.Application.Services.ResourceBookings
 
 
                 var companyId = user.CompanyId.Value;
-
+                var allowedStatuses = new[]
+                            {
+                                BookingStatus.Confirmed,
+                                BookingStatus.Pending,
+                                BookingStatus.Cancelled
+                            };
                 // 2️⃣ Fetch bookings
                 var bookings = _bookingRepo.Queryable()
-                    .Where(x => x.CompanyId == companyId)
-                    .OrderBy(x => x.StartTime)
+                     .Where(x => x.CompanyId == companyId && allowedStatuses.Contains(x.Status)).OrderBy(x => x.StartTime)
                     .Select(x => new ResourceBookingResponseDTO
                     {
                         
@@ -505,6 +509,141 @@ namespace ResourceFlow.Application.Services.ResourceBookings
                 return new Response<List<ResourceBookingResponseDTO>>(500, ex.Message);
             }
 
+        }
+
+        public async Task<Response<List<ResourceBookingResponseDTO>>> ExpireAndGetExpiredBookingsForCompanyAsync(int userId)
+        {
+            try
+            {
+                var user = await _userRepo.SingleOrDefaultAsync(x =>
+                    x.UserId == userId &&
+                    x.IsActive);
+
+                if (user == null || !user.CompanyId.HasValue)
+                    return new Response<List<ResourceBookingResponseDTO>>(
+                        404, "User or company not found");
+
+                // 🔒 Role safety
+                if (user.RoleId !=1)
+                {
+                    return new Response<List<ResourceBookingResponseDTO>>(
+                        403, "Access denied");
+                }
+
+                var companyId = user.CompanyId.Value;
+                var now = DateTime.UtcNow;
+
+                // 1️⃣ Expire company bookings
+                var bookingsToExpire = await _bookingRepo.Queryable()
+                    .Where(b =>
+                        b.CompanyId == companyId &&
+                        b.EndTime <= now &&
+                        b.Status != BookingStatus.Expired)
+                    .ToListAsync();
+
+                foreach (var booking in bookingsToExpire)
+                {
+                    booking.Status = BookingStatus.Expired;
+                    booking.ModifiedAt = now;
+                }
+
+                if (bookingsToExpire.Any())
+                    await _bookingRepo.SaveChangesAsync();
+
+                // 2️⃣ Fetch expired bookings
+                var expiredBookings = await _bookingRepo.Queryable()
+                    .Where(b =>
+                        b.CompanyId == companyId &&
+                        b.Status == BookingStatus.Expired)
+                    .OrderByDescending(b => b.EndTime)
+                    .Select(b => new ResourceBookingResponseDTO
+                    {
+                        BookingId = b.Id,
+                        CompanyId = b.CompanyId,
+                        ResourceId = b.ResourceId,
+                        ResourceTypeId = b.ResourceTypeId,
+                        BookedByUserId = b.BookedByUserId,
+                        StartTime = b.StartTime,
+                        EndTime = b.EndTime,
+                        Status = b.Status.ToString(),
+                        QRCodeValue = b.QRCodeValue,
+                        QrExpiresAt = b.QrExpiresAt
+                    })
+                    .ToListAsync();
+
+                return new Response<List<ResourceBookingResponseDTO>>(
+                    200,
+                    "Company expired bookings fetched successfully",
+                    expiredBookings);
+            }
+            catch (Exception ex)
+            {
+                return new Response<List<ResourceBookingResponseDTO>>(500, ex.Message);
+            }
+        }
+
+
+        public async Task<Response<List<ResourceBookingResponseDTO>>> ExpireAndGetExpiredBookingsForUserAsync(int userId)
+        {
+            try
+            {
+                var user = await _userRepo.SingleOrDefaultAsync(x =>
+                    x.UserId == userId &&
+                    x.IsActive);
+
+                if (user == null)
+                    return new Response<List<ResourceBookingResponseDTO>>(
+                        404, "User not found");
+
+                var now = DateTime.UtcNow;
+
+                // 1️⃣ Expire user bookings
+                var bookingsToExpire = await _bookingRepo.Queryable()
+                    .Where(b =>
+                        b.BookedByUserId == userId &&
+                        b.EndTime <= now &&
+                        b.Status != BookingStatus.Expired)
+                    .ToListAsync();
+
+                foreach (var booking in bookingsToExpire)
+                {
+                    booking.Status = BookingStatus.Expired;
+                    booking.ModifiedAt = now;
+                }
+
+                if (bookingsToExpire.Any())
+                    await _bookingRepo.SaveChangesAsync();
+
+                // 2️⃣ Fetch expired bookings
+                var expiredBookings = await _bookingRepo.Queryable()
+                    .Where(b =>
+                        b.BookedByUserId == userId &&
+                        b.Status == BookingStatus.Expired)
+                    .OrderByDescending(b => b.EndTime)
+                    .Select(b => new ResourceBookingResponseDTO
+                    {
+                        BookingId = b.Id,
+                        CompanyId = b.CompanyId,
+                        ResourceId = b.ResourceId,
+                        ResourceTypeId = b.ResourceTypeId,
+                        BookedByUserId = b.BookedByUserId,
+                        StartTime = b.StartTime,
+                        EndTime = b.EndTime,
+                        Status = b.Status.ToString(),
+                        QRCodeValue = b.QRCodeValue,
+                        QrExpiresAt = b.QrExpiresAt
+                    })
+                    .ToListAsync();
+
+                return new Response<List<ResourceBookingResponseDTO>>(
+                    200,
+                    "User expired bookings fetched successfully",
+                    expiredBookings);
+            }
+            catch (Exception ex)
+            {
+                return new Response<List<ResourceBookingResponseDTO>>(500, ex.Message);
+            }
         }
 
 

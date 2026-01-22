@@ -5,7 +5,7 @@ using ResourceFlow.Application.DTOs.Company;
 using ResourceFlow.Application.Interfaces.Company;
 using ResourceFlow.Domain.Enums.Authorization;
 using ResourceFlow.Infrastructure.Extensions;
-using ResourceFlow.Infrastructure.Services.Authorization;
+
 
 namespace ResourceFlow.WebAPI.Controllers
 {

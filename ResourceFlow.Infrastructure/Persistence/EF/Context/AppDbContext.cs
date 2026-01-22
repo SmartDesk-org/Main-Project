@@ -27,7 +27,7 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Context
         public DbSet<CompanyDetails> CompanyDetails { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Billing> Billing { get; set; }
-        public DbSet<Notification> Notifications { get; set; }
+        
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<CompanySubscription> CompanySubscriptions { get; set; }
         public DbSet<CompanyFloor> CompanyFloors { get; set; }

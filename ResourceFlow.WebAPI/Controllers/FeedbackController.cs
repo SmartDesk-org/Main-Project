@@ -8,7 +8,6 @@ using ResourceFlow.Domain.Enums;
 using ResourceFlow.Domain.Enums.Authorization;
 
 using ResourceFlow.Infrastructure.Extensions;
-using ResourceFlow.Infrastructure.Services.Authorization;
 
 namespace ResourceFlow.WebAPI.Controllers
 {
