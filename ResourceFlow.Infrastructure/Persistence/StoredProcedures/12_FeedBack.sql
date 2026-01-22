@@ -19,7 +19,7 @@
   -- Get feedbacks by company
   EXEC dbo.SP_FEEDBACK @FLAG = 'GET_BY_COMPANY', @CompanyId = 1;
 }*/
-
+GO
 
 CREATE OR ALTER PROCEDURE dbo.Feedback
 (

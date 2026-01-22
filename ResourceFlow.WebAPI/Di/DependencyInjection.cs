@@ -1,8 +1,11 @@
 ﻿
 using FluentValidation;
 using FluentValidation.AspNetCore;
+
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.SignalR;
+
+using Hangfire;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OData.ModelBuilder;
@@ -11,7 +14,6 @@ using ResourceFlow.Application.Common;
 using ResourceFlow.Application.Interfaces;
 using ResourceFlow.Application.Interfaces.Authorization;
 using ResourceFlow.Application.Interfaces.Booking;
-using ResourceFlow.Application.Interfaces.ClientMessages;
 using ResourceFlow.Application.Interfaces.ClientMessages;
 using ResourceFlow.Application.Interfaces.Company;
 using ResourceFlow.Application.Interfaces.Feedbacks;
@@ -124,6 +126,8 @@ namespace ResourceFlow.WebAPI.DI
             services.AddScoped<IResourceBookingPermissionService, ResourceBookingPermissionService>();
             services.AddScoped<IResourcesService, ResourcesService>();
 
+            // services.AddScoped<IStoredProcedureInstaller,StoredProcedureInstaller> ();
+            services.AddScoped<ISubscriptionJob, SubscriptionJob>();
 
 
             services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
@@ -206,6 +210,12 @@ namespace ResourceFlow.WebAPI.DI
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+
+            services.AddHangfire(config =>
+            config.UseSqlServerStorage(
+                configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddHangfireServer();
 
             return services;
 

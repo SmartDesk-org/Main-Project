@@ -61,6 +61,8 @@ namespace ResourceFlow.WebAPI.Controllers
                 );
             }
             _logger.LogWarning("Login failed. Email: {Email}", dto?.Email);
+            Console.WriteLine("_________________"); Console.WriteLine("from auth controller"); Console.WriteLine(res?.Data?.AccessToken);
+
             return StatusCode(res.StatusCode, res);
         }
 

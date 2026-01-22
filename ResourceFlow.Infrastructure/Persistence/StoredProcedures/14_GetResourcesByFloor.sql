@@ -13,7 +13,7 @@ Execute Command (Example):
 EXEC sp_GetResourcesByFloor @FloorId = 1
 ==========================================================================================
 */
-
+GO
 CREATE OR ALTER  PROCEDURE sp_GetResourcesByFloor
     @FloorId INT
 AS

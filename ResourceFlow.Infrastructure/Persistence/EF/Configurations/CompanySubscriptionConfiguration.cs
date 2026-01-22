@@ -18,8 +18,8 @@ namespace ResourceFlow.Infrastructure.Persistence.EF.Configurations
             builder.HasKey(c => c.Id);
 
             builder.HasOne(c => c.Company)
-                .WithOne(c => c.CompanySubscription)
-                .HasForeignKey<CompanySubscription>(c => c.CompanyId)
+                .WithMany(c => c.CompanySubscriptions)
+                .HasForeignKey(c => c.CompanyId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(u => u.Subscription)

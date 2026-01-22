@@ -19,10 +19,9 @@
   -- Get company by name
   EXEC dbo.SP_COMPANYDETAILS @FLAG = 'GETBYNAME', @NAME = 'ABC Pvt Ltd';
 }*/
+
 GO
-
-
-CREATE OR ALTER   PROCEDURE [dbo].[SP_COMPANYDETAILS]
+CREATE OR ALTER PROCEDURE [dbo].[SP_COMPANYDETAILS]
     @FLAG              VARCHAR(40),
     @COMPANYID         INT              = NULL,
     @NAME              NVARCHAR(200)    = NULL,

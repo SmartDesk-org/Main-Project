@@ -83,7 +83,7 @@ namespace ResourceFlow.Infrastructure.Persistence.Installers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Failed while executing script: {File}", fileName);
+                    _logger.LogError(ex.Message, "Failed while executing script: {File}", fileName);
                     throw; // stop on first failure
                 }
             }

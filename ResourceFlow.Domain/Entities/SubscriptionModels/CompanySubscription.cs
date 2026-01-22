@@ -16,6 +16,8 @@ namespace ResourceFlow.Domain.Entities.SubscriptionModels
         public DateTime EndDate { get; set; }
         public double AmoutToBePaid { get; set; }
         public bool IsActive { get; set; }
+
+        public int UpcomingComSubId { get; set; } = 0;
         public SubscriptionStatus Status { get; set; }
 
         public int EmployeesLimit { get; set; }

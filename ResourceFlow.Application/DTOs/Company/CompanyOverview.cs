@@ -17,8 +17,9 @@ namespace ResourceFlow.Application.DTOs.Company
         public int MeetingRoomsCount { get; set; }
 
         public int EmployeesLimit { get; set; }
-        public int FloorsLimi { get; set; }
+        public int FloorsLimit { get; set; }
         public int DesksLimit { get; set; }
-        public int MeetingRoomsLimi { get; set; }
+        public int MeetingRoomsLimit { get; set; }
+        public DateTime subscriptionEndDate { get; set; }
     }
 }
