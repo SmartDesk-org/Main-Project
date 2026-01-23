@@ -30,9 +30,9 @@ namespace ResourceFlow.WebAPI.Controllers
         public async Task<IActionResult> CreateResource([FromBody] CreateResourceDto dto)
         {
             _logger.LogInformation(
-                "CreateResource request started. FloorId: {FloorId}, ResourceTypeId: {ResourceTypeId}",
+                "CreateResource request started. FloorId: {FloorId}, ResourceName: {ResourceName}",
                 dto.FloorId,
-                dto.ResourceTypeId
+                dto.ResourceName
             );
 
 

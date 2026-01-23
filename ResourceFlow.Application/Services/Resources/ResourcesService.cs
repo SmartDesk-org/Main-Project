@@ -95,22 +95,22 @@ using System.Threading.Tasks;
                 resource.QRCodeImage = qrBase64; // You may need to add this property to Resource entity
 
                 resource.CompanyId = companyId;
-
+            Console.WriteLine("________________");
+            Console.WriteLine($"{dto.ResourceName}");
                 var existing = await _resourceRepo.SingleOrDefaultAsync(
                                                     x => x.CompanyId == companyId &&
                                                     x.FloorId == dto.FloorId &&
                                                     x.ResourceName.ToLower().Trim() == dto.ResourceName.ToLower().Trim() &&
                                                     x.IsDeleted == false);
-                if (existing != null)
+                if (existing !=null )
                     return new Response<CreateResourceDto>(409, "A resource exist in this floor ");
 
                 await _resourceRepo.AddAsync(resource);
+                await _resourceRepo.SaveChangesAsync();
 
-                //_logger.LogInformation(
-                //    resource.Id,
-                //);
+            
 
-                return new Response<CreateResourceDto>(
+            return new Response<CreateResourceDto>(
                     201,"Resource Created Successfully.",
                     dto
                 );
@@ -164,7 +164,7 @@ using System.Threading.Tasks;
 
                 return new Response<UpdateResourcePositionDto>(
                     201,
-                    "Resource Updated sucessfully",
+                    "Resource Updated successfully",
                     dto
                 );
             }
@@ -188,10 +188,10 @@ using System.Threading.Tasks;
 
             try
             {
-                var resources = await _resourceDapperRepo
-                    .GetByFloorsAsync(floorId);
+            var resources = await _resourceDapperRepo
+                .GetByFloorsAsync(floorId);
 
-                if (resources == null || !resources.Any())
+            if (resources == null || !resources.Any())
                 {
                     _logger.LogWarning(
                         "No resources found for floor. FloorId: {FloorId}",
