@@ -10,7 +10,7 @@ using ResourceFlow.Infrastructure.Persistence.EF.Context;
 
 namespace ResourceFlow.WebAPI.Controllers.OData
 {
-    [AllowAnonymous]
+    //[AllowAnonymous]
     public class ResourceBookingsController : ODataController
     {
         private readonly AppDbContext _context;
@@ -19,7 +19,7 @@ namespace ResourceFlow.WebAPI.Controllers.OData
         {
             _context = context;
         }
-
+        [AllowAnonymous]
         // GET /odata/ResourceBookings
         [EnableQuery(MaxTop = 100)]
         public IQueryable<ResourceBooking> Get()

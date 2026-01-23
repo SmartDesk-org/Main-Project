@@ -29,20 +29,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog();
 // Controllers & JSON options
-builder.Services.AddControllers(options =>
-{
-    // 🔒 GLOBAL DENY-BY-DEFAULT
-    var defaultPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
+//builder.Services.AddControllers(options =>
+//{
+//    // 🔒 GLOBAL DENY-BY-DEFAULT
+//    var defaultPolicy = new AuthorizationPolicyBuilder()
+//        .RequireAuthenticatedUser()
+//        .Build();
 
-    options.Filters.Add(new AuthorizeFilter(defaultPolicy));
-})
-.AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.DefaultIgnoreCondition =
-        System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
-});
+//    options.Filters.Add(new AuthorizeFilter(defaultPolicy));
+//})
+//.AddJsonOptions(options =>
+//{
+//    options.JsonSerializerOptions.DefaultIgnoreCondition =
+//        System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+//});
 
 builder.Services.AddEndpointsApiExplorer();
 
