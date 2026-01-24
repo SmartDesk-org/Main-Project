@@ -165,6 +165,14 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
+
+app.UseHangfireDashboard("/hangfire");
+
+RecurringJob.AddOrUpdate<ISubscriptionJob>(
+    "daily-subscription-check",
+    job => job.CheckAndUpdateSubscriptionsAsync(),
+    Cron.Daily
+    );
 //StoredProcedure installer;
 
 var autoInstallEnabled =
